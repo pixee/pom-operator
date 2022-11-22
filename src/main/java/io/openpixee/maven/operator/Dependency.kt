@@ -21,7 +21,7 @@ data class Dependency(
             val elements = str.split(":")
 
             if (elements.size < 3)
-                throw IllegalStateException("Give me 3 elements")
+                throw IllegalStateException("Give me at least 3 elements")
 
             return Dependency(elements[0], elements[1], elements[2])
         }

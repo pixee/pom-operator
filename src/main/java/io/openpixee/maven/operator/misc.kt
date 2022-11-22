@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package io.openpixee.maven.operator
 
 import com.github.zafarkhaja.semver.Version
@@ -96,14 +98,14 @@ internal fun upgradeProperty(c: ProjectModel, propertyName: String) {
             val numberOfAllCurrentMatches = propertyReferenceRE.findAll(c.pomDocument.asXML()).toList().size
 
             if (numberOfAllCurrentMatches > 1) {
-                throw IllegalStateException("Property ${propertyName} is already defined - and used more than once.")
+                throw IllegalStateException("Property $propertyName is already defined - and used more than once.")
             }
         }
     }
 
     val propertyElement = parentPropertyElement.element(propertyName)
 
-    propertyElement.text = c.dependency.version
+    propertyElement.text = c.dependency!!.version
 
     formatNode(propertyElement)
 }
@@ -122,7 +124,7 @@ internal fun propertyName(c: ProjectModel, versionNode: Element): String {
         return firstMatch.value
     }
 
-    return "versions." + c.dependency.artifactId
+    return "versions." + c.dependency!!.artifactId
 }
 
 /**
@@ -132,9 +134,9 @@ internal fun findOutIfUpgradeIsNeeded(c: ProjectModel, versionNode: Element): Bo
     val currentVersionNodeText = resolveVersion(c, versionNode.text!!)
 
     val currentVersion = Version.valueOf(currentVersionNodeText)
-    val newVersion = Version.valueOf(c.dependency.version)
+    val newVersion = Version.valueOf(c.dependency!!.version)
 
-    val versionsAreIncreasing = newVersion.greaterThan(currentVersion)
+    @Suppress("UnnecessaryVariable") val versionsAreIncreasing = newVersion.greaterThan(currentVersion)
 
     return versionsAreIncreasing
 }
@@ -165,7 +167,7 @@ internal fun upgradeVersionNode(c: ProjectModel, versionNode: Element) {
 
         versionNode.text = escapedPropertyName(propertyName)
     } else {
-        versionNode.text = c.dependency.version
+        versionNode.text = c.dependency!!.version
     }
 }
 

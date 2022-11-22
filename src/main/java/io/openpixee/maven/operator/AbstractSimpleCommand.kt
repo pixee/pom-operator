@@ -1,6 +1,6 @@
 package io.openpixee.maven.operator
 
-import io.openpixee.maven.operator.util.Util.selectXPathNodes
+import io.openpixee.maven.operator.Util.selectXPathNodes
 import org.dom4j.Element
 
 /**

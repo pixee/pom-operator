@@ -1,10 +1,10 @@
 package io.openpixee.maven.operator
 
-import io.openpixee.maven.operator.util.Util.selectXPathNodes
+import io.openpixee.maven.operator.Util.selectXPathNodes
 import org.dom4j.Element
 
 /**
- * Represents a POM Upgrade Strategy implicying simply adding a dependency/ section (and optionally a dependencyManagement/ section as well)
+ * Represents a POM Upgrade Strategy by simply adding a dependency/ section (and optionally a dependencyManagement/ section as well)
  */
 val SimpleInsert = object : Command {
     override fun execute(c: ProjectModel): Boolean {
@@ -58,7 +58,7 @@ val SimpleInsert = object : Command {
 
         val groupIdNode = dependencyNode.addElement("groupId")
 
-        groupIdNode.text = c.dependency.groupId
+        groupIdNode.text = c.dependency!!.groupId
 
         val artifactIdNode = dependencyNode.addElement("artifactId")
 

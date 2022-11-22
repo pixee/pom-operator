@@ -32,8 +32,13 @@ class Chain(vararg commands: Command) {
 
     companion object {
         /**
-         * Returns a Pre-Configured Chain with the Defaults
+         * Returns a Pre-Configured Chain with the Defaults for Modifying a POM
          */
-        fun create() = Chain(SimpleUpgrade, SimpleDependencyManagement, SimpleInsert)
+        fun createForModify() = Chain(SimpleUpgrade, SimpleDependencyManagement, SimpleInsert)
+
+        /*
+         * returns a pre-configured chain with the defaults for Querying
+         */
+        fun createForQuery() = Chain()
     }
 }

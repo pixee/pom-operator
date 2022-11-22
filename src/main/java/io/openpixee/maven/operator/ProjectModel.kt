@@ -1,6 +1,6 @@
 package io.openpixee.maven.operator
 
-import io.openpixee.maven.operator.util.Util.selectXPathNodes
+import io.openpixee.maven.operator.Util.selectXPathNodes
 import org.dom4j.Document
 import org.dom4j.Element
 
@@ -11,7 +11,7 @@ import org.dom4j.Element
  */
 class ProjectModel internal constructor(
     val pomDocument: Document,
-    val dependency: Dependency,
+    val dependency: Dependency?,
     val skipIfNewer: Boolean,
     val useProperties: Boolean,
     val activeProfiles: Set<String>,
@@ -36,7 +36,7 @@ class ProjectModel internal constructor(
                     pomDocument.selectXPathNodes(expression)
 
                 val newPropertiesToAppend =
-                    propertiesElements.filter { it is Element }.map { it as Element }
+                    propertiesElements.filterIsInstance<Element>()
                         .flatMap { it.elements() }
                         .associate {
                             it.name to it.text

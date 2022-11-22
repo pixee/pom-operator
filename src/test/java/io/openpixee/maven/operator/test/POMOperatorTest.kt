@@ -3,8 +3,8 @@ package io.openpixee.maven.operator.test
 import io.openpixee.maven.operator.Dependency
 import io.openpixee.maven.operator.POMOperator
 import io.openpixee.maven.operator.ProjectModelFactory
-import io.openpixee.maven.operator.util.Util.buildLookupExpressionForDependency
-import io.openpixee.maven.operator.util.Util.selectXPathNodes
+import io.openpixee.maven.operator.Util.buildLookupExpressionForDependency
+import io.openpixee.maven.operator.Util.selectXPathNodes
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Test

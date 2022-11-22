@@ -61,7 +61,7 @@ class ProjectModelFactory private constructor(
     fun build(): ProjectModel {
         return ProjectModel(
             pomDocument = pomDocument,
-            dependency = dependency!!,
+            dependency = dependency,
             skipIfNewer = skipIfNewer,
             useProperties = useProperties,
             activeProfiles = activeProfiles,

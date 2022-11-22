@@ -1,6 +1,5 @@
-package io.openpixee.maven.operator.util
+package io.openpixee.maven.operator
 
-import io.openpixee.maven.operator.Dependency
 import org.dom4j.Node
 import org.jaxen.SimpleNamespaceContext
 import org.jaxen.XPath

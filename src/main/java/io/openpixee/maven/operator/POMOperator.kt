@@ -6,5 +6,10 @@ package io.openpixee.maven.operator
  */
 object POMOperator {
     @JvmStatic
-    fun modify(projectModel: ProjectModel) = Chain.create().execute(projectModel)
+    fun modify(projectModel: ProjectModel) = Chain.createForModify().execute(projectModel)
+
+
+    @JvmStatic
+    fun queryDependency(projectModel: ProjectModel) = Chain.createForQuery().execute(projectModel)
+
 }
