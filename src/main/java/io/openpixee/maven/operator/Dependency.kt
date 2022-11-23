@@ -8,7 +8,8 @@ data class Dependency(
     val artifactId: String,
     val version: String? = null,
     val classifier: String? = null,
-    val packaging: String? = "jar"
+    val packaging: String? = "jar",
+    val scope: String? = "compile",
 ) {
     override fun toString(): String {
         return listOf(groupId, artifactId, packaging, version).joinToString(":")

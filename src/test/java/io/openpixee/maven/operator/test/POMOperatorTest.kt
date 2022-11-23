@@ -1,6 +1,7 @@
 package io.openpixee.maven.operator.test
 
 import io.openpixee.maven.operator.Dependency
+import io.openpixee.maven.operator.MissingDependencyException
 import io.openpixee.maven.operator.POMOperator
 import io.openpixee.maven.operator.ProjectModelFactory
 import io.openpixee.maven.operator.Util.buildLookupExpressionForDependency
@@ -15,7 +16,15 @@ import java.io.File
  * Unit test for simple App.
  */
 class POMOperatorTest : AbstractTestBase() {
-
+    @Test(expected = MissingDependencyException::class)
+    fun testWithDependencyMissing() {
+        gwt(
+            "case-dependency-missing",
+            ProjectModelFactory.load(
+                POMOperatorTest::class.java.getResource("pom-case-1.xml")!!,
+            )
+        )
+    }
     @Test
     fun testCaseOne() {
         val context = gwt(

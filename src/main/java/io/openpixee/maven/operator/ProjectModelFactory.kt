@@ -11,6 +11,7 @@ import java.net.URL
  * Builder Object for ProjectModel instances
  */
 class ProjectModelFactory private constructor(
+    private var pomPath: URL?,
     private var pomDocument: Document,
     private var dependency: Dependency? = null,
     private var skipIfNewer: Boolean = false,
@@ -18,6 +19,14 @@ class ProjectModelFactory private constructor(
     private var activeProfiles: Set<String> = emptySet(),
     private var overrideIfAlreadyExists: Boolean = false,
 ) {
+    /**
+     * Fluent Setter
+     * @param pomPath pomPath
+     */
+    fun withPomPath(pomPath: URL): ProjectModelFactory = this.apply {
+        this.pomPath = pomPath
+    }
+
     /**
      * Fluent Setter
      *
@@ -60,6 +69,7 @@ class ProjectModelFactory private constructor(
      */
     fun build(): ProjectModel {
         return ProjectModel(
+            pomPath = pomPath,
             pomDocument = pomDocument,
             dependency = dependency,
             skipIfNewer = skipIfNewer,
@@ -74,15 +84,18 @@ class ProjectModelFactory private constructor(
         fun load(`is`: InputStream): ProjectModelFactory {
             val pomDocument = SAXReader().read(`is`)!!
 
-            return ProjectModelFactory(pomDocument)
+            return ProjectModelFactory(pomPath = null, pomDocument = pomDocument)
         }
 
         @JvmStatic
         fun load(f: File) =
-            load(FileInputStream(f))
+            load(f.toURI().toURL())
 
         @JvmStatic
-        fun load(url: URL) =
-            load(url.openStream())
+        fun load(url: URL): ProjectModelFactory {
+            val pomDocument = SAXReader().read(url.openStream())
+
+            return ProjectModelFactory(pomPath = url, pomDocument = pomDocument)
+        }
     }
 }

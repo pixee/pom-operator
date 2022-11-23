@@ -58,11 +58,13 @@ val SimpleInsert = object : Command {
 
         val groupIdNode = dependencyNode.addElement("groupId")
 
-        groupIdNode.text = c.dependency!!.groupId
+        val dep = c.dependency!!
+
+        groupIdNode.text = dep.groupId
 
         val artifactIdNode = dependencyNode.addElement("artifactId")
 
-        artifactIdNode.text = c.dependency.artifactId
+        artifactIdNode.text = dep.artifactId
 
         return dependencyNode
     }

@@ -34,11 +34,11 @@ class Chain(vararg commands: Command) {
         /**
          * Returns a Pre-Configured Chain with the Defaults for Modifying a POM
          */
-        fun createForModify() = Chain(SimpleUpgrade, SimpleDependencyManagement, SimpleInsert)
+        fun createForModify() = Chain(CheckDependencyPresent, SimpleUpgrade, SimpleDependencyManagement, SimpleInsert)
 
         /*
          * returns a pre-configured chain with the defaults for Querying
          */
-        fun createForQuery() = Chain()
+        fun createForQuery() = Chain(QueryByInvoker)
     }
 }

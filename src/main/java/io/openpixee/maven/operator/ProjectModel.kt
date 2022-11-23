@@ -3,6 +3,7 @@ package io.openpixee.maven.operator
 import io.openpixee.maven.operator.Util.selectXPathNodes
 import org.dom4j.Document
 import org.dom4j.Element
+import java.net.URL
 
 /**
  * ProjectModel represents the input parameters for the chain
@@ -10,8 +11,9 @@ import org.dom4j.Element
  * @todo Wrap it into a <pre>Context</pre> interface
  */
 class ProjectModel internal constructor(
+    val pomPath: URL?,
     val pomDocument: Document,
-    val dependency: Dependency?,
+    var dependency: Dependency?,
     val skipIfNewer: Boolean,
     val useProperties: Boolean,
     val activeProfiles: Set<String>,
