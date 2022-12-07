@@ -6,6 +6,7 @@ import io.openpixee.maven.operator.ProjectModelFactory
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
 
@@ -17,7 +18,7 @@ data class TestRepo(
     fun cacheDir() = BASE_CACHE_DIR.resolve("repo-%08X".format(slug.hashCode()))
 
     companion object {
-        val BASE_CACHE_DIR = File(System.getProperty("user.dir") + "/.cache").absoluteFile
+        val BASE_CACHE_DIR : File = File(System.getProperty("user.dir") + "/.cache").absoluteFile
     }
 }
 
@@ -217,7 +218,7 @@ class MassRepoIT {
     }
 
     companion object {
-        val LOGGER = LoggerFactory.getLogger(MassRepoIT::class.java)
+        val LOGGER : Logger = LoggerFactory.getLogger(MassRepoIT::class.java)
     }
 
     init {

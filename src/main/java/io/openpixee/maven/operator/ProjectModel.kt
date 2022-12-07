@@ -8,7 +8,7 @@ import java.net.URL
 /**
  * ProjectModel represents the input parameters for the chain
  *
- * @todo Wrap it into a <pre>Context</pre> interface
+ * @todo consider resolution and also Topological Sort of Properties for cross-property reference
  */
 class ProjectModel internal constructor(
     val pomPath: URL?,

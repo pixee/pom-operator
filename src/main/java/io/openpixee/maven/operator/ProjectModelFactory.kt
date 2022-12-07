@@ -3,7 +3,6 @@ package io.openpixee.maven.operator
 import org.dom4j.Document
 import org.dom4j.io.SAXReader
 import java.io.File
-import java.io.FileInputStream
 import java.io.InputStream
 import java.net.URL
 

@@ -9,7 +9,7 @@ class Chain(vararg commands: Command) {
     /**
      * Internal ArrayList of the Commands
      */
-    private val commandList = ArrayList(commands.toList())
+    val commandList = ArrayList(commands.toList())
 
     /**
      * Executes the Commands in the Chain of Responsibility
@@ -34,11 +34,15 @@ class Chain(vararg commands: Command) {
         /**
          * Returns a Pre-Configured Chain with the Defaults for Modifying a POM
          */
-        fun createForModify() = Chain(CheckDependencyPresent, SimpleUpgrade, SimpleDependencyManagement, SimpleInsert)
+        fun createForModify() =
+            Chain(CheckDependencyPresent, SimpleUpgrade, SimpleDependencyManagement, SimpleInsert)
 
         /*
          * returns a pre-configured chain with the defaults for Querying
          */
-        fun createForQuery() = Chain(QueryByInvoker)
+        fun createForQuery() = Chain(
+            QueryByEmbedder(),
+            QueryByInvoker()
+        )
     }
 }
