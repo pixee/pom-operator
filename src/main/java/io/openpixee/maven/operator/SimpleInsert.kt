@@ -1,6 +1,8 @@
 package io.openpixee.maven.operator
 
+import io.openpixee.maven.operator.Util.formatNode
 import io.openpixee.maven.operator.Util.selectXPathNodes
+import io.openpixee.maven.operator.Util.upgradeVersionNode
 import org.dom4j.Element
 
 /**
@@ -10,6 +12,7 @@ val SimpleInsert = object : Command {
     override fun execute(c: ProjectModel): Boolean {
         val dependencyManagementNode =
             c.resultPom.selectXPathNodes("/m:project/m:dependencyManagement")
+
         val elementsToFormat: MutableList<Element> = arrayListOf()
 
         if (dependencyManagementNode.isEmpty()) {
@@ -45,7 +48,6 @@ val SimpleInsert = object : Command {
 
         return true
     }
-
 
     /**
      * Creates the XML Elements for a given dependency

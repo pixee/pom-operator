@@ -12,6 +12,11 @@ import java.util.*
  *
  */
 abstract class AbstractSimpleQueryCommand : AbstractSimpleCommand() {
+    /**
+     * Generates a temporary file path used to store the output of the <pre>dependency:tree</pre> mojo
+     *
+     * @param pomFilePath POM Original File Path
+     */
     protected fun getOutputPath(pomFilePath: File): File {
         val basePath = pomFilePath.parentFile
 
@@ -57,14 +62,18 @@ abstract class AbstractSimpleQueryCommand : AbstractSimpleCommand() {
          * Can we cache it? If not, lets generate it first
          */
         if (!outputPath.exists()) {
-            extractDependencyTree(outputPath, pomFilePath, c)
+            try {
+                extractDependencyTree(outputPath, pomFilePath, c)
+            } catch (e: InvalidContextException) {
+                return false
+            }
         } else {
             // Using Cached Version
         }
 
         this.result = extractDependencies(outputPath).values
 
-        return false
+        return true
     }
 
     /**

@@ -1,6 +1,8 @@
 package io.openpixee.maven.operator
 
+import io.openpixee.maven.operator.Util.findOutIfUpgradeIsNeeded
 import io.openpixee.maven.operator.Util.selectXPathNodes
+import io.openpixee.maven.operator.Util.upgradeVersionNode
 import org.dom4j.Element
 
 /**
