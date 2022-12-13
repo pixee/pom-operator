@@ -18,6 +18,7 @@ class ProjectModel internal constructor(
     val useProperties: Boolean,
     val activeProfiles: Set<String>,
     val overrideIfAlreadyExists: Boolean,
+    val queryType: QueryType = QueryType.SAFE,
 ) {
     val resultPom: Document = pomDocument.clone() as Document
 

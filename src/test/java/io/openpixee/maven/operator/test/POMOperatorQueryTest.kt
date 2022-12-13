@@ -2,6 +2,7 @@ package io.openpixee.maven.operator.test
 
 import io.openpixee.maven.operator.POMOperator
 import io.openpixee.maven.operator.ProjectModelFactory
+import io.openpixee.maven.operator.QueryType
 import org.junit.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -12,15 +13,18 @@ class POMOperatorQueryTest {
 
     @Test
     fun testBasicQuery() {
-        val context =
-            ProjectModelFactory
-                .load(this.javaClass.getResource("pom-1.xml")!!)
-                .build()
+        QueryType.values().forEach { queryType ->
+            val context =
+                ProjectModelFactory
+                    .load(this.javaClass.getResource("pom-1.xml")!!)
+                    .withQueryType(queryType)
+                    .build()
 
-        val dependencies = POMOperator.queryDependency(context)
+            val dependencies = POMOperator.queryDependency(context)
 
-        LOGGER.debug("Dependencies found: {}", dependencies)
+            LOGGER.debug("Dependencies found: {}", dependencies)
 
-        assertTrue(dependencies.isNotEmpty(), "Dependencies are not empty")
+            assertTrue(dependencies.isNotEmpty(), "Dependencies are not empty")
+        }
     }
 }

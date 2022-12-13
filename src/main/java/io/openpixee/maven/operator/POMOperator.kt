@@ -21,7 +21,7 @@ object POMOperator {
      */
     @JvmStatic
     fun queryDependency(projectModel: ProjectModel): Collection<Dependency> {
-        val chain = Chain.createForQuery()
+        val chain = Chain.createForQuery(projectModel.queryType)
 
         chain.execute(projectModel)
 

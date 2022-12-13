@@ -40,9 +40,17 @@ class Chain(vararg commands: Command) {
         /*
          * returns a pre-configured chain with the defaults for Querying
          */
-        fun createForQuery() = Chain(
-            QueryByEmbedder(),
-            QueryByInvoker()
-        )
+        fun createForQuery(queryType: QueryType = QueryType.SAFE): Chain {
+            val availableCommands = listOf(
+                QueryType.SAFE to { QueryByEmbedder () },
+                QueryType.UNSAFE to { QueryByInvoker() },
+            )
+
+            val commands: List<Command> = availableCommands
+                .filter { it.first == queryType }
+                .map { it.second() }.toList()
+
+            return Chain(*commands.toTypedArray())
+        }
     }
 }

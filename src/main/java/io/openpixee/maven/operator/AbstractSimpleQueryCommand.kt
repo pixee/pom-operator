@@ -58,17 +58,14 @@ abstract class AbstractSimpleQueryCommand : AbstractSimpleCommand() {
 
         val outputPath = getOutputPath(pomFilePath)
 
-        /**
-         * Can we cache it? If not, lets generate it first
-         */
-        if (!outputPath.exists()) {
-            try {
-                extractDependencyTree(outputPath, pomFilePath, c)
-            } catch (e: InvalidContextException) {
-                return false
-            }
-        } else {
-            // Using Cached Version
+        if (outputPath.exists()) {
+            outputPath.delete()
+        }
+
+        try {
+            extractDependencyTree(outputPath, pomFilePath, c)
+        } catch (e: InvalidContextException) {
+            return false
         }
 
         this.result = extractDependencies(outputPath).values
@@ -117,7 +114,7 @@ abstract class AbstractSimpleQueryCommand : AbstractSimpleCommand() {
         }
 
         val request: InvocationRequest = DefaultInvocationRequest().apply {
-            findMavenHomeOrExecutable(this)
+            findMaven(this)
 
             pomFile = pomFilePath
 
@@ -138,21 +135,18 @@ abstract class AbstractSimpleQueryCommand : AbstractSimpleCommand() {
     }
 
     /**
-     * Locates where Maven is at - either via Environment Variable and/or by looking at the path.
+     * Locates where Maven is at - HOME var and main launcher script.
      *
      * @param invocationRequest InvocationRequest to be filled up
      */
-    private fun findMavenHomeOrExecutable(invocationRequest: InvocationRequest) {
+    private fun findMaven(invocationRequest: InvocationRequest) {
         val m2homeEnvVar = System.getenv("M2_HOME")
 
         if (null != m2homeEnvVar) {
             val m2HomeDir = File(m2homeEnvVar)
 
-            if (m2HomeDir.isDirectory) {
+            if (m2HomeDir.isDirectory)
                 invocationRequest.mavenHome = m2HomeDir
-//
-//                return
-            }
         }
 
         val pathElements = System.getenv("PATH").split(":")

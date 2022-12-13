@@ -17,6 +17,7 @@ class ProjectModelFactory private constructor(
     private var useProperties: Boolean = false,
     private var activeProfiles: Set<String> = emptySet(),
     private var overrideIfAlreadyExists: Boolean = false,
+    private var queryType: QueryType = QueryType.SAFE,
 ) {
     /**
      * Fluent Setter
@@ -65,6 +66,15 @@ class ProjectModelFactory private constructor(
 
     /**
      * Fluent Setter
+     *
+     * @param queryType query type
+     */
+    fun withQueryType(queryType: QueryType) = this.apply {
+        this.queryType = queryType
+    }
+
+    /**
+     * Fluent Setter
      */
     fun build(): ProjectModel {
         return ProjectModel(
@@ -74,7 +84,8 @@ class ProjectModelFactory private constructor(
             skipIfNewer = skipIfNewer,
             useProperties = useProperties,
             activeProfiles = activeProfiles,
-            overrideIfAlreadyExists = overrideIfAlreadyExists
+            overrideIfAlreadyExists = overrideIfAlreadyExists,
+            queryType = queryType,
         )
     }
 
