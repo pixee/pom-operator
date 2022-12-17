@@ -105,17 +105,18 @@ class POMOperatorTest : AbstractTestBase() {
             if (SystemUtils.IS_OS_WINDOWS) {
                 listOf("cmd.exe", "/c")
             } else {
-                listOf(
-                    which("mvn")!!.absolutePath,
-                    "-N",
-                    "install:install-file",
-                    "-DgroupId=org.owasp.webgoat",
-                    "-DartifactId=webgoat-parent",
-                    "-Dversion=8.2.3-SNAPSHOT",
-                    "-Dpackaging=pom",
-                    "-Dfile=${pomPath.absolutePath}"
-                )
-            }
+                listOf()
+            } +
+                    listOf(
+                        which("mvn")!!.absolutePath,
+                        "-N",
+                        "install:install-file",
+                        "-DgroupId=org.owasp.webgoat",
+                        "-DartifactId=webgoat-parent",
+                        "-Dversion=8.2.3-SNAPSHOT",
+                        "-Dpackaging=pom",
+                        "-Dfile=${pomPath.absolutePath}"
+                    )
 
         val exitCode = ProcessBuilder(
             *args.toTypedArray()
