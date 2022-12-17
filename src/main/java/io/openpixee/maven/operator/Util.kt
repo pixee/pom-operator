@@ -242,7 +242,7 @@ object Util {
 
     internal fun which(path: String): File? {
         val nativeExecutables: List<String> = if (SystemUtils.IS_OS_WINDOWS) {
-            path.flatMap {  listOf("$it.exe", "$it.bat", "$it.cmd") }.toList()
+            listOf("", ".exe", ".bat", ".cmd").map { path + it }.toList()
         } else {
             listOf(path)
         }
