@@ -6,6 +6,8 @@ import io.openpixee.maven.operator.POMOperator
 import io.openpixee.maven.operator.ProjectModelFactory
 import io.openpixee.maven.operator.Util.buildLookupExpressionForDependency
 import io.openpixee.maven.operator.Util.selectXPathNodes
+import io.openpixee.maven.operator.Util.which
+import org.apache.commons.lang3.SystemUtils
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -25,6 +27,7 @@ class POMOperatorTest : AbstractTestBase() {
             )
         )
     }
+
     @Test
     fun testCaseOne() {
         val context = gwt(
@@ -98,15 +101,24 @@ class POMOperatorTest : AbstractTestBase() {
     fun testCase4() {
         val pomPath = File(POMOperatorTest::class.java.getResource("webgoat-parent.xml")!!.toURI())
 
+        val args =
+            if (SystemUtils.IS_OS_WINDOWS) {
+                listOf("cmd.exe", "/c")
+            } else {
+                listOf(
+                    which("mvn")!!.absolutePath,
+                    "-N",
+                    "install:install-file",
+                    "-DgroupId=org.owasp.webgoat",
+                    "-DartifactId=webgoat-parent",
+                    "-Dversion=8.2.3-SNAPSHOT",
+                    "-Dpackaging=pom",
+                    "-Dfile=${pomPath.absolutePath}"
+                )
+            }
+
         val exitCode = ProcessBuilder(
-            "mvn",
-            "-N",
-            "install:install-file",
-            "-DgroupId=org.owasp.webgoat",
-            "-DartifactId=webgoat-parent",
-            "-Dversion=8.2.3-SNAPSHOT",
-            "-Dpackaging=pom",
-            "-Dfile=${pomPath.absolutePath}"
+            *args.toTypedArray()
         ).start().waitFor()
 
         assertThat("POM install was successful", 0 == exitCode)
