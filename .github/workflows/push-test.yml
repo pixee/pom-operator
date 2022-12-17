@@ -38,16 +38,18 @@ jobs:
       - name: Generate Coverage Badge
         id: jacoco
         uses: cicirello/jacoco-badge-generator@v2
+        if: ${{ matrix.platform == "ubuntu-latest" && !env.ACT }}
         with:
           generate-branches-badge: true
       - name: Log coverage percentage
+        if: ${{ matrix.platform == "ubuntu-latest" && !env.ACT }}
         run: |
           echo "coverage = ${{ steps.jacoco.outputs.coverage }}"
           echo "branch coverage = ${{ steps.jacoco.outputs.branches }}"
       - # When using "Act", disable certain actions, starting with this one
         # See https://github.com/nektos/act#skipping-steps for more details
         name: Commit the JaCoCo badge (if it changed)
-        if: ${{ !env.ACT }}
+        if: ${{ matrix.platform == "ubuntu-latest" && !env.ACT }}
         run: |
           if [[ `git status --porcelain` ]]; then
           git config --global user.name 'Jacoco Coverage Update Action'
@@ -57,13 +59,13 @@ jobs:
           git push
           fi
       - name: Upload JaCoCo coverage report
-        if: ${{ !env.ACT }}
+        if: ${{ matrix.platform == "ubuntu-latest" && !env.ACT }}
         uses: actions/upload-artifact@v2
         with:
           name: jacoco-report
           path: target/site/jacoco/
 
       - name: Deploy (only if on master)
-        if: ${{ github.ref_name == 'master' && !env.ACT }}
+        if: ${{ github.ref_name == 'master' && matrix.platform == "ubuntu-latest" && !env.ACT }}
         run: |
           mvn -N -B deploy -DaltDeploymentRepository=pixee::default::https://pixee.jfrog.io/artifactory/mailman-libs-snapshot
