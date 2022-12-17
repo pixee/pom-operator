@@ -3,6 +3,7 @@ package io.openpixee.maven.operator.test
 import io.openpixee.maven.operator.Dependency
 import io.openpixee.maven.operator.POMOperator
 import io.openpixee.maven.operator.ProjectModelFactory
+import io.openpixee.maven.operator.Util.which
 import org.apache.commons.lang3.SystemUtils
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -195,11 +196,11 @@ class MassRepoIT {
         }
 
         val command = if (SystemUtils.IS_OS_WINDOWS) {
-            listOf("cmd.exe", "/c")
+            listOf(which("cmd")!!.canonicalPath, "/c")
         } else {
             emptyList()
         } + listOf(
-            "mvn",
+            which("mvn")!!.canonicalPath,
             "-B",
             "-f",
             pomPath,

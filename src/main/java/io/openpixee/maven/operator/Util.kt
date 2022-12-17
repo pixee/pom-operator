@@ -4,6 +4,7 @@ package io.openpixee.maven.operator
 
 import com.github.zafarkhaja.semver.Version
 import org.apache.commons.lang3.StringUtils
+import org.apache.commons.lang3.SystemUtils
 import org.apache.commons.lang3.text.StrSubstitutor
 import org.dom4j.Element
 import org.dom4j.Node
@@ -15,6 +16,7 @@ import org.dom4j.tree.DefaultText
 import org.jaxen.SimpleNamespaceContext
 import org.jaxen.XPath
 import org.jaxen.dom4j.Dom4jXPath
+import java.io.File
 import java.io.StringReader
 import java.io.StringWriter
 import java.lang.IllegalStateException
@@ -236,4 +238,44 @@ object Util {
             "m" to "http://maven.apache.org/POM/4.0.0"
         )
     )
+
+
+    internal fun which(path: String): File? {
+        val nativeExecutables: List<String> = if (SystemUtils.IS_OS_WINDOWS) {
+            path.flatMap {  listOf("$it.exe", "$it.bat", "$it.cmd") }.toList()
+        } else {
+            listOf(path)
+        }
+
+        var foundExecutable: File? = null
+
+        val pathContentString = System.getenv("PATH")
+
+        val pathElements = pathContentString.split(File.pathSeparatorChar)
+
+        val possiblePaths = nativeExecutables.flatMap { executable ->
+            pathElements.map { pathElement ->
+                File(File(pathElement), executable)
+            }
+        }
+
+        val isCliCallable: (File) -> Boolean = if (SystemUtils.IS_OS_WINDOWS) { it ->
+            it.exists() && it.isFile
+        } else { it ->
+            it.exists() && it.isFile && it.canExecute()
+        }
+
+        val result = possiblePaths.findLast(isCliCallable)
+
+        if (null == result) {
+            AbstractSimpleQueryCommand.LOGGER.warn(
+                "Unable to find mvn executable (execs: {}, path: {})",
+                nativeExecutables.joinToString("/"),
+                pathContentString
+            )
+        }
+
+        return result
+    }
+
 }

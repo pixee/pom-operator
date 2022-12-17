@@ -1,5 +1,6 @@
 package io.openpixee.maven.operator
 
+import io.openpixee.maven.operator.Util.which
 import org.apache.commons.lang3.SystemUtils
 import org.apache.maven.shared.invoker.DefaultInvocationRequest
 import org.apache.maven.shared.invoker.InvocationRequest
@@ -174,42 +175,12 @@ abstract class AbstractSimpleQueryCommand : AbstractSimpleCommand() {
         /**
          * Step 2: Find Maven Executable given the operating system and PATH variable contents
          */
-        val nativeExecutables: List<String> = if (SystemUtils.IS_OS_UNIX) {
-            listOf("mvn", "mvnw")
-        } else {
-            listOf("mvn.bat", "mvnw.cmd")
-        }
-
-        var foundExecutable: File? = null
-
-        val pathContentString = System.getenv("PATH")
-
-        val pathElements = pathContentString.split(File.pathSeparatorChar)
-
-        val possiblePaths = nativeExecutables.flatMap { executable ->
-            pathElements.map { pathElement ->
-                File(File(pathElement), executable)
-            }
-        }
-
-        val isCliCallable: (File) -> Boolean = if (SystemUtils.IS_OS_WINDOWS) { it ->
-            it.exists() && it.isFile
-        } else { it ->
-            it.exists() && it.isFile && it.canExecute()
-        }
-
-        foundExecutable = possiblePaths.findLast(isCliCallable)
+        val foundExecutable = listOf("mvn", "mvnw").map { which(it) }.firstOrNull()!!
 
         if (null != foundExecutable) {
             invocationRequest.mavenExecutable = foundExecutable
 
             return
-        } else {
-            LOGGER.warn(
-                "Unable to find mvn executable (execs: {}, path: {})",
-                nativeExecutables.joinToString("/"),
-                pathContentString
-            )
         }
 
         throw IllegalStateException("Missing Maven Home")
