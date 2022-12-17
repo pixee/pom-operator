@@ -1,7 +1,10 @@
 package io.openpixee.maven.operator
 
+import org.apache.commons.lang3.SystemUtils
 import org.apache.maven.shared.invoker.DefaultInvocationRequest
 import org.apache.maven.shared.invoker.InvocationRequest
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Paths
 import java.util.*
@@ -140,6 +143,9 @@ abstract class AbstractSimpleQueryCommand : AbstractSimpleCommand() {
      * @param invocationRequest InvocationRequest to be filled up
      */
     private fun findMaven(invocationRequest: InvocationRequest) {
+        /*
+         * Step 1: Locate Maven Home
+         */
         val m2homeEnvVar = System.getenv("M2_HOME")
 
         if (null != m2homeEnvVar) {
@@ -149,15 +155,61 @@ abstract class AbstractSimpleQueryCommand : AbstractSimpleCommand() {
                 invocationRequest.mavenHome = m2HomeDir
         }
 
-        val pathElements = System.getenv("PATH").split(":")
+        /**
+         * Step 1.1: Try to guess if thats the case
+         */
+        if (invocationRequest.mavenHome == null) {
+            val inferredHome = File(SystemUtils.getUserHome(), ".m2")
 
-        val foundExecutable = pathElements.map { File(File(it), "mvn") }
-            .findLast { it.exists() && it.isFile && it.canExecute() }
+            if (!(inferredHome.exists() && inferredHome.isDirectory())) {
+                LOGGER.warn(
+                    "Inferred User Home - which does not exist or not a directory: {}",
+                    inferredHome
+                )
+            }
+
+            invocationRequest.mavenHome = inferredHome
+        }
+
+        /**
+         * Step 2: Find Maven Executable given the operating system and PATH variable contents
+         */
+        val nativeExecutables: List<String> = if (SystemUtils.IS_OS_UNIX) {
+            listOf("mvn", "mvnw")
+        } else {
+            listOf("mvn.bat", "mvnw.cmd")
+        }
+
+        var foundExecutable: File? = null
+
+        val pathContentString = System.getenv("PATH")
+
+        val pathElements = pathContentString.split(File.pathSeparatorChar)
+
+        val possiblePaths = nativeExecutables.flatMap { executable ->
+            pathElements.map { pathElement ->
+                File(File(pathElement), executable)
+            }
+        }
+
+        val isCliCallable: (File) -> Boolean = if (SystemUtils.IS_OS_WINDOWS) { it ->
+            it.exists() && it.isFile
+        } else { it ->
+            it.exists() && it.isFile && it.canExecute()
+        }
+
+        foundExecutable = possiblePaths.findLast(isCliCallable)
 
         if (null != foundExecutable) {
             invocationRequest.mavenExecutable = foundExecutable
 
             return
+        } else {
+            LOGGER.warn(
+                "Unable to find mvn executable (execs: {}, path: {})",
+                nativeExecutables.joinToString("/"),
+                pathContentString
+            )
         }
 
         throw IllegalStateException("Missing Maven Home")
@@ -169,6 +221,8 @@ abstract class AbstractSimpleQueryCommand : AbstractSimpleCommand() {
          */
         val DEPENDENCY_TREE_MOJO_REFERENCE =
             "org.apache.maven.plugins:maven-dependency-plugin:3.3.0:tree"
+
+        val LOGGER: Logger = LoggerFactory.getLogger(AbstractSimpleQueryCommand::class.java)
     }
 
 }
