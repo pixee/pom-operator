@@ -27,7 +27,8 @@ object POMOperator {
 
         val lastCommand = chain.commandList.filterIsInstance<AbstractSimpleQueryCommand>()
             .filter { it.result != null }
-            .last()
+            .lastOrNull()
+            ?: return emptyList()
 
         return lastCommand.result!!
     }

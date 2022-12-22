@@ -87,8 +87,6 @@ object Util {
      * Upserts a given property
      */
     internal fun upgradeProperty(c: ProjectModel, propertyName: String) {
-        // TODO: Handle Profiles
-
         if (null == c.resultPom.rootElement.element("properties")) {
             val propertyElement = c.resultPom.rootElement.addElement("properties")
 
@@ -246,8 +244,6 @@ object Util {
         } else {
             listOf(path)
         }
-
-        var foundExecutable: File? = null
 
         val pathContentString = System.getenv("PATH")
 

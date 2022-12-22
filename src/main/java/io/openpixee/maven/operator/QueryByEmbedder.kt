@@ -1,5 +1,6 @@
 package io.openpixee.maven.operator
 
+import org.apache.commons.io.output.NullOutputStream
 import org.apache.maven.cli.MavenCli
 import org.apache.maven.shared.invoker.InvocationRequest
 import org.apache.maven.shared.invoker.MavenCommandLineBuilder
@@ -26,39 +27,55 @@ class QueryByEmbedder : AbstractSimpleQueryCommand() {
         val invocationRequest: InvocationRequest =
             buildInvocationRequest(outputPath, pomFilePath, c)
 
-        System.setProperty("maven.multiModuleProjectDirectory", pomFilePath.parent)
+        val oldMultimoduleValue = System.getProperty(MAVEN_MULTIMODULE_PROJECT_DIRECTORY)
 
-        val cliBuilderResult = cliBuilder.build(invocationRequest)
+        System.setProperty(MAVEN_MULTIMODULE_PROJECT_DIRECTORY, pomFilePath.parent)
 
-        val cliArgs = cliBuilderResult.commandline.toList().drop(1).toTypedArray()
+        try {
+            val cliBuilderResult = cliBuilder.build(invocationRequest)
 
-        val baosOut = ByteArrayOutputStream()
-        val baosErr = ByteArrayOutputStream()
+            val cliArgs = cliBuilderResult.commandline.toList().drop(1).toTypedArray()
 
-        val result: Int = mavenCli.doMain(
-            cliArgs,
-            pomFilePath.parent,
-            PrintStream(baosOut, true),
-            PrintStream(baosErr, true)
-        )
+            val baosOut =
+                if (LOGGER.isDebugEnabled) ByteArrayOutputStream() else NullOutputStream.NULL_OUTPUT_STREAM
 
-        LOGGER.debug("baosOut: {}", baosOut.toString())
-        LOGGER.debug("baosErr: {}", baosErr.toString())
+            val baosErr =
+                if (LOGGER.isDebugEnabled) ByteArrayOutputStream() else NullOutputStream.NULL_OUTPUT_STREAM
 
-        /**
-         * Sometimes the Embedder will fail - it will return this specific exit code (1) as well as
-         * not generate this file
-         *
-         * If that happens, we'll move to the next strategy (Invoker-based likely) by throwing a
-         * custom exception which is caught inside the Chain#execute method
-         *
-         * @see Chain#execute
-         */
-        if (1 == result && (!outputPath.exists()))
-            throw InvalidContextException()
+            val result: Int = mavenCli.doMain(
+                cliArgs,
+                pomFilePath.parent,
+                PrintStream(baosOut, true),
+                PrintStream(baosErr, true)
+            )
 
-        if (0 != result)
-            throw IllegalStateException("Unexpected status code: %02d".format(result))
+            if (LOGGER.isDebugEnabled) {
+                LOGGER.debug("baosOut: {}", baosOut.toString())
+                LOGGER.debug("baosErr: {}", baosErr.toString())
+            }
+
+            /**
+             * Sometimes the Embedder will fail - it will return this specific exit code (1) as well as
+             * not generate this file
+             *
+             * If that happens, we'll move to the next strategy (Invoker-based likely) by throwing a
+             * custom exception which is caught inside the Chain#execute method
+             *
+             * @see Chain#execute
+             */
+            if (1 == result && (!outputPath.exists()))
+                throw InvalidContextException()
+
+            if (0 != result)
+                throw IllegalStateException("Unexpected status code: %02d".format(result))
+        } finally {
+            if (null != oldMultimoduleValue)
+                System.setProperty(MAVEN_MULTIMODULE_PROJECT_DIRECTORY, oldMultimoduleValue)
+        }
+    }
+
+    companion object {
+        val MAVEN_MULTIMODULE_PROJECT_DIRECTORY = "maven.multiModuleProjectDirectory"
     }
 
 }

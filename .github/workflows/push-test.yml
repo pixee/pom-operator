@@ -41,11 +41,11 @@ jobs:
       - name: Generate Coverage Badge
         id: jacoco
         uses: cicirello/jacoco-badge-generator@v2
-        if: ${{ matrix.platform == 'ubuntu-latest' && !env.ACT }}
+        if: ${{ matrix.platform == 'ubuntu-latest' }}
         with:
           generate-branches-badge: true
       - name: Log coverage percentage
-        if: ${{ matrix.platform == 'ubuntu-latest' && !env.ACT }}
+        if: ${{ matrix.platform == 'ubuntu-latest' }}
         run: |
           echo "coverage = ${{ steps.jacoco.outputs.coverage }}"
           echo "branch coverage = ${{ steps.jacoco.outputs.branches }}"
