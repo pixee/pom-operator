@@ -18,10 +18,19 @@ object POMOperator {
      * Query for all the artifacts mentioned on a POM
      *
      * @param projectModel Project Model (Context) class
+     * @param commandList do not use (required for tests)
      */
     @JvmStatic
-    fun queryDependency(projectModel: ProjectModel): Collection<Dependency> {
+    fun queryDependency(
+        projectModel: ProjectModel,
+        commandList: List<Command> = emptyList()
+    ): Collection<Dependency> {
         val chain = Chain.createForQuery(projectModel.queryType)
+
+        if (commandList.isNotEmpty()) {
+            chain.commandList.clear()
+            chain.commandList.addAll(commandList)
+        }
 
         chain.execute(projectModel)
 

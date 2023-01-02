@@ -1,0 +1,179 @@
+package io.openpixee.maven.operator
+
+import org.apache.maven.model.building.DefaultModelBuilderFactory
+import org.apache.maven.model.building.DefaultModelBuildingRequest
+import org.apache.maven.model.building.FileModelSource
+import org.apache.maven.model.building.ModelBuildingException
+import org.apache.maven.project.ProjectModelResolver
+import org.apache.maven.repository.internal.MavenRepositorySystemUtils
+import org.eclipse.aether.DefaultRepositorySystemSession
+import org.eclipse.aether.RepositorySystem
+import org.eclipse.aether.collection.CollectRequest
+import org.eclipse.aether.connector.basic.BasicRepositoryConnectorFactory
+import org.eclipse.aether.graph.DependencyNode
+import org.eclipse.aether.graph.DependencyVisitor
+import org.eclipse.aether.internal.impl.DefaultRemoteRepositoryManager
+import org.eclipse.aether.repository.LocalRepository
+import org.eclipse.aether.repository.RemoteRepository
+import org.eclipse.aether.transport.file.FileTransporterFactory
+import org.eclipse.aether.transport.http.HttpTransporterFactory
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import java.io.File
+import kotlin.io.path.toPath
+
+/**
+ * This is a resolver that actually embeds much of Maven Logic into that.
+ *
+ * TODO: Support Profiles / Environment Variables
+ * Support Third Party / User-Supplied Repositories
+ */
+class QueryByResolver : AbstractSimpleQueryCommand() {
+    fun newRepositorySystemSession(system: RepositorySystem): DefaultRepositorySystemSession? {
+        val session = MavenRepositorySystemUtils.newSession()
+        val localRepo = LocalRepository("target/local-repo")
+
+        session.localRepositoryManager = system.newLocalRepositoryManager(session, localRepo)
+
+        return session
+    }
+
+
+    companion object {
+        val LOGGER: Logger = LoggerFactory.getLogger(QueryByResolver::class.java)
+    }
+
+    override fun extractDependencyTree(outputPath: File, pomFilePath: File, c: ProjectModel) {
+        TODO("Not yet implemented")
+    }
+
+    override fun execute(c: ProjectModel): Boolean {
+        /*
+         * Aether's components implement org.eclipse.aether.spi.locator.Service to ease manual wiring and using the
+         * prepopulated DefaultServiceLocator, we only need to register the repository connector and transporter
+         * factories.
+         */
+        val locator: org.eclipse.aether.impl.DefaultServiceLocator =
+            MavenRepositorySystemUtils.newServiceLocator()
+        locator.addService<org.eclipse.aether.spi.connector.RepositoryConnectorFactory>(
+            org.eclipse.aether.spi.connector.RepositoryConnectorFactory::class.java,
+            BasicRepositoryConnectorFactory::class.java
+        )
+        locator.addService<org.eclipse.aether.spi.connector.transport.TransporterFactory>(
+            org.eclipse.aether.spi.connector.transport.TransporterFactory::class.java,
+            FileTransporterFactory::class.java
+        )
+        locator.addService<org.eclipse.aether.spi.connector.transport.TransporterFactory>(
+            org.eclipse.aether.spi.connector.transport.TransporterFactory::class.java,
+            HttpTransporterFactory::class.java
+        )
+
+        locator.setErrorHandler(object :
+            org.eclipse.aether.impl.DefaultServiceLocator.ErrorHandler() {
+            override fun serviceCreationFailed(
+                type: Class<*>?,
+                impl: Class<*>?,
+                exception: Throwable
+            ) {
+                LOGGER.error(
+                    "Service creation failed for {} with implementation {}",
+                    type, impl, exception
+                )
+            }
+        })
+
+        val repositorySystem =
+            locator.getService<org.eclipse.aether.RepositorySystem>(org.eclipse.aether.RepositorySystem::class.java)
+
+        val session = newRepositorySystemSession(repositorySystem)
+
+        val modelBuilder = DefaultModelBuilderFactory().newInstance()
+
+        val modelBuildingRequest = DefaultModelBuildingRequest().apply {
+            this.modelSource = FileModelSource(c.pomPath!!.toURI().toPath().toFile())
+            this.modelResolver =  ProjectModelResolver(session, null, repositorySystem, DefaultRemoteRepositoryManager(), emptyList(), null, null)
+        }
+
+        val res = try {
+            modelBuilder.build(modelBuildingRequest)
+        } catch (e: ModelBuildingException) {
+            LOGGER.warn("Oops: ", e)
+
+            return false
+        }
+
+        val deps: List<org.eclipse.aether.graph.Dependency> =
+            if (res.effectiveModel.dependencies != null) {
+                res.effectiveModel.dependencies.map {
+                    org.eclipse.aether.graph.Dependency(
+                        org.eclipse.aether.artifact.DefaultArtifact(
+                            it.groupId,
+                            it.artifactId,
+                            it.classifier,
+                            null,
+                            it.version
+                        ),
+                        it.scope,
+                    )
+                }.toList()
+            } else {
+                emptyList()
+            }
+
+        val managedDeps: List<org.eclipse.aether.graph.Dependency> =
+            if (res.effectiveModel.dependencyManagement != null && res.effectiveModel.dependencyManagement.dependencies != null) {
+                res.effectiveModel.dependencyManagement.dependencies.map {
+                    org.eclipse.aether.graph.Dependency(
+                        org.eclipse.aether.artifact.DefaultArtifact(
+                            it.groupId,
+                            it.artifactId,
+                            it.classifier,
+                            null,
+                            it.version
+                        ),
+                        it.scope,
+                    )
+                }.toList()
+            } else {
+                emptyList()
+            }
+
+        val collectRequest = CollectRequest(deps, managedDeps, null)
+
+        collectRequest.repositories = listOf(
+            RemoteRepository.Builder("central", "default", "https://repo.maven.apache.org/maven2/")
+                .build()
+        )
+
+        val collectResult = repositorySystem.collectDependencies(session, collectRequest)
+
+        val returnList: MutableList<Dependency> = mutableListOf()
+
+        collectResult.root.accept(object : DependencyVisitor {
+            override fun visitEnter(node: DependencyNode?): Boolean {
+                if (null != node && null != node.dependency && null != node.dependency.artifact) {
+                    returnList.add(
+                        Dependency(
+                            groupId = node.dependency.artifact.groupId,
+                            artifactId = node.dependency.artifact.artifactId,
+                            version = node.dependency.artifact.version,
+                            classifier = node.dependency.artifact.classifier,
+                            packaging = node.dependency.artifact.extension,
+                            scope = node.dependency.scope,
+                        )
+                    )
+                }
+
+                return true
+            }
+
+            override fun visitLeave(node: DependencyNode?): Boolean {
+                return true
+            }
+        })
+
+        this.result = returnList.toList()
+
+        return true
+    }
+}

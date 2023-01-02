@@ -1,8 +1,6 @@
 package io.openpixee.maven.operator.test
 
-import io.openpixee.maven.operator.POMOperator
-import io.openpixee.maven.operator.ProjectModelFactory
-import io.openpixee.maven.operator.QueryType
+import io.openpixee.maven.operator.*
 import org.junit.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -41,6 +39,7 @@ class POMOperatorQueryTest {
 
         assertTrue(dependencies.isEmpty(), "Dependencies are empty")
     }
+
     @Test(expected = IllegalStateException::class)
     fun testFailedUnsafeQuery() {
         val context =
@@ -52,5 +51,26 @@ class POMOperatorQueryTest {
         val dependencies = POMOperator.queryDependency(context)
 
         assertTrue(dependencies.isEmpty(), "Dependencies are empty")
+    }
+
+    @Test
+    fun testAllQueryTypes() {
+        listOf("pom-1.xml" /*, "pom-3.xml" */).forEach { pomFile ->
+            Chain.AVAILABLE_QUERY_COMMANDS.forEach {
+                val commandClassName = "io.openpixee.maven.operator.${it.second}"
+
+                val commandListOverride = listOf(Class.forName(commandClassName).newInstance() as Command)
+
+                val context =
+                    ProjectModelFactory
+                        .load(this.javaClass.getResource(pomFile)!!)
+                        .withQueryType(QueryType.UNSAFE)
+                        .build()
+
+                val dependencies = POMOperator.queryDependency(context, commandList = commandListOverride)
+
+                assertTrue(dependencies.isNotEmpty(), "Dependencies are not empty")
+            }
+        }
     }
 }

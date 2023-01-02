@@ -175,7 +175,7 @@ abstract class AbstractSimpleQueryCommand : AbstractSimpleCommand() {
         /**
          * Step 2: Find Maven Executable given the operating system and PATH variable contents
          */
-        val foundExecutable = listOf("mvn", "mvnw").map { which(it) }.firstOrNull()!!
+        val foundExecutable = listOf("mvn", "mvnw").map { which(it) }.firstOrNull()
 
         if (null != foundExecutable) {
             invocationRequest.mavenExecutable = foundExecutable
@@ -183,7 +183,7 @@ abstract class AbstractSimpleQueryCommand : AbstractSimpleCommand() {
             return
         }
 
-        throw IllegalStateException("Missing Maven Home")
+        throw IllegalStateException("Missing Maven Home / Executable")
     }
 
     companion object {
