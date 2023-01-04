@@ -1,10 +1,8 @@
 package io.openpixee.maven.operator
 
-import org.apache.maven.shared.invoker.DefaultInvocationRequest
 import org.apache.maven.shared.invoker.DefaultInvoker
 import org.apache.maven.shared.invoker.InvocationRequest
 import java.io.File
-import java.util.*
 
 class QueryByInvoker : AbstractSimpleQueryCommand() {
 

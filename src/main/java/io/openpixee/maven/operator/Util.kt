@@ -19,7 +19,6 @@ import org.jaxen.dom4j.Dom4jXPath
 import java.io.File
 import java.io.StringReader
 import java.io.StringWriter
-import java.lang.IllegalStateException
 import kotlin.math.ceil
 
 /**

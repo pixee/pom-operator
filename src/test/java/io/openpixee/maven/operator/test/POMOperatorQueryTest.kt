@@ -4,11 +4,10 @@ import io.openpixee.maven.operator.*
 import org.junit.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import java.lang.IllegalStateException
 import kotlin.test.assertTrue
 
 class POMOperatorQueryTest {
-    val LOGGER: Logger = LoggerFactory.getLogger(POMOperatorTest::class.java)
+    private val LOGGER: Logger = LoggerFactory.getLogger(POMOperatorTest::class.java)
 
     @Test
     fun testBasicQuery() {
@@ -55,7 +54,7 @@ class POMOperatorQueryTest {
 
     @Test
     fun testAllQueryTypes() {
-        listOf("pom-1.xml" /*, "pom-3.xml" */).forEach { pomFile ->
+        listOf("pom-1.xml", "pom-3.xml").forEach { pomFile ->
             Chain.AVAILABLE_QUERY_COMMANDS.forEach {
                 val commandClassName = "io.openpixee.maven.operator.${it.second}"
 

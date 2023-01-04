@@ -35,8 +35,7 @@ object POMOperator {
         chain.execute(projectModel)
 
         val lastCommand = chain.commandList.filterIsInstance<AbstractSimpleQueryCommand>()
-            .filter { it.result != null }
-            .lastOrNull()
+            .lastOrNull { it.result != null }
             ?: return emptyList()
 
         return lastCommand.result!!

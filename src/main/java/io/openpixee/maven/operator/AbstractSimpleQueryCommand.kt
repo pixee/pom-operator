@@ -162,7 +162,7 @@ abstract class AbstractSimpleQueryCommand : AbstractSimpleCommand() {
         if (invocationRequest.mavenHome == null) {
             val inferredHome = File(SystemUtils.getUserHome(), ".m2")
 
-            if (!(inferredHome.exists() && inferredHome.isDirectory())) {
+            if (!(inferredHome.exists() && inferredHome.isDirectory)) {
                 LOGGER.warn(
                     "Inferred User Home - which does not exist or not a directory: {}",
                     inferredHome
@@ -190,7 +190,7 @@ abstract class AbstractSimpleQueryCommand : AbstractSimpleCommand() {
         /**
          * Mojo Reference
          */
-        val DEPENDENCY_TREE_MOJO_REFERENCE =
+        const val DEPENDENCY_TREE_MOJO_REFERENCE =
             "org.apache.maven.plugins:maven-dependency-plugin:3.3.0:tree"
 
         val LOGGER: Logger = LoggerFactory.getLogger(AbstractSimpleQueryCommand::class.java)

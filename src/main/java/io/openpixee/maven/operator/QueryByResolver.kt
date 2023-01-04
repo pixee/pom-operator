@@ -8,6 +8,7 @@ import org.apache.maven.project.ProjectModelResolver
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils
 import org.eclipse.aether.DefaultRepositorySystemSession
 import org.eclipse.aether.RepositorySystem
+import org.eclipse.aether.artifact.DefaultArtifact
 import org.eclipse.aether.collection.CollectRequest
 import org.eclipse.aether.connector.basic.BasicRepositoryConnectorFactory
 import org.eclipse.aether.graph.DependencyNode
@@ -26,12 +27,18 @@ import kotlin.io.path.toPath
  * This is a resolver that actually embeds much of Maven Logic into that.
  *
  * TODO: Support Profiles / Environment Variables
- * Support Third Party / User-Supplied Repositories
+ * Support Third Party / User-Supplied Repositories (right now it only supports central)
  */
 class QueryByResolver : AbstractSimpleQueryCommand() {
-    fun newRepositorySystemSession(system: RepositorySystem): DefaultRepositorySystemSession? {
+    private val localRepo = LocalRepository(
+        File(
+            System.getProperty("user.home"),
+            ".m2/repository"
+        ).absolutePath
+    ) // "target/local-repo")
+
+    private fun newRepositorySystemSession(system: RepositorySystem): DefaultRepositorySystemSession? {
         val session = MavenRepositorySystemUtils.newSession()
-        val localRepo = LocalRepository("target/local-repo")
 
         session.localRepositoryManager = system.newLocalRepositoryManager(session, localRepo)
 
@@ -40,7 +47,7 @@ class QueryByResolver : AbstractSimpleQueryCommand() {
 
 
     companion object {
-        val LOGGER: Logger = LoggerFactory.getLogger(QueryByResolver::class.java)
+        private val LOGGER: Logger = LoggerFactory.getLogger(QueryByResolver::class.java)
     }
 
     override fun extractDependencyTree(outputPath: File, pomFilePath: File, c: ProjectModel) {
@@ -82,16 +89,47 @@ class QueryByResolver : AbstractSimpleQueryCommand() {
             }
         })
 
+        val remoteRepository =
+            RemoteRepository.Builder("central", "default", "https://repo.maven.apache.org/maven2/")
+                .build()
+
+        val remoteRepositories = listOf(remoteRepository)
+
         val repositorySystem =
-            locator.getService<org.eclipse.aether.RepositorySystem>(org.eclipse.aether.RepositorySystem::class.java)
+            locator.getService(org.eclipse.aether.RepositorySystem::class.java)
 
         val session = newRepositorySystemSession(repositorySystem)
 
         val modelBuilder = DefaultModelBuilderFactory().newInstance()
 
+        val repositoryManager = DefaultRemoteRepositoryManager()
+
         val modelBuildingRequest = DefaultModelBuildingRequest().apply {
-            this.modelSource = FileModelSource(c.pomPath!!.toURI().toPath().toFile())
-            this.modelResolver =  ProjectModelResolver(session, null, repositorySystem, DefaultRemoteRepositoryManager(), emptyList(), null, null)
+            val pomFile = c.pomPath!!.toURI().toPath().toFile()
+
+            this.activeProfileIds = c.activeProfiles.filterNot { it.startsWith("!") }.toList()
+            this.inactiveProfileIds =
+                c.activeProfiles.filter { it.startsWith("!") }.map { it.substring(1) }.toList()
+
+            this.userProperties = System.getProperties()
+            this.systemProperties = System.getProperties()
+            this.pomFile = pomFile
+
+            this.isProcessPlugins = false
+
+            this.modelSource = FileModelSource(pomFile)
+
+            val modelResolver = ProjectModelResolver(
+                session,
+                null,
+                repositorySystem,
+                repositoryManager,
+                remoteRepositories,
+                null,
+                null
+            )
+
+            this.modelResolver = modelResolver
         }
 
         val res = try {
@@ -102,48 +140,28 @@ class QueryByResolver : AbstractSimpleQueryCommand() {
             return false
         }
 
-        val deps: List<org.eclipse.aether.graph.Dependency> =
-            if (res.effectiveModel.dependencies != null) {
-                res.effectiveModel.dependencies.map {
-                    org.eclipse.aether.graph.Dependency(
-                        org.eclipse.aether.artifact.DefaultArtifact(
-                            it.groupId,
-                            it.artifactId,
-                            it.classifier,
-                            null,
-                            it.version
-                        ),
-                        it.scope,
-                    )
-                }.toList()
-            } else {
-                emptyList()
+        val dependencyToArtifact: (org.apache.maven.model.Dependency) -> org.eclipse.aether.graph.Dependency =
+            {
+                org.eclipse.aether.graph.Dependency(
+                    DefaultArtifact(
+                        it.groupId,
+                        it.artifactId,
+                        it.classifier,
+                        null,
+                        it.version
+                    ),
+                    it.scope,
+                )
             }
+
+        val deps: List<org.eclipse.aether.graph.Dependency> =
+            res.effectiveModel.dependencies?.map(dependencyToArtifact)?.toList() ?: emptyList()
 
         val managedDeps: List<org.eclipse.aether.graph.Dependency> =
-            if (res.effectiveModel.dependencyManagement != null && res.effectiveModel.dependencyManagement.dependencies != null) {
-                res.effectiveModel.dependencyManagement.dependencies.map {
-                    org.eclipse.aether.graph.Dependency(
-                        org.eclipse.aether.artifact.DefaultArtifact(
-                            it.groupId,
-                            it.artifactId,
-                            it.classifier,
-                            null,
-                            it.version
-                        ),
-                        it.scope,
-                    )
-                }.toList()
-            } else {
-                emptyList()
-            }
+            res.effectiveModel.dependencyManagement?.dependencies?.map(dependencyToArtifact)
+                ?.toList() ?: emptyList()
 
-        val collectRequest = CollectRequest(deps, managedDeps, null)
-
-        collectRequest.repositories = listOf(
-            RemoteRepository.Builder("central", "default", "https://repo.maven.apache.org/maven2/")
-                .build()
-        )
+        val collectRequest = CollectRequest(deps, managedDeps, remoteRepositories)
 
         val collectResult = repositorySystem.collectDependencies(session, collectRequest)
 
@@ -151,15 +169,15 @@ class QueryByResolver : AbstractSimpleQueryCommand() {
 
         collectResult.root.accept(object : DependencyVisitor {
             override fun visitEnter(node: DependencyNode?): Boolean {
-                if (null != node && null != node.dependency && null != node.dependency.artifact) {
+                node?.dependency?.apply {
                     returnList.add(
                         Dependency(
-                            groupId = node.dependency.artifact.groupId,
-                            artifactId = node.dependency.artifact.artifactId,
-                            version = node.dependency.artifact.version,
-                            classifier = node.dependency.artifact.classifier,
-                            packaging = node.dependency.artifact.extension,
-                            scope = node.dependency.scope,
+                            groupId = this.artifact.groupId,
+                            artifactId = this.artifact.artifactId,
+                            version = this.artifact.version,
+                            classifier = this.artifact.classifier,
+                            packaging = this.artifact.extension,
+                            scope = this.scope,
                         )
                     )
                 }
@@ -176,4 +194,5 @@ class QueryByResolver : AbstractSimpleQueryCommand() {
 
         return true
     }
+
 }

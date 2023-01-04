@@ -57,8 +57,7 @@ class Chain(vararg commands: Command) {
          */
         fun createForQuery(queryType: QueryType = QueryType.SAFE): Chain {
             val commands: List<Command> = AVAILABLE_QUERY_COMMANDS
-                .filter { it.first == queryType }
-                .map {
+                .filter { it.first == queryType }.mapNotNull {
                     val commandClassName = "io.openpixee.maven.operator.${it.second}"
 
                     try {
@@ -69,7 +68,6 @@ class Chain(vararg commands: Command) {
                         null
                     }
                 }
-                .filterNotNull()
                 .toList()
 
             if (commands.isEmpty())

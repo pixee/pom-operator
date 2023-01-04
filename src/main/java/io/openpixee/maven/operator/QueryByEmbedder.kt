@@ -14,8 +14,6 @@ import java.io.PrintStream
  * Uses Maven Embedder to Implement
  */
 class QueryByEmbedder : AbstractSimpleQueryCommand() {
-    val LOGGER: Logger = LoggerFactory.getLogger(QueryByEmbedder::class.java)
-
     /**
      * Runs the "dependency:tree" mojo - but using Embedder instead.
      */
@@ -75,7 +73,8 @@ class QueryByEmbedder : AbstractSimpleQueryCommand() {
     }
 
     companion object {
-        val MAVEN_MULTIMODULE_PROJECT_DIRECTORY = "maven.multiModuleProjectDirectory"
-    }
+        const val MAVEN_MULTIMODULE_PROJECT_DIRECTORY = "maven.multiModuleProjectDirectory"
 
+        private val LOGGER: Logger = LoggerFactory.getLogger(QueryByEmbedder::class.java)
+    }
 }

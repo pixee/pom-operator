@@ -8,7 +8,7 @@ import java.util.List;
 
 import io.openpixee.maven.operator.Util;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class POMOperatorJavaIT {
   @Test

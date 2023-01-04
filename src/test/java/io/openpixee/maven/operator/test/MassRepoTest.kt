@@ -44,7 +44,7 @@ class MassRepoIT {
     questdb/questdb
      */
 
-    val repos = listOf(
+    private val repos = listOf(
         TestRepo(
             "apache/pulsar",
             pomPath = "pulsar-broker/pom.xml"
