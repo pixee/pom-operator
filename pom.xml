@@ -27,9 +27,14 @@
     <distributionManagement>
         <repository>
             <id>pixee-libs-release</id>
-            <name>pixee-libs-release</name>
+            <name>a0cpnsoovnjqt-artifactory-primary-0-releases</name>
             <url>https://pixee.jfrog.io/artifactory/mailman</url>
         </repository>
+        <snapshotRepository>
+            <id>pixee-libs-snapshot</id>
+            <name>a0cpnsoovnjqt-artifactory-primary-0-snapshots</name>
+            <url>https://pixee.jfrog.io/artifactory/mailman</url>
+        </snapshotRepository>
     </distributionManagement>
 
     <dependencies>
