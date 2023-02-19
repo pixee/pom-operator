@@ -35,11 +35,11 @@ class POMOperatorTest : AbstractTestBase() {
                 .build()
 
             if (POMOperator.modify(projectModel)) {
-                val resultPomAsXml = projectModel.resultPom.asXML()
+                val resultPomAsXml = projectModel.resultPomBytes
 
                 LOGGER.debug("resultPomAsXml: {}", resultPomAsXml)
 
-                testPom.writeText(resultPomAsXml)
+                testPom.writeBytes(resultPomAsXml)
             }
         }
 
