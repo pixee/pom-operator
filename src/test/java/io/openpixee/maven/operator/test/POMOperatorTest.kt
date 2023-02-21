@@ -26,7 +26,8 @@ class POMOperatorTest : AbstractTestBase() {
 
         val testPom = File.createTempFile("pom", ".xml")
 
-        POMOperatorTest::class.java.getResourceAsStream("sample-bad-pom.xml")!!.copyTo(testPom.outputStream())
+        POMOperatorTest::class.java.getResourceAsStream("sample-bad-pom.xml")!!
+            .copyTo(testPom.outputStream())
 
         deps.forEach { d ->
             val projectModel = ProjectModelFactory.load(testPom)
@@ -43,9 +44,18 @@ class POMOperatorTest : AbstractTestBase() {
             }
         }
 
-        val resolvedDeps = POMOperator.queryDependency(ProjectModelFactory.load(testPom).withQueryType(QueryType.SAFE).build())
+        val resolvedDeps = POMOperator.queryDependency(
+            ProjectModelFactory.load(testPom).withQueryType(QueryType.SAFE).build()
+        )
+
+        val testPomContents = testPom.readText()
 
         assertTrue(3 == resolvedDeps.size, "Must have three dependencies")
+        assertTrue(testPomContents.contains("<!--"), "Must have a comment inside")
+        assertTrue(
+            testPomContents.contains("         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n"),
+            "Must have a formatted attribute spanning a whole line inside"
+        )
     }
 
     @Test(expected = MissingDependencyException::class)
