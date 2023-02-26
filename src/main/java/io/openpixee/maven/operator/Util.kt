@@ -12,6 +12,7 @@ import org.dom4j.Text
 import org.dom4j.io.OutputFormat
 import org.dom4j.io.SAXReader
 import org.dom4j.io.XMLWriter
+import org.dom4j.tree.DefaultElement
 import org.dom4j.tree.DefaultText
 import org.jaxen.SimpleNamespaceContext
 import org.jaxen.XPath
@@ -30,7 +31,11 @@ object Util {
      */
     internal fun formatNode(node: Element) {
         val parent = node.parent
-        //val siblings = parent.content()
+        val siblings = parent.content()
+
+        val otherElements = siblings.filterIsInstance(DefaultElement::class.java)
+
+        val doIHaveSiblings = otherElements.indexOf(node) > 0
 
         val indentLevel = findIndentLevel(node)
 
@@ -50,11 +55,18 @@ object Util {
 
         val newElement = SAXReader().read(StringReader(content)).rootElement.clone() as Element
 
-        parent.remove(node)
+        val myIndexAtSiblings = siblings.indexOf(node)
 
-        parent.add(DefaultText("\n" + StringUtils.repeat(" ", indentLevel)))
-        parent.add(newElement)
-        parent.add(DefaultText("\n" + StringUtils.repeat(" ", ((indentLevel - 1) / 2))))
+        val lastElement = doIHaveSiblings && (otherElements.last() == node)
+
+        siblings.remove(node)
+
+        siblings.add(myIndexAtSiblings, DefaultText("\n" + StringUtils.repeat(" ", indentLevel)))
+        siblings.add(myIndexAtSiblings + 1, newElement)
+
+        if (lastElement) {
+            siblings.add(myIndexAtSiblings + 2, DefaultText("\n" + StringUtils.repeat(" ", ((indentLevel - 1) / 2))))
+        }
     }
 
     /**

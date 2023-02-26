@@ -20,7 +20,7 @@ class ProjectModelFactory private constructor(
     private var useProperties: Boolean = false,
     private var activeProfiles: Set<String> = emptySet(),
     private var overrideIfAlreadyExists: Boolean = false,
-    private var queryType: QueryType = QueryType.SAFE,
+    private var queryType: QueryType = QueryType.NONE,
 ) {
     /**
      * Fluent Setter

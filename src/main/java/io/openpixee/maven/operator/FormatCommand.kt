@@ -8,6 +8,7 @@ import java.nio.charset.Charset
 import javax.xml.stream.XMLInputFactory
 import javax.xml.stream.events.StartDocument
 import javax.xml.stream.events.StartElement
+import kotlin.streams.toList
 
 /**
  * This Command handles Formatting - particularly storing the original document preamble (the Processing Instruction and the first XML Element contents),
@@ -25,6 +26,11 @@ class FormatCommand : AbstractSimpleCommand() {
      */
     private var preamble: String = ""
 
+    /**
+     * Afterword - if needed
+     */
+    private var suffix: String = ""
+
     override fun execute(c: ProjectModel): Boolean {
         /**
          * Performs a StAX Parsing to Grab the first element
@@ -32,6 +38,9 @@ class FormatCommand : AbstractSimpleCommand() {
         val inputFactory = XMLInputFactory.newInstance()
         val eventReader = inputFactory.createXMLEventReader(c.originalPom.inputStream())
 
+        /**
+         * Parse, while grabbing its preamble and encoding
+         */
         while (true) {
             val event = eventReader.nextEvent()
 
@@ -56,6 +65,12 @@ class FormatCommand : AbstractSimpleCommand() {
             if (! eventReader.hasNext())
                 throw IllegalStateException("Couldn't find document start")
         }
+
+        val lastLine = String(c.originalPom, this.charset)
+
+        val lastLineTrimmed = lastLine.trimEnd()
+
+        this.suffix = lastLine.substring(lastLineTrimmed.length)
 
         return super.execute(c)
     }
@@ -89,7 +104,7 @@ class FormatCommand : AbstractSimpleCommand() {
 
                 var offset = startElementEvent.location.characterOffset
 
-                xmlRepresentation = this.preamble + xmlRepresentation.substring(offset)
+                xmlRepresentation = this.preamble + xmlRepresentation.substring(offset) + this.suffix
 
                 break
             }

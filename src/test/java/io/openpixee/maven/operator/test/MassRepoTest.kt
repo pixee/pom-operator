@@ -15,7 +15,8 @@ import java.io.File
 data class TestRepo(
     val slug: String,
     val branch: String = "master",
-    val pomPath: String = "pom.xml"
+    val pomPath: String = "pom.xml",
+    val useProperties: Boolean = false,
 ) {
     fun cacheDir() = BASE_CACHE_DIR.resolve("repo-%08X".format(slug.hashCode()))
 
@@ -45,6 +46,10 @@ class MassRepoIT {
      */
 
     private val repos = listOf(
+        TestRepo(
+            "CRRogo/vert.x",
+            useProperties = true,
+        ) to "io.openpixee:java-security-toolkit:1.0.0",
         TestRepo(
             "apache/pulsar",
             pomPath = "pulsar-broker/pom.xml"
@@ -157,6 +162,7 @@ class MassRepoIT {
         val context = ProjectModelFactory.load(File(sampleRepo.cacheDir(), sampleRepo.pomPath))
             .withDependency(dependencyToUpgrade)
             .withSkipIfNewer(false)
+            .withUseProperties(sampleRepo.useProperties)
             .build()
 
         POMOperator.modify(context)
@@ -164,7 +170,7 @@ class MassRepoIT {
         val alternatePomFile =
             File(File(sampleRepo.cacheDir(), sampleRepo.pomPath).parent, "pom-modified.xml")
 
-        alternatePomFile.writeText(context.resultPom.asXML())
+        alternatePomFile.writeBytes(context.resultPomBytes)
 
         val finalDependencies =
             getDependenciesFrom(alternatePomFile.canonicalPath, sampleRepo.cacheDir())
