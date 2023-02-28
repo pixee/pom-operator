@@ -65,7 +65,10 @@ object Util {
         siblings.add(myIndexAtSiblings + 1, newElement)
 
         if (lastElement) {
-            siblings.add(myIndexAtSiblings + 2, DefaultText("\n" + StringUtils.repeat(" ", ((indentLevel - 1) / 2))))
+            siblings.add(
+                myIndexAtSiblings + 2,
+                DefaultText("\n" + StringUtils.repeat(" ", ((indentLevel - 1) / 2)))
+            )
         }
     }
 
@@ -84,10 +87,12 @@ object Util {
                 .filterIsInstance(Text::class.java)
                 .filter { it.text.matches(Regex("\\n+\\s+")) }
 
-            return emptyElements
+            val results = emptyElements
                 .map { it?.text ?: "" }
                 .map { it.trimStart('\r', '\n').length }
-                .max()
+
+            if (results.isNotEmpty())
+                return results.max()
         }
 
         return 2 + findIndentLevel(node.parent)
@@ -118,7 +123,8 @@ object Util {
             if (!c.overrideIfAlreadyExists) {
                 val propertyReferenceRE = Regex.fromLiteral("\${$propertyName}")
 
-                val numberOfAllCurrentMatches = propertyReferenceRE.findAll(c.pomDocument.asXML()).toList().size
+                val numberOfAllCurrentMatches =
+                    propertyReferenceRE.findAll(c.pomDocument.asXML()).toList().size
 
                 if (numberOfAllCurrentMatches > 1) {
                     throw IllegalStateException("Property $propertyName is already defined - and used more than once.")
@@ -159,7 +165,8 @@ object Util {
         val currentVersion = Version.valueOf(currentVersionNodeText)
         val newVersion = Version.valueOf(c.dependency!!.version)
 
-        @Suppress("UnnecessaryVariable") val versionsAreIncreasing = newVersion.greaterThan(currentVersion)
+        @Suppress("UnnecessaryVariable") val versionsAreIncreasing =
+            newVersion.greaterThan(currentVersion)
 
         return versionsAreIncreasing
     }
