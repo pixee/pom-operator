@@ -22,7 +22,6 @@
         </dependency>
       </dependencies>
     </dependencyManagement>
- 
     <dependencies>
       <dependency>
         <groupId>org.dom4j</groupId>

@@ -79,11 +79,6 @@ class MassRepoIT {
         TestRepo(
             "bytedeco/javacv"
         ) to "org.jogamp.jocl:jocl-main:2.3.1",
-        TestRepo(
-            "flowable/flowable-engine",
-            branch = "main",
-            pomPath = "modules/flowable-engine-common-api/pom.xml"
-        ) to "org.apache.commons:commons-lang3:3.11",
     )
 
     /**

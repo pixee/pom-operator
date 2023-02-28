@@ -2,8 +2,8 @@ name: Java CI
 
 on:
   push:
-    branches:
-      - '!master'
+    branches-ignore:
+      - 'master'
 
 env:
   MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2"

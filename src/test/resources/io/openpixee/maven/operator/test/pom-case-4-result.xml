@@ -14,64 +14,6 @@
     </properties>
 
     
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <excludeDevtools>true</excludeDevtools>
-                    <!-- See http://docs.spring.io/spring-boot/docs/current/reference/html/howto-build.html#howto-extract-specific-libraries-when-an-executable-jar-runs -->
-                    <requiresUnpack>
-                        <dependency>
-                            <groupId>org.thymeleaf.extra</groupId>
-                            <artifactId>thymeleaf-extras-springsecurity5++</artifactId>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.asciidoctor</groupId>
-                            <artifactId>asciidoctorj</artifactId>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.jruby</groupId>
-                            <artifactId>jruby-complete</artifactId>
-                        </dependency>
-                    </requiresUnpack>
-                    <jvmArguments>
-                        <!-- -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000-->
-                    </jvmArguments>
-                    <fork>true</fork>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                        <configuration>
-                            <classifier>internal</classifier>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-
-
-<dependencyManagement>
-  <dependencies>
-    <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-amqp</artifactId>
-      <version>5.16.2</version>
-    </dependency>
-  </dependencies>
-</dependencyManagement>
-
     <dependencies> 
       <dependency> 
         <groupId>org.owasp.webgoat</groupId>  
@@ -242,4 +184,61 @@
         <artifactId>activemq-amqp</artifactId>
       </dependency>
     </dependencies>
- </project>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludeDevtools>true</excludeDevtools>
+                    <!-- See http://docs.spring.io/spring-boot/docs/current/reference/html/howto-build.html#howto-extract-specific-libraries-when-an-executable-jar-runs -->
+                    <requiresUnpack>
+                        <dependency>
+                            <groupId>org.thymeleaf.extra</groupId>
+                            <artifactId>thymeleaf-extras-springsecurity5++</artifactId>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.asciidoctor</groupId>
+                            <artifactId>asciidoctorj</artifactId>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.jruby</groupId>
+                            <artifactId>jruby-complete</artifactId>
+                        </dependency>
+                    </requiresUnpack>
+                    <jvmArguments>
+                        <!-- -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000-->
+                    </jvmArguments>
+                    <fork>true</fork>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>internal</classifier>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+
+<dependencyManagement>
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-amqp</artifactId>
+      <version>5.16.2</version>
+    </dependency>
+  </dependencies>
+</dependencyManagement>
+</project>

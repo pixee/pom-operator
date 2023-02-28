@@ -51,7 +51,7 @@ object Util {
 
         xmlWriter.write(clonedNode)
 
-        val content = out.toString()
+        val content = out.toString().replace(Regex("\\s+(?:\\r?\\n)"), "\n")
 
         val newElement = SAXReader().read(StringReader(content)).rootElement.clone() as Element
 

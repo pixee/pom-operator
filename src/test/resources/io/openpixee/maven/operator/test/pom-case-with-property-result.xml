@@ -8,9 +8,8 @@
 
     <properties>
         
-    
         <sample.version>1.0.0</sample.version>
-   </properties>
+    </properties>
 
     <profiles>
         <profile>
