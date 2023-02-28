@@ -73,20 +73,24 @@ object Util {
      * Guesses the current indent level of the nearest nodes
      */
     internal fun findIndentLevel(node: Element): Int {
+        if (node.isRootElement)
+            return 0
+
         val siblings = node.parent.content()
         val myIndex = siblings.indexOf(node)
 
         if (myIndex > 0) {
-            val lastElement = siblings.subList(0, myIndex).findLast {
-                (it is Text) && it.text.matches(Regex("\\n+\\s+"))
-            }
+            val emptyElements = siblings.subList(0, myIndex)
+                .filterIsInstance(Text::class.java)
+                .filter { it.text.matches(Regex("\\n+\\s+")) }
 
-            val lastElementText = lastElement?.text ?: ""
-
-            return lastElementText.trimStart('\n').length
+            return emptyElements
+                .map { it?.text ?: "" }
+                .map { it.trimStart('\r', '\n').length }
+                .max()
         }
 
-        return 0
+        return 2 + findIndentLevel(node.parent)
     }
 
     /**
