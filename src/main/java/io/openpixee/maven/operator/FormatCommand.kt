@@ -5,7 +5,6 @@ import org.dom4j.Comment
 import org.dom4j.Element
 import org.dom4j.Text
 import org.dom4j.VisitorSupport
-import org.dom4j.io.SAXWriter
 import org.mozilla.universalchardet.UniversalDetector
 import java.nio.charset.Charset
 import javax.xml.stream.XMLInputFactory
@@ -77,8 +76,6 @@ class FormatCommand : AbstractSimpleCommand() {
         val eventReader = inputFactory.createXMLEventReader(c.originalPom.inputStream())
 
         val indent = " "
-        var indentLength = 2
-
         val freqMap: MutableMap<Int, Int> = mutableMapOf()
 
         /**
@@ -91,7 +88,10 @@ class FormatCommand : AbstractSimpleCommand() {
                 if (StringUtils.isWhitespace(event.asCharacters().data)) {
                     val patterns = event.asCharacters().data.split(*LINE_ENDINGS.toTypedArray())
 
-                    val lengths = patterns
+                    /**
+                     * Updates space frequencies
+                     */
+                    patterns
                         .filter { it.length != 0 }
                         .filter { StringUtils.isAllBlank(it) }
                         .map { it to it.length }
@@ -102,13 +102,13 @@ class FormatCommand : AbstractSimpleCommand() {
             }
         }
 
-        indentLength = freqMap.entries.minBy { it.key }.key
+        val indentLength = freqMap.entries.minBy { it.key }.key
 
         return StringUtils.repeat(indent, indentLength)
     }
 
     private fun parseLineEndings(c: ProjectModel): String {
-        val str = String(c.originalPom.inputStream().readBytes(), c.charset!!)
+        val str = String(c.originalPom.inputStream().readBytes(), c.charset)
 
         return LINE_ENDINGS
             .map { it to str.split(it).size }
@@ -174,8 +174,6 @@ class FormatCommand : AbstractSimpleCommand() {
      * but apply the original formatting as well
      */
     override fun postProcess(c: ProjectModel): Boolean {
-        val writer = SAXWriter()
-
         var xmlRepresentation = c.resultPom.asXML()
 
         /**
@@ -198,7 +196,7 @@ class FormatCommand : AbstractSimpleCommand() {
                  */
                 val startElementEvent = (event as StartElement)
 
-                var offset = startElementEvent.location.characterOffset
+                val offset = startElementEvent.location.characterOffset
 
                 xmlRepresentation =
                     this.preamble + xmlRepresentation.substring(offset) + this.suffix
