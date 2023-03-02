@@ -85,6 +85,8 @@ class MassRepoIT {
      * Checks out - or resets - a stored github repo
      */
     private fun checkoutOrResetCachedRepo(repo: TestRepo) {
+        LOGGER.info("Checkout out $repo into ${repo.cacheDir()}")
+
         if (!repo.cacheDir().exists()) {
             // git clone -b branch github.com/slug/ dir
             val command = arrayOf(

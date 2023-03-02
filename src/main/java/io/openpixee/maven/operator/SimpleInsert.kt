@@ -3,6 +3,7 @@ package io.openpixee.maven.operator
 import io.openpixee.maven.operator.Util.formatNode
 import io.openpixee.maven.operator.Util.selectXPathNodes
 import io.openpixee.maven.operator.Util.upgradeVersionNode
+import org.apache.commons.lang3.StringUtils
 import org.dom4j.Element
 
 /**
@@ -19,9 +20,13 @@ val SimpleInsert = object : Command {
             val newDependencyManagementNode =
                 c.resultPom.rootElement.addElement("dependencyManagement")
 
+            Util.addPadding(c, newDependencyManagementNode)
+
+            val dependencyManagementNode = newDependencyManagementNode.addElement("dependencies")
+
             elementsToFormat.add(newDependencyManagementNode)
 
-            newDependencyManagementNode.addElement("dependencies")
+            dependencyManagementNode
         } else {
             (dependencyManagementNodeList.first() as Element).element("dependencies").apply {
                 elementsToFormat.add(this)
@@ -29,6 +34,8 @@ val SimpleInsert = object : Command {
         }
 
         val dependencyNode = appendCoordinates(dependenciesNode, c)
+
+        elementsToFormat.add(dependencyNode)
 
         val versionNode = dependencyNode.addElement("version")
 
@@ -46,9 +53,10 @@ val SimpleInsert = object : Command {
 
         elementsToFormat.add(rootDependencyNode)
 
-        appendCoordinates(rootDependencyNode, c)
+        elementsToFormat.add(appendCoordinates(rootDependencyNode, c))
 
-        elementsToFormat.forEach { formatNode(it) }
+        elementsToFormat.filterNot { c.originalElements.contains(System.identityHashCode(it)) }
+            .forEach { formatNode(c, it) }
 
         return true
     }
@@ -71,6 +79,8 @@ val SimpleInsert = object : Command {
         val artifactIdNode = dependencyNode.addElement("artifactId")
 
         artifactIdNode.text = dep.artifactId
+
+        Util.addPadding(c, dependenciesNode)
 
         return dependencyNode
     }
