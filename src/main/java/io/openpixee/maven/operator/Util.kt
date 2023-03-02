@@ -9,80 +9,40 @@ import org.apache.commons.lang3.text.StrSubstitutor
 import org.dom4j.Element
 import org.dom4j.Node
 import org.dom4j.Text
-import org.dom4j.io.OutputFormat
-import org.dom4j.io.SAXReader
-import org.dom4j.io.XMLWriter
 import org.dom4j.tree.DefaultText
 import org.jaxen.SimpleNamespaceContext
 import org.jaxen.XPath
 import org.jaxen.dom4j.Dom4jXPath
 import java.io.*
-import kotlin.math.ceil
 
 
 /**
  * Common Utilities
  */
 object Util {
-    /**
-     * Formats a XML Element Node
-     */
-    internal fun formatNode(c: ProjectModel, node: Element) {
-        val indentLength = c.indent.length
+    fun Element.addIndentedElement(c: ProjectModel, name: String): Element {
+        val contentList = this.content()
 
-        val parent = node.parent
-        val siblings = parent.content()
+        val prefix = c.endl + StringUtils.repeat(c.indent, 1 + findIndentLevel(this))
 
-        val otherElements = siblings.filter { it is Element || it is Text }
+        val suffix = c.endl + StringUtils.repeat(c.indent, findIndentLevel(this))
 
-        val doIHaveSiblings = otherElements.indexOf(node) > 0
+        if (contentList.isNotEmpty() && contentList.last() is Text) {
+            val lastElement = contentList.last() as Text
 
-        val indentLevel = findIndentLevel(node)
-
-        val clonedNode = node.clone() as Element
-
-        val out = StringWriter()
-
-        val outputFormat = OutputFormat()
-
-        outputFormat.setIndentSize(indentLength)
-        outputFormat.isNewlines = true
-        outputFormat.isTrimText = true
-        outputFormat.isPadText = false
-
-        val xmlWriter = XMLWriter(out, outputFormat)
-
-        xmlWriter.setIndentLevel(indentLevel)
-
-        xmlWriter.write(clonedNode)
-
-        var content = out.toString()
-
-        content = content
-            .replace(Regex("\\s+(?:\\r?\\n)$"), "")
-
-        content = content
-            .replace(Regex("^\\s*\n"), "\n")
-
-        val newElement = SAXReader().read(StringReader(content)).rootElement.clone() as Element
-
-        val myIndexAtSiblings = siblings.indexOf(node)
-
-        val lastElement = doIHaveSiblings && (otherElements.last() == node)
-
-        siblings.remove(node)
-
-        siblings.add(myIndexAtSiblings, DefaultText("\n" + StringUtils.repeat(" ", indentLevel)))
-        siblings.add(myIndexAtSiblings + 1, newElement)
-
-        if (!lastElement) {
-            siblings.add(
-                myIndexAtSiblings + 2,
-                DefaultText("\n" + StringUtils.repeat(" ", ((indentLevel - 1) / indentLength)))
-            )
+            if (StringUtils.isWhitespace(lastElement.text)) {
+                contentList.remove(contentList.last())
+            }
         }
-    }
 
+        contentList.add(DefaultText(prefix))
+
+        val newElement = this.addElement(name)
+
+        contentList.add(DefaultText(suffix))
+
+        return newElement
+    }
 
     /**
      * Guesses the current indent level of the nearest nodes
@@ -110,41 +70,13 @@ object Util {
      */
     internal fun upgradeProperty(c: ProjectModel, propertyName: String) {
         if (null == c.resultPom.rootElement.element("properties")) {
-            val propertyElement = c.resultPom.rootElement.addElement("properties")
-
-            formatNode(c, propertyElement)
+            c.resultPom.rootElement.addIndentedElement(c, "properties")
         }
 
         val parentPropertyElement = c.resultPom.rootElement.element("properties")
 
         if (null == parentPropertyElement.element(propertyName)) {
-            val blankButNotSpacesOnly: (Text) -> Boolean =
-                { StringUtils.isWhitespace(it.text) && it.text.length > 1 }
-
-            val prevElementIsSpace = parentPropertyElement.content().last() is Text && (
-                    parentPropertyElement.content().filterIsInstance(Text::class.java)
-                        .filter(blankButNotSpacesOnly).size >= 2)
-
-            if (prevElementIsSpace) {
-                val lastFormattingElements =
-                    parentPropertyElement.content().filterIsInstance(Text::class.java)
-                        .filter(blankButNotSpacesOnly).toList()
-
-                val secondToLastElementCloned =
-                    lastFormattingElements[-2 + lastFormattingElements.size].clone() as Text
-                val lastElement = lastFormattingElements[-1 + lastFormattingElements.size]
-
-                parentPropertyElement.content().remove(lastElement)
-
-                parentPropertyElement.content().add(secondToLastElementCloned)
-
-                parentPropertyElement.addElement(propertyName)
-                parentPropertyElement.content().add(lastElement.clone() as Text)
-            } else {
-                val newElement = parentPropertyElement.addElement(propertyName)
-
-                formatNode(c, newElement)
-            }
+            parentPropertyElement.addIndentedElement(c, propertyName)
         } else {
             if (!c.overrideIfAlreadyExists) {
                 val propertyReferenceRE = Regex.fromLiteral("\${$propertyName}")
@@ -161,8 +93,6 @@ object Util {
         val propertyElement = parentPropertyElement.element(propertyName)
 
         propertyElement.text = c.dependency!!.version
-
-        //formatNode(c, propertyElement)
     }
 
     /**
@@ -320,13 +250,5 @@ object Util {
         }
 
         return result
-    }
-
-    fun addPadding(c: ProjectModel, e: Element) {
-        var level = Util.findIndentLevel(e)
-
-        val paddingText = c.endl + StringUtils.repeat(c.indent, level)
-
-        e.addText(paddingText)
     }
 }
