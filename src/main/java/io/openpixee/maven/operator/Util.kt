@@ -20,12 +20,22 @@ import java.io.*
  * Common Utilities
  */
 object Util {
+    /**
+     * Extension Method that easily allows to add an element inside another while
+     * retaining formatting
+     *
+     * @param c ProjectModel / Context
+     * @param name new element ("tag") name
+     * @return created element inside `this` object, already indented after and (optionally) before
+     */
     fun Element.addIndentedElement(c: ProjectModel, name: String): Element {
         val contentList = this.content()
 
-        val prefix = c.endl + StringUtils.repeat(c.indent, 1 + findIndentLevel(this))
+        val indentLevel = findIndentLevel(this)
 
-        val suffix = c.endl + StringUtils.repeat(c.indent, findIndentLevel(this))
+        val prefix = c.endl + StringUtils.repeat(c.indent, 1 + indentLevel)
+
+        val suffix = c.endl + StringUtils.repeat(c.indent, indentLevel)
 
         if (contentList.isNotEmpty() && contentList.last() is Text) {
             val lastElement = contentList.last() as Text
@@ -46,6 +56,8 @@ object Util {
 
     /**
      * Guesses the current indent level of the nearest nodes
+     *
+     * @return indent level
      */
     internal fun findIndentLevel(startingNode: Element): Int {
         var level = 0
@@ -63,12 +75,12 @@ object Util {
     /**
      * Represents a Property Reference - as a regex
      */
-    internal val PROPERTY_REFERENCE_REGEX = Regex("^\\\$\\{(.*)}$")
+    private val PROPERTY_REFERENCE_REGEX = Regex("^\\\$\\{(.*)}$")
 
     /**
      * Upserts a given property
      */
-    internal fun upgradeProperty(c: ProjectModel, propertyName: String) {
+    private fun upgradeProperty(c: ProjectModel, propertyName: String) {
         if (null == c.resultPom.rootElement.element("properties")) {
             c.resultPom.rootElement.addIndentedElement(c, "properties")
         }
@@ -127,7 +139,7 @@ object Util {
         return versionsAreIncreasing
     }
 
-    internal fun resolveVersion(c: ProjectModel, versionText: String): String =
+    private fun resolveVersion(c: ProjectModel, versionText: String): String =
         if (PROPERTY_REFERENCE_REGEX.matches(versionText)) {
             @Suppress("DEPRECATION")
             StrSubstitutor(c.resolvedProperties).replace(versionText)
@@ -138,7 +150,7 @@ object Util {
     /**
      * Escapes a Property Name
      */
-    internal fun escapedPropertyName(propertyName: String): String =
+    private fun escapedPropertyName(propertyName: String): String =
         "\${$propertyName}"
 
     /**
