@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project
         xmlns="http://maven.apache.org/POM/4.0.0"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -63,6 +64,9 @@
             <id>jwayman</id>
             <name>Jeff Wayman</name>
             <email/>
+
+            <!-- we want to break things by making <email /> fail - this comment must be present
+              in fact, here's an extra case: <email   /> -->
         </developer>
         <developer>
             <id>dcowden</id>
@@ -148,6 +152,7 @@
         <xstream.version>1.4.5</xstream.version>
         <!-- do not update necessary for lesson -->
         <zxcvbn.version>1.5.2</zxcvbn.version>
+        <versions.java-security-toolkit>1.0.0</versions.java-security-toolkit>
     </properties>
 
     <dependencyManagement>
@@ -249,6 +254,11 @@
                 <groupId>org.jruby</groupId>
                 <artifactId>jruby</artifactId>
                 <version>9.3.6.0</version>
+            </dependency>
+            <dependency>
+                <groupId>io.openpixee</groupId>
+                <artifactId>java-security-toolkit</artifactId>
+                <version>${versions.java-security-toolkit}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -394,6 +404,10 @@
             <groupId>io.rest-assured</groupId>
             <artifactId>rest-assured</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.openpixee</groupId>
+            <artifactId>java-security-toolkit</artifactId>
         </dependency>
     </dependencies>
 

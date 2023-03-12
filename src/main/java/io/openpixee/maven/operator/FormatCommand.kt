@@ -1,18 +1,20 @@
 package io.openpixee.maven.operator
 
 import org.apache.commons.lang3.StringUtils
-import org.apache.xerces.impl.xpath.regex.Match
-import org.dom4j.io.OutputFormat
-import org.dom4j.io.XMLWriter
 import org.mozilla.universalchardet.UniversalDetector
 import java.io.StringWriter
 import java.nio.charset.Charset
-import java.util.*
+import java.util.BitSet
 import javax.xml.stream.XMLInputFactory
+import javax.xml.stream.XMLOutputFactory
 import javax.xml.stream.events.Characters
+import javax.xml.stream.events.EndElement
 import javax.xml.stream.events.StartDocument
 import javax.xml.stream.events.StartElement
 
+/**
+ * Data Class used to keep track of matches (ranges, content, referring tag name)
+ */
 data class MatchData(
     val range: IntRange,
     val content: String,
@@ -40,6 +42,11 @@ class FormatCommand : AbstractSimpleCommand() {
      */
     private val inputFactory = XMLInputFactory.newInstance()
 
+    /**
+     * StAX OutputFactory
+     */
+    private val outputFactory = XMLOutputFactory.newInstance()
+
     override fun execute(c: ProjectModel): Boolean {
         parseXmlAndCharset(c)
 
@@ -51,9 +58,35 @@ class FormatCommand : AbstractSimpleCommand() {
         return super.execute(c)
     }
 
-    private fun findSingleElementMatchesFrom(pomAsString: String) =
-        RE_EMPTY_ELEMENT.findAll(pomAsString).map {
-            it.range.start to MatchData(
+    private fun elementBitSet(doc: ByteArray): BitSet {
+        val result = BitSet()
+        val eventReader = inputFactory.createXMLEventReader(doc.inputStream())
+        val eventContent = StringWriter()
+        val xmlEventWriter = outputFactory.createXMLEventWriter(eventContent)
+
+        while (eventReader.hasNext()) {
+            val next = eventReader.nextEvent()
+
+            if (next is StartElement || next is EndElement) {
+                val startIndex = next.location.characterOffset
+
+                eventContent.buffer.setLength(0)
+
+                xmlEventWriter.add(next)
+                xmlEventWriter.flush()
+
+                val endIndex = startIndex + eventContent.buffer.length
+
+                result.set(startIndex, startIndex + endIndex)
+            }
+        }
+
+        return result
+    }
+
+    private fun findSingleElementMatchesFrom(pomDocument: String) =
+        RE_EMPTY_ELEMENT.findAll(pomDocument).map {
+            it.range.first to MatchData(
                 range = it.range,
                 content = it.value,
                 elementName = ((it.groups[1]?.value ?: it.groups[2]?.value)!!)
@@ -122,13 +155,13 @@ class FormatCommand : AbstractSimpleCommand() {
                  * Processing Instruction Found - Store its Character Encoding
                  */
                 charset = Charset.forName(event.characterEncodingScheme)
-            } else if (event.isStartElement) {
+            } else if (event.isEndElement) {
                 /**
-                 * First Element ("Tag") found - store its offset
+                 * First End of Element ("Tag") found - store its offset
                  */
-                val startElementEvent = (event as StartElement)
+                val endElementEvent = (event as EndElement)
 
-                val offset = startElementEvent.location.characterOffset
+                val offset = endElementEvent.location.characterOffset
 
                 preamble = c.originalPom.toString(c.charset).substring(0, offset)
 
@@ -160,27 +193,25 @@ class FormatCommand : AbstractSimpleCommand() {
      * but apply the original formatting as well
      */
     override fun postProcess(c: ProjectModel): Boolean {
-        val format = OutputFormat()
+        var xmlRepresentation = c.resultPom.asXML().toString()
 
-        format.encoding = c.charset.name()
-        format.isExpandEmptyElements = true
+        val originalElementMap = elementBitSet(c.originalPom)
+        val targetElementMap = elementBitSet(xmlRepresentation.toByteArray())
 
-        val out = StringWriter()
-        val writer = XMLWriter(out, format)
-        writer.write(c.resultPom)
-        writer.flush()
-
-        var xmlRepresentation = out.toString()
-
-        // Lets find out the original empty elements from the original pom and store into a stack
+        // Let's find out the original empty elements from the original pom and store into a stack
         val elementsToReplace : MutableList<MatchData> = ArrayList<MatchData>().apply{
-            this.addAll(findSingleElementMatchesFrom(c.originalPom.toString(c.charset)).values)
+            val matches = findSingleElementMatchesFrom(c.originalPom.toString(c.charset)).values
+
+            val filteredMatches = matches.filter { originalElementMap[it.range.first] }
+
+            this.addAll(filteredMatches)
         }
 
         // Lets to the replacements backwards on the existing, current pom
         val emptyElements = findSingleElementMatchesFrom(xmlRepresentation)
+            .filter { targetElementMap[it.value.range.first] }
 
-        emptyElements.forEach { index, match ->
+        emptyElements.forEach { (_, match) ->
             val nextMatch = elementsToReplace.removeFirst()
 
             xmlRepresentation = xmlRepresentation.replaceRange(match.range, nextMatch.content)
@@ -200,13 +231,13 @@ class FormatCommand : AbstractSimpleCommand() {
         while (true) {
             val event = eventReader.nextEvent()
 
-            if (event.isStartElement) {
+            if (event.isEndElement) {
                 /**
                  * Apply the formatting and tweak its XML Representation
                  */
-                val startElementEvent = (event as StartElement)
+                val endElementEvent = (event as EndElement)
 
-                val offset = startElementEvent.location.characterOffset
+                val offset = endElementEvent.location.characterOffset
 
                 xmlRepresentation =
                     this.preamble + xmlRepresentation.substring(offset) + this.suffix
@@ -232,6 +263,6 @@ class FormatCommand : AbstractSimpleCommand() {
     companion object {
         val LINE_ENDINGS = setOf("\r\n", "\n", "\r")
 
-        val RE_EMPTY_ELEMENT = Regex("""\s*(?:<(\p{Alnum}+)></\1>|<(\p{Alnum}+)\s{0,}/>)""")
+        val RE_EMPTY_ELEMENT = Regex("""<(\p{Alnum}+)></\1>|<(\p{Alnum}+)\s*/>""")
     }
 }
