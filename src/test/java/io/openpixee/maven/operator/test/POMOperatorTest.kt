@@ -204,6 +204,25 @@ class POMOperatorTest : AbstractTestBase() {
     }
 
     @Test
+    fun testCaseWithEmptyElement() {
+        val dependencyToUpgrade =
+            Dependency("io.openpixee", "java-security-toolkit", version = "1.0.0")
+
+        val context = gwt(
+            "case-5",
+            ProjectModelFactory.load(
+                POMOperatorTest::class.java.getResource("pom-case-5.xml")!!,
+            ).withDependency(dependencyToUpgrade).withUseProperties(true)
+        )
+
+        val resultPomAsString = String(context.resultPomBytes)
+
+        assertTrue(resultPomAsString.contains("<email></email>"), "There must be a dumb empty element")
+        assertTrue(resultPomAsString.contains("<email/>"), "There must be an empty element with zero spaces")
+        assertTrue(resultPomAsString.contains("<email />"), "There must be an empty element with one spaces")
+    }
+
+    @Test
     fun testCaseWithProperty() {
         val dependencyToUpgrade =
             Dependency("org.dom4j", "dom4j", version = "1.0.0")
