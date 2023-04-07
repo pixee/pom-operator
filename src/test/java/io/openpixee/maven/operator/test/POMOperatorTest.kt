@@ -4,7 +4,6 @@ import io.openpixee.maven.operator.*
 import io.openpixee.maven.operator.Util.buildLookupExpressionForDependency
 import io.openpixee.maven.operator.Util.selectXPathNodes
 import io.openpixee.maven.operator.Util.which
-import org.apache.commons.lang3.StringEscapeUtils
 import org.apache.commons.lang3.SystemUtils
 import org.dom4j.DocumentException
 import org.hamcrest.MatcherAssert.assertThat
@@ -417,9 +416,13 @@ class POMOperatorTest : AbstractTestBase() {
 
         val resultPom = context.resultPomBytes.toString(Charset.defaultCharset())
 
-        println(StringEscapeUtils.escapeJava(resultPom))
+        // aldrin: uncomment this to check out formatting - useful for the next section
+        // println(StringEscapeUtils.escapeJava(resultPom))
 
-        assertThat("Document should have a tab-based string", resultPom.contains("\n\t\t<dependency>\n\t\t\t<groupId>org.dom4j</groupId>\n\t\t\t<artifactId>dom4j</artifactId>\n\t\t</dependency>\n"))
+        assertThat(
+            "Document should have a tab-based string",
+            resultPom.contains("\n\t\t<dependency>\n\t\t\t<groupId>org.dom4j</groupId>\n\t\t\t<artifactId>dom4j</artifactId>\n\t\t</dependency>\n")
+        )
     }
 
 }

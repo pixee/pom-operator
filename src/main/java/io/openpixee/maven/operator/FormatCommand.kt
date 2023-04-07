@@ -93,6 +93,13 @@ class FormatCommand : AbstractSimpleCommand() {
             )
         }.sortedByDescending { it.first }.toMap(LinkedHashMap())
 
+    /**
+     * Guesses the indent character (spaces / tabs) and length from the original document
+     * formatting settings
+     *
+     * @param c (project model) where it takes its input pom
+     * @return indent string
+     */
     private fun guessIndent(c: ProjectModel): String {
         val eventReader = inputFactory.createXMLEventReader(c.originalPom.inputStream())
 
@@ -100,7 +107,7 @@ class FormatCommand : AbstractSimpleCommand() {
         val charFreqMap: MutableMap<Char, Int> = mutableMapOf()
 
         /**
-         * Parse, while grabbing whitespace sequences and counting
+         * Parse, while grabbing whitespace sequences and examining it
          */
         while (eventReader.hasNext()) {
             val event = eventReader.nextEvent()
@@ -110,7 +117,7 @@ class FormatCommand : AbstractSimpleCommand() {
                     val patterns = event.asCharacters().data.split(*LINE_ENDINGS.toTypedArray())
 
                     /**
-                     * Updates space frequencies
+                     * Updates space / character frequencies found
                      */
                     val blankPatterns = patterns
                         .filter { it.isNotEmpty() }
@@ -135,11 +142,27 @@ class FormatCommand : AbstractSimpleCommand() {
         /**
          * Assign most frequent indent char
          */
-        val indent : Char = charFreqMap.entries.maxBy { it.value }.key
+        val indentCharacter: Char = charFreqMap.entries.maxBy { it.value }.key
 
+        /**
+         * Casts as a String
+         */
+        val indentcharacterAsString = String(charArrayOf(indentCharacter))
+
+        /**
+         * Picks the length
+         */
         val indentLength = freqMap.entries.minBy { it.key }.key
 
-        return StringUtils.repeat("" + indent, indentLength)
+        /**
+         * Builds the standard indent string (length vs char)
+         */
+        val indentString = StringUtils.repeat(indentcharacterAsString, indentLength)
+
+        /**
+         * Returns it
+         */
+        return indentString
     }
 
     private fun parseLineEndings(c: ProjectModel): String {
