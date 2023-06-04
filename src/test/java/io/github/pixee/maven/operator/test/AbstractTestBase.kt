@@ -18,6 +18,8 @@ import java.net.URLDecoder
 open class AbstractTestBase {
     protected val LOGGER: Logger = LoggerFactory.getLogger(POMOperatorTest::class.java)
 
+    fun getResource(name: String) = this.javaClass.getResource(name)!!
+
     /**
      * Implements a Given-When-Then idiom
      *

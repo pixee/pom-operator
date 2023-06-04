@@ -73,7 +73,15 @@ class Chain(vararg commands: Command) {
          * Returns a Pre-Configured Chain with the Defaults for Modifying a POM
          */
         fun createForModify() =
-            Chain(CheckDependencyPresent, FormatCommand(),  DiscardFormatCommand(), SimpleUpgrade, SimpleDependencyManagement, SimpleInsert)
+            Chain(
+                CheckDependencyPresent,
+                CheckParentPackaging,
+                FormatCommand(),
+                DiscardFormatCommand(),
+                SimpleUpgrade,
+                SimpleDependencyManagement,
+                SimpleInsert
+            )
 
         /**
          * returns a pre-configured chain with the defaults for Querying
