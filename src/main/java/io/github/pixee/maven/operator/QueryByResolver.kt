@@ -29,7 +29,7 @@ import kotlin.io.path.toPath
  * TODO: Support Profiles / Environment Variables
  * Support Third Party / User-Supplied Repositories (right now it only supports central)
  */
-class QueryByResolver : io.github.pixee.maven.operator.AbstractSimpleQueryCommand() {
+class QueryByResolver : AbstractSimpleQueryCommand() {
     private val localRepo = LocalRepository(
         File(
             System.getProperty("user.home"),
@@ -106,7 +106,7 @@ class QueryByResolver : io.github.pixee.maven.operator.AbstractSimpleQueryComman
         val repositoryManager = DefaultRemoteRepositoryManager()
 
         val modelBuildingRequest = DefaultModelBuildingRequest().apply {
-            val pomFile = c.pomPath!!.toURI().toPath().toFile()
+            val pomFile = c.pomFile.pomPath!!.toURI().toPath().toFile()
 
             this.activeProfileIds = c.activeProfiles.filterNot { it.startsWith("!") }.toList()
             this.inactiveProfileIds =

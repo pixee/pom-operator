@@ -54,7 +54,7 @@ open class AbstractTestBase {
 
             assertFalse(
                 "Expected and outcome have differences",
-                getXmlDifferences(context.resultPom, outcome).hasDifferences()
+                getXmlDifferences(context.pomFile.resultPom, outcome).hasDifferences()
             )
         } else {
             val resultFilePath = "src/test/resources/" + this.javaClass.`package`.name.replace(
@@ -70,7 +70,7 @@ open class AbstractTestBase {
 
             LOGGER.warn("File $resultFilePath not found - writing results instead and ignorning assertions at all")
 
-            File(resultFilePath).writeBytes(context.resultPomBytes)
+            File(resultFilePath).writeBytes(context.pomFile.resultPomBytes)
         }
 
         return context

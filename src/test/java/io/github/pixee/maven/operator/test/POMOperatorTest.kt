@@ -20,7 +20,7 @@ import kotlin.test.assertTrue
 class POMOperatorTest : AbstractTestBase() {
     @Test(expected = DocumentException::class)
     fun testWithBrokenPom() {
-        val context = gwt(
+        gwt(
             "broken-pom",
             ProjectModelFactory.load(
                 POMOperatorTest::class.java.getResource("broken-pom.xml")!!,
@@ -49,11 +49,11 @@ class POMOperatorTest : AbstractTestBase() {
                 .build()
 
             if (POMOperator.modify(projectModel)) {
-                val resultPomAsXml = String(projectModel.resultPomBytes)
+                val resultPomAsXml = String(projectModel.pomFile.resultPomBytes)
 
                 LOGGER.debug("resultPomAsXml: {}", resultPomAsXml)
 
-                testPom.writeBytes(projectModel.resultPomBytes)
+                testPom.writeBytes(projectModel.pomFile.resultPomBytes)
             } else {
                 throw IllegalStateException("Code that shouldn't be reached out at all")
             }
@@ -92,11 +92,11 @@ class POMOperatorTest : AbstractTestBase() {
             ).withDependency(Dependency.fromString("org.dom4j:dom4j:2.0.3"))
         )
 
-        val diff = getXmlDifferences(context.pomDocument, context.resultPom)
+        val diff = getXmlDifferences(context.pomFile.pomDocument, context.pomFile.resultPom)
 
         assertThat("Document has differences", diff.hasDifferences())
 
-        val textDiff = getTextDifferences(context.pomDocument, context.resultPom)
+        val textDiff = getTextDifferences(context.pomFile.pomDocument, context.pomFile.resultPom)
 
         LOGGER.debug("textDiff: {}", textDiff)
 
@@ -122,7 +122,7 @@ class POMOperatorTest : AbstractTestBase() {
             ).withDependency(dependencyToUpgradeOnCaseThree).withSkipIfNewer(false)
         )
 
-        val diff = getXmlDifferences(context.pomDocument, context.resultPom)
+        val diff = getXmlDifferences(context.pomFile.pomDocument, context.pomFile.resultPom)
 
         assertThat("Document has differences", diff.hasDifferences())
         assertThat("Document has a single difference", diff.differences.toList().size == 1)
@@ -147,7 +147,7 @@ class POMOperatorTest : AbstractTestBase() {
             ).withDependency(dependencyToUpgrade).withSkipIfNewer(true)
         )
 
-        val diff = getXmlDifferences(context.pomDocument, context.resultPom)
+        val diff = getXmlDifferences(context.pomFile.pomDocument, context.pomFile.resultPom)
 
         assertThat("Document has no differences", !diff.hasDifferences())
     }
@@ -189,7 +189,7 @@ class POMOperatorTest : AbstractTestBase() {
             ).withDependency(dependencyToUpgrade)
         )
 
-        val diff = getXmlDifferences(context.pomDocument, context.resultPom)
+        val diff = getXmlDifferences(context.pomFile.pomDocument, context.pomFile.resultPom)
 
         assertThat("Document has differences", diff.hasDifferences())
 
@@ -214,7 +214,7 @@ class POMOperatorTest : AbstractTestBase() {
             ).withDependency(dependencyToUpgrade).withUseProperties(true)
         )
 
-        val resultPomAsString = String(context.resultPomBytes)
+        val resultPomAsString = String(context.pomFile.resultPomBytes)
 
         assertTrue(
             resultPomAsString.contains("<project\n"),
@@ -251,7 +251,7 @@ class POMOperatorTest : AbstractTestBase() {
             ).withDependency(dependencyToUpgrade).withUseProperties(true)
         )
 
-        val resultPomAsString = String(context.resultPomBytes)
+        val resultPomAsString = String(context.pomFile.resultPomBytes)
 
         assertTrue(
             resultPomAsString.contains("<email></email>"),
@@ -283,10 +283,10 @@ class POMOperatorTest : AbstractTestBase() {
             ).withDependency(dependencyToUpgrade).withUseProperties(true).withSkipIfNewer(true)
         )
 
-        LOGGER.debug("original pom: {}", context.pomDocument.asXML())
-        LOGGER.debug("resulting pom: {}", context.resultPom.asXML())
+        LOGGER.debug("original pom: {}", context.pomFile.pomDocument.asXML())
+        LOGGER.debug("resulting pom: {}", context.pomFile.resultPom.asXML())
 
-        val diff = getXmlDifferences(context.pomDocument, context.resultPom)
+        val diff = getXmlDifferences(context.pomFile.pomDocument, context.pomFile.resultPom)
 
         assertThat("Document has differences", diff.hasDifferences())
 
@@ -386,10 +386,10 @@ class POMOperatorTest : AbstractTestBase() {
 
         POMOperator.modify(context)
 
-        LOGGER.debug("original pom: {}", context.pomDocument.asXML())
-        LOGGER.debug("resulting pom: {}", context.resultPom.asXML())
+        LOGGER.debug("original pom: {}", context.pomFile.pomDocument.asXML())
+        LOGGER.debug("resulting pom: {}", context.pomFile.resultPom.asXML())
 
-        val diff = getXmlDifferences(context.pomDocument, context.resultPom)
+        val diff = getXmlDifferences(context.pomFile.pomDocument, context.pomFile.resultPom)
 
         assertThat("Document has differences", diff.hasDifferences())
 
@@ -414,7 +414,7 @@ class POMOperatorTest : AbstractTestBase() {
 
         POMOperator.modify(context)
 
-        val resultPom = context.resultPomBytes.toString(Charset.defaultCharset())
+        val resultPom = context.pomFile.resultPomBytes.toString(Charset.defaultCharset())
 
         // aldrin: uncomment this to check out formatting - useful for the next section
         // println(StringEscapeUtils.escapeJava(resultPom))

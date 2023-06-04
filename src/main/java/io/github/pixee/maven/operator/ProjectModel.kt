@@ -1,10 +1,7 @@
 package io.github.pixee.maven.operator
 
 import io.github.pixee.maven.operator.Util.selectXPathNodes
-import org.dom4j.Document
 import org.dom4j.Element
-import java.net.URL
-import java.nio.charset.Charset
 
 /**
  * ProjectModel represents the input parameters for the chain
@@ -12,51 +9,63 @@ import java.nio.charset.Charset
  * @todo consider resolution and also Topological Sort of Properties for cross-property reference
  */
 class ProjectModel internal constructor(
-    val originalPom : ByteArray,
-    val pomPath: URL?,
-    val pomDocument: Document,
+    val pomFile: POMDocument,
+
+    val parentPomFiles: List<POMDocument> = emptyList(),
+
     var dependency: Dependency?,
     val skipIfNewer: Boolean,
     val useProperties: Boolean,
     val activeProfiles: Set<String>,
     val overrideIfAlreadyExists: Boolean,
     val queryType: QueryType = QueryType.NONE,
-
-    var charset: Charset,
-    var endl: String,
-    var indent: String,
 ) {
     internal var modifiedByCommand = false
 
-    var resultPomBytes: ByteArray = byteArrayOf()
-
-    internal val resultPom: Document = pomDocument.clone() as Document
+    /**
+     * Involved POM Files
+     *
+     * @todo Currently we only work at two levels - Parent and Child - could be a problem or not
+     * if we employ intermediate levels (e.g., organizational pom, project pom, jar pom)
+     */
+    val allPomFiles: Collection<POMDocument>
+        get() = listOfNotNull(
+            pomFile,
+            *parentPomFiles.toTypedArray()
+        )
 
     val resolvedProperties: Map<String, String> =
         run {
-            val rootProperties =
-                pomDocument.rootElement.elements("properties").flatMap { it.elements() }
-                    .associate {
-                        it.name to it.text
-                    }
             val result: MutableMap<String, String> = LinkedHashMap()
-            result.putAll(rootProperties)
-            val activatedProfiles = activeProfiles.filterNot { it.startsWith("!") }
-            activatedProfiles.forEach { profileName ->
-                val expression =
-                    "/m:project/m:profiles/m:profile[./m:id[text()='${profileName}']]/m:properties"
-                val propertiesElements =
-                    pomDocument.selectXPathNodes(expression)
 
-                val newPropertiesToAppend =
-                    propertiesElements.filterIsInstance<Element>()
-                        .flatMap { it.elements() }
-                        .associate {
-                            it.name to it.text
-                        }
 
-                result.putAll(newPropertiesToAppend)
-            }
+            allPomFiles
+                .reversed() // parent first, children later - thats why its reversed
+                .forEach { pomFile ->
+                    val rootProperties =
+                        pomFile.pomDocument.rootElement.elements("properties")
+                            .flatMap { it.elements() }
+                            .associate {
+                                it.name to it.text
+                            }
+                    result.putAll(rootProperties)
+                    val activatedProfiles = activeProfiles.filterNot { it.startsWith("!") }
+                    activatedProfiles.forEach { profileName ->
+                        val expression =
+                            "/m:project/m:profiles/m:profile[./m:id[text()='${profileName}']]/m:properties"
+                        val propertiesElements =
+                            pomFile.pomDocument.selectXPathNodes(expression)
+
+                        val newPropertiesToAppend =
+                            propertiesElements.filterIsInstance<Element>()
+                                .flatMap { it.elements() }
+                                .associate {
+                                    it.name to it.text
+                                }
+
+                        result.putAll(newPropertiesToAppend)
+                    }
+                }
             result.toMap()
         }
 }

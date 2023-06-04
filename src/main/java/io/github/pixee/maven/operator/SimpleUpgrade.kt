@@ -6,7 +6,7 @@ import io.github.pixee.maven.operator.Util.buildLookupExpressionForDependency
 /**
  * Represents bumping an existing dependency/
  */
-val SimpleUpgrade = object : io.github.pixee.maven.operator.AbstractSimpleCommand() {
+val SimpleUpgrade = object : AbstractSimpleCommand() {
     override fun execute(c: ProjectModel): Boolean {
         val lookupExpressionForDependency =
             buildLookupExpressionForDependency(c.dependency!!)

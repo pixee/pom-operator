@@ -1,13 +1,9 @@
 package io.github.pixee.maven.operator
 
 import io.github.pixee.maven.operator.Util.addIndentedElement
-import io.github.pixee.maven.operator.Util.findIndentLevel
 import io.github.pixee.maven.operator.Util.selectXPathNodes
 import io.github.pixee.maven.operator.Util.upgradeVersionNode
-import org.apache.commons.lang3.StringUtils
 import org.dom4j.Element
-import org.dom4j.Text
-import org.dom4j.tree.DefaultText
 
 /**
  * Represents a POM Upgrade Strategy by simply adding a dependency/ section (and optionally a dependencyManagement/ section as well)
@@ -15,14 +11,17 @@ import org.dom4j.tree.DefaultText
 val SimpleInsert = object : Command {
     override fun execute(c: ProjectModel): Boolean {
         val dependencyManagementNodeList =
-            c.resultPom.selectXPathNodes("/m:project/m:dependencyManagement")
+            c.pomFile.resultPom.selectXPathNodes("/m:project/m:dependencyManagement")
 
         val dependenciesNode = if (dependencyManagementNodeList.isEmpty()) {
             val newDependencyManagementNode =
-                c.resultPom.rootElement.addIndentedElement(c, "dependencyManagement")
+                c.pomFile.resultPom.rootElement.addIndentedElement(
+                    c.pomFile,
+                    "dependencyManagement"
+                )
 
             val dependencyManagementNode =
-                newDependencyManagementNode.addIndentedElement(c, "dependencies")
+                newDependencyManagementNode.addIndentedElement(c.pomFile, "dependencies")
 
             dependencyManagementNode
         } else {
@@ -31,14 +30,15 @@ val SimpleInsert = object : Command {
 
         val dependencyNode = appendCoordinates(dependenciesNode, c)
 
-        val versionNode = dependencyNode.addIndentedElement(c, "version")
+        val versionNode = dependencyNode.addIndentedElement(c.pomFile, "version")
 
         upgradeVersionNode(c, versionNode)
 
-        val dependenciesNodeList = c.resultPom.selectXPathNodes("//m:project/m:dependencies")
+        val dependenciesNodeList =
+            c.pomFile.resultPom.selectXPathNodes("//m:project/m:dependencies")
 
         val rootDependencyNode: Element = if (dependenciesNodeList.isEmpty()) {
-            c.resultPom.rootElement.addIndentedElement(c, "dependencies")
+            c.pomFile.resultPom.rootElement.addIndentedElement(c.pomFile, "dependencies")
         } else if (dependenciesNodeList.size == 1) {
             dependenciesNodeList[0] as Element
         } else {
@@ -57,15 +57,15 @@ val SimpleInsert = object : Command {
         dependenciesNode: Element,
         c: ProjectModel
     ): Element {
-        val dependencyNode = dependenciesNode.addIndentedElement(c, "dependency")
+        val dependencyNode = dependenciesNode.addIndentedElement(c.pomFile, "dependency")
 
-        val groupIdNode = dependencyNode.addIndentedElement(c, "groupId")
+        val groupIdNode = dependencyNode.addIndentedElement(c.pomFile, "groupId")
 
         val dep = c.dependency!!
 
         groupIdNode.text = dep.groupId
 
-        val artifactIdNode = dependencyNode.addIndentedElement(c, "artifactId")
+        val artifactIdNode = dependencyNode.addIndentedElement(c.pomFile, "artifactId")
 
         artifactIdNode.text = dep.artifactId
 

@@ -167,7 +167,7 @@ class MassRepoIT {
         val alternatePomFile =
             File(File(sampleRepo.cacheDir(), sampleRepo.pomPath).parent, "pom-modified.xml")
 
-        alternatePomFile.writeBytes(context.resultPomBytes)
+        alternatePomFile.writeBytes(context.pomFile.resultPomBytes)
 
         val finalDependencies =
             getDependenciesFrom(alternatePomFile.canonicalPath, sampleRepo.cacheDir())
