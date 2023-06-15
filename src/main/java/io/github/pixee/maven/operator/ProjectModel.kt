@@ -34,39 +34,94 @@ class ProjectModel internal constructor(
             *parentPomFiles.toTypedArray()
         )
 
-    val resolvedProperties: Map<String, String> =
+    val resolvedProperties =
         run {
             val result: MutableMap<String, String> = LinkedHashMap()
-
 
             allPomFiles
                 .reversed() // parent first, children later - thats why its reversed
                 .forEach { pomFile ->
                     val rootProperties =
-                        pomFile.pomDocument.rootElement.elements("properties")
-                            .flatMap { it.elements() }
-                            .associate {
-                                it.name to it.text
-                            }
+                        propertiesDefinedOnPomDocument(pomFile)
+
                     result.putAll(rootProperties)
+
                     val activatedProfiles = activeProfiles.filterNot { it.startsWith("!") }
-                    activatedProfiles.forEach { profileName ->
-                        val expression =
-                            "/m:project/m:profiles/m:profile[./m:id[text()='${profileName}']]/m:properties"
-                        val propertiesElements =
-                            pomFile.pomDocument.selectXPathNodes(expression)
 
-                        val newPropertiesToAppend =
-                            propertiesElements.filterIsInstance<Element>()
-                                .flatMap { it.elements() }
-                                .associate {
-                                    it.name to it.text
-                                }
-
-                        result.putAll(newPropertiesToAppend)
+                    val newPropertiesFromProfiles = activatedProfiles.map { profileName ->
+                        getPropertiesFromProfile(profileName, pomFile)
                     }
+
+                    newPropertiesFromProfiles.forEach { result.putAll(it) }
                 }
+
             result.toMap()
         }
+
+    val propertiesDefinedByFile: Map<String, List<Pair<String, POMDocument>>> =
+        run {
+            val result: MutableMap<String, List<Pair<String, POMDocument>>> = LinkedHashMap()
+
+            allPomFiles
+                .reversed()
+                .forEach { pomFile ->
+                    val rootProperties =
+                        propertiesDefinedOnPomDocument(pomFile)
+
+                    val tempProperties: MutableMap<String, String> = LinkedHashMap()
+
+                    tempProperties.putAll(rootProperties)
+
+                    val activatedProfiles = activeProfiles.filterNot { it.startsWith("!") }
+
+                    val newPropertiesFromProfiles = activatedProfiles.map { profileName ->
+                        getPropertiesFromProfile(profileName, pomFile)
+                    }
+
+                    newPropertiesFromProfiles.forEach { tempProperties.putAll(it) }
+
+                    tempProperties.entries.forEach { entry ->
+                        if (!result.containsKey(entry.key)) {
+                            result.put(entry.key, ArrayList())
+                        }
+
+                        val definitionList =
+                            result.get(entry.key) as MutableList<Pair<String, POMDocument>>
+
+                        definitionList.add(entry.value to pomFile)
+                    }
+                }
+
+            result
+        }
+
+    private fun getPropertiesFromProfile(
+        profileName: String,
+        pomFile: POMDocument
+    ): Map<String, String> {
+        val expression =
+            "/m:project/m:profiles/m:profile[./m:id[text()='${profileName}']]/m:properties"
+        val propertiesElements =
+            pomFile.pomDocument.selectXPathNodes(expression)
+
+        val newPropertiesToAppend =
+            propertiesElements.filterIsInstance<Element>()
+                .flatMap { it.elements() }
+                .associate {
+                    it.name to it.text
+                }
+
+        return newPropertiesToAppend
+    }
+
+    private fun propertiesDefinedOnPomDocument(pomFile: POMDocument): Map<String, String> {
+        val rootProperties =
+            pomFile.pomDocument.rootElement.elements("properties")
+                .flatMap { it.elements() }
+                .associate {
+                    it.name to it.text
+                }
+        return rootProperties
+    }
 }
 

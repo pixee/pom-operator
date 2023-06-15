@@ -55,11 +55,6 @@ class MassRepoIT {
             pomPath = "pulsar-broker/pom.xml"
         ) to "commons-codec:commons-codec:1.14",
         TestRepo(
-            "metersphere/metersphere",
-            branch = "main",
-            pomPath = "framework/eureka/pom.xml"
-        ) to "commons-lang3:commons-lang3:3.6",
-        TestRepo(
             "apache/rocketmq",
             pomPath = "common/pom.xml"
         ) to "commons-codec:commons-codec:1.15",
@@ -70,12 +65,6 @@ class MassRepoIT {
         TestRepo(
             "casbin/jcasbin",
         ) to "com.google.code.gson:gson:2.8.0",
-        /*
-        TestRepo(
-            "trinodb/trino",
-            pomPath = "core/trino-main/pom.xml"
-        ) to "org.apache.commons:commons-math3:3.6.0",
-         */
         TestRepo(
             "bytedeco/javacv"
         ) to "org.jogamp.jocl:jocl-main:2.3.1",

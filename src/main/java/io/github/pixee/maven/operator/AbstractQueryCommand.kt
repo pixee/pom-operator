@@ -15,7 +15,7 @@ import java.util.*
  * relying on dependency:tree mojo outputting into a text file - which might be cached.
  *
  */
-abstract class AbstractSimpleQueryCommand : AbstractSimpleCommand() {
+abstract class AbstractQueryCommand : AbstractCommand() {
     /**
      * Generates a temporary file path used to store the output of the <pre>dependency:tree</pre> mojo
      *
@@ -57,8 +57,8 @@ abstract class AbstractSimpleQueryCommand : AbstractSimpleCommand() {
     /**
      * We declare the main logic here - details are made in the child classes for now
      */
-    override fun execute(c: ProjectModel): Boolean {
-        val pomFilePath = getPomFilePath(c.pomFile)
+    override fun execute(pm: ProjectModel): Boolean {
+        val pomFilePath = getPomFilePath(pm.pomFile)
 
         val outputPath = getOutputPath(pomFilePath)
 
@@ -67,7 +67,7 @@ abstract class AbstractSimpleQueryCommand : AbstractSimpleCommand() {
         }
 
         try {
-            extractDependencyTree(outputPath, pomFilePath, c)
+            extractDependencyTree(outputPath, pomFilePath, pm)
         } catch (e: InvalidContextException) {
             return false
         }
@@ -193,7 +193,7 @@ abstract class AbstractSimpleQueryCommand : AbstractSimpleCommand() {
         const val DEPENDENCY_TREE_MOJO_REFERENCE =
             "org.apache.maven.plugins:maven-dependency-plugin:3.3.0:tree"
 
-        val LOGGER: Logger = LoggerFactory.getLogger(AbstractSimpleQueryCommand::class.java)
+        val LOGGER: Logger = LoggerFactory.getLogger(AbstractQueryCommand::class.java)
     }
 
     override fun postProcess(c: ProjectModel): Boolean = false

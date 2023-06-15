@@ -78,6 +78,7 @@ class Chain(vararg commands: Command) {
                 CheckParentPackaging,
                 FormatCommand(),
                 DiscardFormatCommand(),
+                CompositeDependencyManagement(),
                 SimpleUpgrade,
                 SimpleDependencyManagement,
                 SimpleInsert

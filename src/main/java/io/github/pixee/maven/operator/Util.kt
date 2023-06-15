@@ -51,6 +51,8 @@ object Util {
 
         contentList.add(DefaultText(suffix))
 
+        d.dirty = true
+
         return newElement
     }
 
@@ -104,7 +106,11 @@ object Util {
 
         val propertyElement = parentPropertyElement.element(propertyName)
 
-        propertyElement.text = c.dependency!!.version
+        if (!(propertyElement.text ?: "").trim().equals(c.dependency!!.version)) {
+            propertyElement.text = c.dependency!!.version
+
+            d.dirty = true
+        }
     }
 
     /**
@@ -166,7 +172,10 @@ object Util {
 
             versionNode.text = escapedPropertyName(propertyName)
         } else {
-            versionNode.text = c.dependency!!.version
+            if (!(versionNode.text ?: "").trim().equals(c.dependency!!.version)) {
+                c.pomFile.dirty = true
+                versionNode.text = c.dependency!!.version
+            }
         }
     }
 
@@ -255,7 +264,7 @@ object Util {
         val result = possiblePaths.findLast(isCliCallable)
 
         if (null == result) {
-            AbstractSimpleQueryCommand.LOGGER.warn(
+            AbstractQueryCommand.LOGGER.warn(
                 "Unable to find mvn executable (execs: {}, path: {})",
                 nativeExecutables.joinToString("/"),
                 pathContentString

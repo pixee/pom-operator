@@ -9,43 +9,43 @@ import org.dom4j.Element
  * Represents a POM Upgrade Strategy by simply adding a dependency/ section (and optionally a dependencyManagement/ section as well)
  */
 val SimpleInsert = object : Command {
-    override fun execute(c: ProjectModel): Boolean {
+    override fun execute(pm: ProjectModel): Boolean {
         val dependencyManagementNodeList =
-            c.pomFile.resultPom.selectXPathNodes("/m:project/m:dependencyManagement")
+            pm.pomFile.resultPom.selectXPathNodes("/m:project/m:dependencyManagement")
 
         val dependenciesNode = if (dependencyManagementNodeList.isEmpty()) {
             val newDependencyManagementNode =
-                c.pomFile.resultPom.rootElement.addIndentedElement(
-                    c.pomFile,
+                pm.pomFile.resultPom.rootElement.addIndentedElement(
+                    pm.pomFile,
                     "dependencyManagement"
                 )
 
             val dependencyManagementNode =
-                newDependencyManagementNode.addIndentedElement(c.pomFile, "dependencies")
+                newDependencyManagementNode.addIndentedElement(pm.pomFile, "dependencies")
 
             dependencyManagementNode
         } else {
             (dependencyManagementNodeList.first() as Element).element("dependencies")
         }
 
-        val dependencyNode = appendCoordinates(dependenciesNode, c)
+        val dependencyNode = appendCoordinates(dependenciesNode, pm)
 
-        val versionNode = dependencyNode.addIndentedElement(c.pomFile, "version")
+        val versionNode = dependencyNode.addIndentedElement(pm.pomFile, "version")
 
-        upgradeVersionNode(c, versionNode)
+        upgradeVersionNode(pm, versionNode)
 
         val dependenciesNodeList =
-            c.pomFile.resultPom.selectXPathNodes("//m:project/m:dependencies")
+            pm.pomFile.resultPom.selectXPathNodes("//m:project/m:dependencies")
 
         val rootDependencyNode: Element = if (dependenciesNodeList.isEmpty()) {
-            c.pomFile.resultPom.rootElement.addIndentedElement(c.pomFile, "dependencies")
+            pm.pomFile.resultPom.rootElement.addIndentedElement(pm.pomFile, "dependencies")
         } else if (dependenciesNodeList.size == 1) {
             dependenciesNodeList[0] as Element
         } else {
             throw IllegalStateException("More than one dependencies node")
         }
 
-        appendCoordinates(rootDependencyNode, c)
+        appendCoordinates(rootDependencyNode, pm)
 
         return true
     }

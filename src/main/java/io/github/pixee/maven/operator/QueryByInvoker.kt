@@ -4,7 +4,7 @@ import org.apache.maven.shared.invoker.DefaultInvoker
 import org.apache.maven.shared.invoker.InvocationRequest
 import java.io.File
 
-class QueryByInvoker : AbstractSimpleQueryCommand() {
+class QueryByInvoker : AbstractQueryCommand() {
 
     override fun extractDependencyTree(
         outputPath: File,

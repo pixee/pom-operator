@@ -13,7 +13,7 @@ import java.io.PrintStream
 /**
  * Uses Maven Embedder to Implement
  */
-class QueryByEmbedder : AbstractSimpleQueryCommand() {
+class QueryByEmbedder : AbstractQueryCommand() {
     /**
      * Runs the "dependency:tree" mojo - but using Embedder instead.
      */

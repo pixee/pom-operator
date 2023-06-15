@@ -42,5 +42,15 @@ data class POMDocument(
     var suffix: String = "",
 ) {
     val resultPom: Document = pomDocument.clone() as Document
+
+    var dirty: Boolean = false
+
+    override fun toString(): String {
+        return if (null == this.pomPath) {
+            "missing"
+        } else {
+            ("[POMDocument @ " + this.pomPath.toString() + "]")
+        }
+    }
 }
 

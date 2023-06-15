@@ -6,7 +6,7 @@ import org.xmlunit.builder.Input
 /**
  * Command Class to Short-Circuit/Discard Processing when no pom changes were made
  */
-class DiscardFormatCommand : AbstractSimpleCommand() {
+class DiscardFormatCommand : AbstractCommand() {
     override fun postProcess(pm: ProjectModel): Boolean {
         var mustSkip = false
 

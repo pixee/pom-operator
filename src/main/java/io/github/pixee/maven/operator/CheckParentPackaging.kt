@@ -7,7 +7,7 @@ import org.dom4j.Text
 /**
  * Guard Command Singleton use to validate required parameters
  */
-val CheckParentPackaging = object : AbstractSimpleCommand() {
+val CheckParentPackaging = object : AbstractCommand() {
     fun packagingTypePredicate(d: POMDocument, packagingType: String): Boolean {
         //  "/m:project" +
         //                "/m:dependencyManagement" +
@@ -27,17 +27,17 @@ val CheckParentPackaging = object : AbstractSimpleCommand() {
         return false
     }
 
-    override fun execute(c: ProjectModel): Boolean {
-        val wrongParentPoms = c.parentPomFiles.filterNot { packagingTypePredicate(it, "pom") }
+    override fun execute(pm: ProjectModel): Boolean {
+        val wrongParentPoms = pm.parentPomFiles.filterNot { packagingTypePredicate(it, "pom") }
 
         if (wrongParentPoms.isNotEmpty()) {
             // todo change type
             throw WrongDependencyTypeException("wrong packaging type for parentPom")
         }
 
-        if (c.parentPomFiles.isNotEmpty()) {
+        if (pm.parentPomFiles.isNotEmpty()) {
             // check main pom file has a inheritance to one of the members listed
-            if (!hasValidParentAndPackaging(c.pomFile)) {
+            if (!hasValidParentAndPackaging(pm.pomFile)) {
                 throw WrongDependencyTypeException("invalid parent/packaging combo for main pomfile")
             }
         }
@@ -49,24 +49,14 @@ val CheckParentPackaging = object : AbstractSimpleCommand() {
 
     private fun hasValidParentAndPackaging(pomFile: POMDocument): Boolean {
         val parentNode = pomFile.pomDocument.rootElement.selectXPathNodes("/m:project/m:parent")
-            .firstOrNull() as Element?
-
-        if (parentNode == null) {
-            return false
-        }
+            .firstOrNull() as Element? ?: return false
 
         val packagingText =
-            pomFile.pomDocument.rootElement.selectXPathNodes("/m:project/m:packaging/text()")
-                .firstOrNull() as Text?
+            (pomFile.pomDocument.rootElement.selectXPathNodes("/m:project/m:packaging/text()")
+                .firstOrNull() as Text?)?.text ?: "jar"
 
-        if (packagingText == null) {
-            throw WrongDependencyTypeException("packaging is missing")
-        }
-
-        val validPackagingType = packagingText.text.endsWith("ar")
+        val validPackagingType = packagingText.endsWith("ar")
 
         return validPackagingType
-
-        return true
     }
 }

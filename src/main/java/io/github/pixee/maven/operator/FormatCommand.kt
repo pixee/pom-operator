@@ -26,7 +26,7 @@ data class MatchData(
  * which are the only ones which are tricky to format (due to element and its attributes being freeform - thus formatting lost when serializing the DOM
  * and the PI being completely optional for the POM Document)
  */
-class FormatCommand : AbstractSimpleCommand() {
+class FormatCommand : AbstractCommand() {
     /**
      * StAX InputFactory
      */
