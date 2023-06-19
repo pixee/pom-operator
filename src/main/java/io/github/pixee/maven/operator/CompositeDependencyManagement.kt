@@ -3,6 +3,7 @@ package io.github.pixee.maven.operator
 import io.github.pixee.maven.operator.Util.addIndentedElement
 import io.github.pixee.maven.operator.Util.selectXPathNodes
 import org.dom4j.Element
+import java.lang.IllegalStateException
 
 class CompositeDependencyManagement : AbstractCommand() {
     override fun execute(pm: ProjectModel): Boolean {
@@ -19,8 +20,6 @@ class CompositeDependencyManagement : AbstractCommand() {
          * TODO: Make it configurable / clear WHERE one should change it
          */
         val parentPomFile = pm.parentPomFiles.last()
-
-        // TODO: Add version property
 
         // add dependencyManagement
 
@@ -42,14 +41,22 @@ class CompositeDependencyManagement : AbstractCommand() {
             dependencyManagementNode = true,
         )
 
-        // newDependencyManagementElement.addIndentedElement(parentPomFile, versionPropertyName)
+        if (pm.useProperties) {
+            val newVersionNode =
+                newDependencyManagementElement?.addIndentedElement(parentPomFile, "version")
+                    ?: throw IllegalStateException("newDependencyManagementElement is missing")
+
+            val whereToUpgradeVersionProperty = parentPomFile
+
+            Util.upgradeVersionNode(pm, newVersionNode, whereToUpgradeVersionProperty)
+        }
 
         // add dependency to pom - sans version
         modifyDependency(
             pm.pomFile,
             Util.buildLookupExpressionForDependency(pm.dependency!!),
             pm,
-            pm.pomFile.pomDocument.rootElement,
+            pm.pomFile.resultPom.rootElement,
             dependencyManagementNode = false,
         )
 

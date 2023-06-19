@@ -162,18 +162,22 @@ object Util {
     /**
      * Given a Version Node, upgrades a resulting POM
      */
-    internal fun upgradeVersionNode(c: ProjectModel, versionNode: Element) {
+    internal fun upgradeVersionNode(
+        c: ProjectModel,
+        versionNode: Element,
+        pomDocumentHoldingProperty: POMDocument
+    ) {
         if (c.useProperties) {
             val propertyName = propertyName(c, versionNode)
 
             // define property
             // TODO review here
-            upgradeProperty(c, c.pomFile, propertyName)
+            upgradeProperty(c, pomDocumentHoldingProperty, propertyName)
 
             versionNode.text = escapedPropertyName(propertyName)
         } else {
             if (!(versionNode.text ?: "").trim().equals(c.dependency!!.version)) {
-                c.pomFile.dirty = true
+                pomDocumentHoldingProperty.dirty = true
                 versionNode.text = c.dependency!!.version
             }
         }

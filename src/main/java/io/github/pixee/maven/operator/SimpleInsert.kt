@@ -32,7 +32,7 @@ val SimpleInsert = object : Command {
 
         val versionNode = dependencyNode.addIndentedElement(pm.pomFile, "version")
 
-        upgradeVersionNode(pm, versionNode)
+        upgradeVersionNode(pm, versionNode, pm.pomFile)
 
         val dependenciesNodeList =
             pm.pomFile.resultPom.selectXPathNodes("//m:project/m:dependencies")

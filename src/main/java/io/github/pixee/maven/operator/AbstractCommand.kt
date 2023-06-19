@@ -30,7 +30,7 @@ abstract class AbstractCommand : Command {
                 }
 
                 if (mustUpgrade) {
-                    upgradeVersionNode(pm, versionNode)
+                    upgradeVersionNode(pm, versionNode, pm.pomFile)
                 }
 
                 return true
