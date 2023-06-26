@@ -4,6 +4,7 @@ import io.github.pixee.maven.operator.InvalidPathException
 import io.github.pixee.maven.operator.POMScanner
 import org.junit.Test
 import java.io.File
+import kotlin.test.assertTrue
 import kotlin.test.fail
 
 class POMScannerTest: AbstractTestBase() {
@@ -14,6 +15,22 @@ class POMScannerTest: AbstractTestBase() {
         val pomFile = getResourceAsFile("sample-child-with-relativepath.xml")
 
         val pmf = POMScanner.scanFrom(pomFile, currentDirectory)
+    }
+
+    @Test(expected = InvalidPathException::class)
+    fun testTwoLevelsWithLoop() {
+        val pomFile = getResourceAsFile("sample-child-with-relativepath-and-two-levels.xml")
+
+        val pmf = POMScanner.scanFrom(pomFile, currentDirectory)
+    }
+
+    @Test
+    fun testTwoLevelsWithoutLoop() {
+        val pomFile = getResourceAsFile("sample-child-with-relativepath-and-two-levels-nonloop.xml")
+
+        val pmf = POMScanner.scanFrom(pomFile, currentDirectory)
+
+        assertTrue(pmf.build().parentPomFiles.size == 2, "There must be two parent pom files")
     }
 
     @Test

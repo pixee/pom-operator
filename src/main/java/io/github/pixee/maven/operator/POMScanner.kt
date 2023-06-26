@@ -2,6 +2,7 @@ package io.github.pixee.maven.operator
 
 import org.dom4j.Element
 import java.io.File
+import java.net.URI
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
@@ -33,7 +34,7 @@ object POMScanner {
                 parentDir = parentDir.parentFile
             }
 
-            val result = File(parentDir, relativePath).absoluteFile
+            val result = File(File(parentDir, relativePath).toURI().normalize().path)
 
             lastFile = if (result.isDirectory) {
                 result
@@ -44,6 +45,8 @@ object POMScanner {
             return Paths.get(result.absolutePath)
         }
 
+        val prevPaths : MutableSet<String> = linkedSetOf()
+
         while (pomFileQueue.isNotEmpty()) {
             val relativePathElement = pomFileQueue.poll()
 
@@ -51,6 +54,12 @@ object POMScanner {
 
             if (!isRelative(relativePath))
                 throw InvalidPathException(pomFile.file, relativePath)
+
+            if (prevPaths.contains(relativePath)) {
+                throw InvalidPathException(pomFile.file, relativePath, loop=true)
+            } else {
+                prevPaths.add(relativePath)
+            }
 
             val newPath = resolvePath(lastFile, relativePath)
 
