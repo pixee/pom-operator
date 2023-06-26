@@ -28,9 +28,36 @@ class POMScannerTest: AbstractTestBase() {
     fun testTwoLevelsWithoutLoop() {
         val pomFile = getResourceAsFile("sample-child-with-relativepath-and-two-levels-nonloop.xml")
 
-        val pmf = POMScanner.scanFrom(pomFile, currentDirectory)
+        val pmf = POMScanner.scanFrom(pomFile, currentDirectory).build()
 
-        assertTrue(pmf.build().parentPomFiles.size == 2, "There must be two parent pom files")
+        assertTrue(pmf.parentPomFiles.size == 2, "There must be two parent pom files")
+
+        val uniquePaths = pmf.allPomFiles.map { it.pomPath!!.toURI().normalize().toString() }.toSet()
+
+        val uniquePathsAsString = uniquePaths.joinToString(" ")
+
+        LOGGER.info("uniquePathsAsString: $uniquePathsAsString")
+
+        assertTrue(uniquePaths.size == 3, "There must be three unique pom files referenced")
+    }
+
+    @Test
+    fun testMultipleChildren() {
+        for (index in 1..3) {
+            val pomFile = getResourceAsFile("nested/child/pom/pom-$index-child.xml")
+
+            val pm = POMScanner.scanFrom(pomFile, currentDirectory).build()
+
+            assertTrue(pm.parentPomFiles.size == 2, "There must be two parent pom files")
+
+            val uniquePaths = pm.allPomFiles.map { it.pomPath!!.toURI().normalize().toString() }
+
+            val uniquePathsAsString = uniquePaths.joinToString(" ")
+
+            LOGGER.info("uniquePathsAsString: $uniquePathsAsString")
+
+            assertTrue(uniquePaths.size == 3, "There must be three unique pom files referenced")
+        }
     }
 
     @Test
