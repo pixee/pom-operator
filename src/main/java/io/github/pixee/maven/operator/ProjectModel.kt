@@ -24,9 +24,6 @@ class ProjectModel internal constructor(
 
     /**
      * Involved POM Files
-     *
-     * @todo Currently we only work at two levels - Parent and Child - could be a problem or not
-     * if we employ intermediate levels (e.g., organizational pom, project pom, jar pom)
      */
     val allPomFiles: Collection<POMDocument>
         get() = listOfNotNull(

@@ -9,13 +9,6 @@ import org.dom4j.Text
  */
 val CheckParentPackaging = object : AbstractCommand() {
     fun packagingTypePredicate(d: POMDocument, packagingType: String): Boolean {
-        //  "/m:project" +
-        //                "/m:dependencyManagement" +
-        //                "/m:dependencies" +
-        //                "/m:dependency" +
-        //                /* */ "[./m:groupId[text()='${dependency.groupId}'] and " +
-        //                /*  */ "./m:artifactId[text()='${dependency.artifactId}']" +
-        //                "]"
         val elementText =
             d.pomDocument.rootElement.selectXPathNodes("/m:project/m:packaging/text()")
                 .firstOrNull()
@@ -31,7 +24,6 @@ val CheckParentPackaging = object : AbstractCommand() {
         val wrongParentPoms = pm.parentPomFiles.filterNot { packagingTypePredicate(it, "pom") }
 
         if (wrongParentPoms.isNotEmpty()) {
-            // todo change type
             throw WrongDependencyTypeException("wrong packaging type for parentPom")
         }
 
@@ -55,7 +47,7 @@ val CheckParentPackaging = object : AbstractCommand() {
             (pomFile.pomDocument.rootElement.selectXPathNodes("/m:project/m:packaging/text()")
                 .firstOrNull() as Text?)?.text ?: "jar"
 
-        val validPackagingType = packagingText.endsWith("ar")
+        @Suppress("UnnecessaryVariable") val validPackagingType = packagingText.endsWith("ar")
 
         return validPackagingType
     }

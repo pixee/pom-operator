@@ -171,7 +171,6 @@ object Util {
             val propertyName = propertyName(c, versionNode)
 
             // define property
-            // TODO review here
             upgradeProperty(c, pomDocumentHoldingProperty, propertyName)
 
             versionNode.text = escapedPropertyName(propertyName)

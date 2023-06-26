@@ -32,8 +32,6 @@ class DiscardFormatCommand : AbstractCommand() {
 
         /**
          * Triggers early abandonment
-         *
-         * TODO: review on a multi-pom scenario
          */
         if (mustSkip)
             return true
