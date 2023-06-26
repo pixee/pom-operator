@@ -29,7 +29,7 @@ class ProjectModelFactory private constructor(
     /**
      * Fluent Setter
      *
-     * @param parentPomFile Parent POM File
+     * @param parentPomFiles Parent POM Files
      */
     fun withParentPomFiles(parentPomFiles: Collection<POMDocument?>): ProjectModelFactory =
         this.apply {
@@ -119,5 +119,11 @@ class ProjectModelFactory private constructor(
 
             return ProjectModelFactory(pomFile = pomFile)
         }
+
+        @JvmStatic
+        internal fun loadFor(
+            pomFile: POMDocument,
+            parentPomFiles: Collection<POMDocument>,
+        ) = ProjectModelFactory(pomFile = pomFile, parentPomFiles = parentPomFiles.toList())
     }
 }

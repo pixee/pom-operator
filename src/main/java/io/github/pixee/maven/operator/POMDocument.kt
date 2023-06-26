@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator
 
 import org.dom4j.Document
+import java.io.File
 import java.net.URL
 import java.nio.charset.Charset
 
@@ -41,6 +42,8 @@ data class POMDocument(
      */
     var suffix: String = "",
 ) {
+    internal val file: File get() = File(this.pomPath!!.toURI())
+
     val resultPom: Document = pomDocument.clone() as Document
 
     var dirty: Boolean = false

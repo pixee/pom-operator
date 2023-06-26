@@ -14,7 +14,7 @@ class CompositeDependencyManagement : AbstractCommand() {
             return false
         }
 
-        var result: Boolean = false
+        var result = false
 
         /**
          * TODO: Make it configurable / clear WHERE one should change it

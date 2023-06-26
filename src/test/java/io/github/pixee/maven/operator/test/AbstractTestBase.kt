@@ -20,6 +20,8 @@ open class AbstractTestBase {
 
     fun getResource(name: String) = this.javaClass.getResource(name)!!
 
+    fun getResourceAsFile(name: String): File = File(getResource(name).toURI())
+
     /**
      * Implements a Given-When-Then idiom
      *
