@@ -1,9 +1,13 @@
 package io.github.pixee.maven.operator.test
 
 import io.github.pixee.maven.operator.*
+import junit.framework.TestCase.assertEquals
 import org.junit.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.io.File
+import java.nio.file.Files
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class POMOperatorQueryTest {
@@ -70,6 +74,35 @@ class POMOperatorQueryTest {
 
                 assertTrue(dependencies.isNotEmpty(), "Dependencies are not empty")
             }
+        }
+    }
+
+
+    @Test
+    fun testTemporaryDirectory() {
+        QueryType.values().filterNot { it == QueryType.NONE } .forEach { queryType ->
+            val tempDirectory = Files.createTempDirectory("mvn-repo").toFile()
+
+            tempDirectory.mkdirs()
+
+            LOGGER.info("Using queryType: $queryType at $tempDirectory")
+
+            assertEquals(tempDirectory.list()?.filter { File(it).isDirectory }?.size ?: 0, 0, "There must be no files")
+
+            val context =
+                ProjectModelFactory
+                    .load(this.javaClass.getResource("pom-1.xml")!!)
+                    .withQueryType(queryType)
+                    .withRepositoryPath(tempDirectory)
+                    .build()
+
+            val dependencies = POMOperator.queryDependency(context)
+
+            LOGGER.debug("Dependencies found: {}", dependencies)
+
+            assertTrue(dependencies.isNotEmpty(), "Dependencies are not empty")
+
+            assertEquals(tempDirectory.list().filter { File(it).isDirectory }.size, 0, "There must be files")
         }
     }
 }

@@ -115,6 +115,10 @@ abstract class AbstractQueryCommand : AbstractCommand() {
         val props = Properties(System.getProperties()).apply {
             //System.getProperties().forEach { t, u -> setProperty(t as String, u as String) }
             setProperty("outputFile", outputPath.absolutePath)
+
+            if (null != c.repositoryPath) {
+                setProperty("maven.repo.local", c.repositoryPath.absolutePath)
+            }
         }
 
         val request: InvocationRequest = DefaultInvocationRequest().apply {
