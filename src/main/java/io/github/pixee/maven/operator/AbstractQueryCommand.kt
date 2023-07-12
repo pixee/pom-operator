@@ -57,7 +57,6 @@ abstract class AbstractQueryCommand : AbstractCommand() {
     /**
      * We declare the main logic here - details are made in the child classes for now
      */
-
     override fun execute(pm: ProjectModel): Boolean {
         val pomFilePath = getPomFilePath(pm.pomFile)
 
