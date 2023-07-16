@@ -31,18 +31,7 @@ import kotlin.io.path.toPath
  */
 class QueryByResolver : AbstractQueryCommand() {
     private fun getLocalRepository(pm: ProjectModel): LocalRepository {
-        val localRepositoryPath : File = if (pm.repositoryPath != null) {
-            pm.repositoryPath
-        } else if (System.getenv("M2_REPO") != null) {
-            File(System.getenv("M2_REPO"))
-        } else if (System.getProperty("maven.repo.local") != null) {
-            File(System.getProperty("maven.repo.local"))
-        } else {
-            File(
-                System.getProperty("user.home"),
-                ".m2/repository"
-            )
-        }
+        val localRepositoryPath: File = getLocalRepositoryPath(pm)
 
         return LocalRepository(localRepositoryPath.absolutePath)
     }
