@@ -2,7 +2,6 @@ package io.github.pixee.maven.operator.test
 
 import io.github.pixee.maven.operator.*
 import junit.framework.TestCase.*
-import org.apache.maven.model.resolution.UnresolvableModelException
 import org.junit.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
