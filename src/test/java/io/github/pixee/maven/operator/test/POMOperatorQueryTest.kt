@@ -323,4 +323,24 @@ class POMOperatorQueryTest {
 
         assertTrue("Dependencies are empty", dependencies.isEmpty())
     }
+
+    @Test
+    fun testOfflineQueryResolution() {
+        val tempDirectory = Files.createTempDirectory("mvn-repo").toFile()
+
+        val context =
+            ProjectModelFactory
+                .load(javaClass.getResource("nested/child/pom/pom-3-child.xml"))
+                .withQueryType(QueryType.SAFE)
+                .withRepositoryPath(tempDirectory)
+                .withOffline(true)
+                .build()
+
+        val dependencies = POMOperator.queryDependency(context)
+
+        LOGGER.debug("Dependencies found: {}", dependencies)
+
+        assertTrue("Dependencies are empty", dependencies.isEmpty())
+
+    }
 }

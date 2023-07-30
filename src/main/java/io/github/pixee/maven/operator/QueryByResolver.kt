@@ -1,9 +1,6 @@
 package io.github.pixee.maven.operator
 
-import org.apache.maven.model.building.DefaultModelBuilderFactory
-import org.apache.maven.model.building.DefaultModelBuildingRequest
-import org.apache.maven.model.building.FileModelSource
-import org.apache.maven.model.building.ModelBuildingException
+import org.apache.maven.model.building.*
 import org.apache.maven.project.ProjectModelResolver
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils
 import org.eclipse.aether.DefaultRepositorySystemSession
@@ -36,7 +33,10 @@ class QueryByResolver : AbstractQueryCommand() {
         return LocalRepository(localRepositoryPath.absolutePath)
     }
 
-    private fun newRepositorySystemSession(pm: ProjectModel, system: RepositorySystem): DefaultRepositorySystemSession? {
+    private fun newRepositorySystemSession(
+        pm: ProjectModel,
+        system: RepositorySystem
+    ): DefaultRepositorySystemSession? {
         val session = MavenRepositorySystemUtils.newSession()
 
         val localRepo = getLocalRepository(pm)
@@ -54,6 +54,16 @@ class QueryByResolver : AbstractQueryCommand() {
     override fun extractDependencyTree(outputPath: File, pomFilePath: File, c: ProjectModel) {
         TODO("Not yet implemented")
     }
+
+    lateinit var remoteRepositories: List<RemoteRepository>
+
+    lateinit var repositorySystem: RepositorySystem
+
+    lateinit var session: DefaultRepositorySystemSession
+
+    lateinit var modelBuilder: DefaultModelBuilder
+
+    lateinit var repositoryManager: DefaultRemoteRepositoryManager
 
     @Suppress("DEPRECATION")
     override fun execute(pm: ProjectModel): Boolean {
@@ -95,22 +105,21 @@ class QueryByResolver : AbstractQueryCommand() {
             RemoteRepository.Builder("central", "default", "https://repo.maven.apache.org/maven2/")
                 .build()
 
-        val remoteRepositories : List<RemoteRepository> =
-            if (pm.offline) {
-                emptyList()
-            } else {
-                listOf(remoteRepository)
-            }
+        remoteRepositories = if (pm.offline) {
+            emptyList()
+        } else {
+            listOf(remoteRepository)
+        }
 
-        val repositorySystem =
-            locator.getService(org.eclipse.aether.RepositorySystem::class.java)
 
-        val session = newRepositorySystemSession(pm, repositorySystem)!!
+        repositorySystem = locator.getService(org.eclipse.aether.RepositorySystem::class.java)
+
+        session = newRepositorySystemSession(pm, repositorySystem)!!
             .setOffline(pm.offline)
 
-        val modelBuilder = DefaultModelBuilderFactory().newInstance()
+        modelBuilder = DefaultModelBuilderFactory().newInstance()
 
-        val repositoryManager = DefaultRemoteRepositoryManager()
+        repositoryManager = DefaultRemoteRepositoryManager()
 
         val modelBuildingRequest = DefaultModelBuildingRequest().apply {
             val pomFile = pm.pomFile.pomPath!!.toURI().toPath().toFile()
@@ -140,13 +149,21 @@ class QueryByResolver : AbstractQueryCommand() {
             this.modelResolver = modelResolver
         }
 
-        val res = try {
+        val res: ModelBuildingResult = try {
             modelBuilder.build(modelBuildingRequest)
         } catch (e: ModelBuildingException) {
             LOGGER.warn("Oops: ", e)
 
             return false
         }
+
+        val rawModels = res.modelIds.map { res.getRawModel(it) }.toList()
+
+        val parentPoms: List<File> =
+            if (rawModels.size > 1) {
+                rawModels.subList(1, rawModels.size).map { it.pomFile }.filterNotNull().toList()
+            } else
+                emptyList()
 
         val dependencyToArtifact: (org.apache.maven.model.Dependency) -> org.eclipse.aether.graph.Dependency =
             {
