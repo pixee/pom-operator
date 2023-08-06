@@ -268,7 +268,7 @@ class POMOperatorQueryTest {
     }
 
     @Test
-    fun testOnCompositeSyntheticDependencyIncomplete() {
+    fun testOnCompositeSyntheticDependencyIncompleteWithoutParsing() {
         val tempDirectory = Files.createTempDirectory("mvn-repo").toFile()
 
         val tempPom = File(tempDirectory, "pom.xml").toPath()
@@ -317,12 +317,85 @@ class POMOperatorQueryTest {
                 .withOffline(true)
                 .build()
 
-        val dependencies = POMOperator.queryDependency(context)
+        val dependencies = POMOperator.queryDependency(
+            context,
+            commandList = getCommandListFor("QueryByEmbedder", "QueryByResolver")
+        )
 
         LOGGER.debug("Dependencies found: {}", dependencies)
 
         assertTrue("Dependencies are empty", dependencies.isEmpty())
     }
+
+    @Test
+    fun testOnCompositeSyntheticDependencyIncompleteButWithParser() {
+        val tempDirectory = Files.createTempDirectory("mvn-repo").toFile()
+
+        val tempPom = File(tempDirectory, "pom.xml").toPath()
+
+        val randomName = "random-artifact-" + System.currentTimeMillis()
+
+        Files.write(
+            tempPom, """
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>br.com.ingenieux</groupId>
+    <artifactId>pom-operator</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    
+    <parent>
+      <artifactId>somethingelse</artifactId>
+      <groupId>br.com.ingenieux</groupId>
+      <version>1</version>
+      <relativePath>./pom-parent.xml</relativePath>
+    </parent>
+
+    <dependencies>
+        <dependency>
+            <groupId>dummyorg</groupId>
+            <artifactId>${randomName}</artifactId>
+            <version>2.1.3</version>
+        </dependency>
+        <dependency>
+            <groupId>dummyorg</groupId>
+            <artifactId>managed-${randomName}</artifactId>
+        </dependency>
+    </dependencies>
+</project>
+            
+        """.trim().toByteArray()
+        )
+
+        val context =
+            ProjectModelFactory
+                .load(tempPom.toFile())
+                .withQueryType(QueryType.SAFE)
+                .withRepositoryPath(tempDirectory)
+                .withOffline(true)
+                .build()
+
+        val dependencies =
+            POMOperator.queryDependency(context, commandList = getCommandListFor("QueryByParsing"))
+
+        LOGGER.debug("Dependencies found: {}", dependencies)
+
+        assertTrue("Dependencies are empty", dependencies.isNotEmpty())
+    }
+
+    private fun getCommandListFor(vararg names: String): List<Command> =
+        names.map {
+            val commandClassName = "io.github.pixee.maven.operator.${it}"
+
+            val commandInstance =
+                Class.forName(commandClassName).newInstance() as Command
+
+            commandInstance
+        }.toList()
 
     @Test
     fun testOfflineQueryResolution() {
