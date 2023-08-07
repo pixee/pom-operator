@@ -2,10 +2,12 @@
 
 package io.github.pixee.maven.operator
 
+import org.apache.commons.lang3.builder.CompareToBuilder
 import org.apache.commons.lang3.text.StrSubstitutor
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
+import java.util.*
 
 /**
  * this one is a bit more complex, as it intents to to a "best effort" attempt at parsing a pom
@@ -18,7 +20,22 @@ class QueryByParsing : AbstractQueryCommand() {
 
     val dependencies: MutableSet<Dependency> = LinkedHashSet()
 
-    val dependencyManagement: MutableSet<Dependency> = LinkedHashSet()
+    val dependencyManagement: MutableSet<Dependency> =
+        TreeSet(object : Comparator<Dependency> {
+            override fun compare(o1: Dependency?, o2: Dependency?): Int {
+                if (o1 == o2)
+                    return 0
+
+                if (o1 == null)
+                    return 1
+
+                if (o2 == null)
+                    return -1
+
+                return CompareToBuilder().append(o1.groupId, o2.groupId)
+                    .append(o1.artifactId, o2.artifactId).toComparison()
+            }
+        })
 
     val properties: MutableMap<String, String> = LinkedHashMap()
 
@@ -33,6 +50,8 @@ class QueryByParsing : AbstractQueryCommand() {
         for (pomDocument in pomFilesByHierarchy) {
             updateProperties(pomDocument)
 
+            updateDependencyManagement(pomDocument)
+
             updateDependencies(pomDocument)
         }
 
@@ -41,10 +60,11 @@ class QueryByParsing : AbstractQueryCommand() {
         return true
     }
 
-    private fun updateDependencies(pomDocument: POMDocument) {
-        val dependenciesToAdd: Collection<Dependency> =
+    private fun updateDependencyManagement(pomDocument: POMDocument) {
+        val dependencyManagementDependenciesToAdd: Collection<Dependency> =
             pomDocument.pomDocument.//
             rootElement. //
+            element("dependencyManagement")?. //
             element("dependencies")?. //
             elements("dependency")?. //
             map { dependencyElement ->
@@ -65,6 +85,46 @@ class QueryByParsing : AbstractQueryCommand() {
                 }
 
                 Dependency(groupId, artifactId, versionInterpolated, classifier, packaging)
+            }?.toList() ?: emptyList()
+
+        this.dependencyManagement.addAll(dependencyManagementDependenciesToAdd)
+    }
+
+    fun lookForDependencyManagement(groupId: String, artifactId: String): Dependency? =
+        this.dependencyManagement.firstOrNull { it.groupId == groupId && it.artifactId == artifactId }
+
+    private fun updateDependencies(pomDocument: POMDocument) {
+        val dependenciesToAdd: Collection<Dependency> =
+            pomDocument.pomDocument.//
+            rootElement. //
+            element("dependencies")?. //
+            elements("dependency")?. //
+            map { dependencyElement ->
+                val groupId = dependencyElement.element("groupId").text
+                val artifactId = dependencyElement.element("artifactId").text
+
+                val versionElement = dependencyElement.element("version")
+
+                val proposedDependency = lookForDependencyManagement(groupId, artifactId)
+
+                if (versionElement == null && null != proposedDependency) {
+                    proposedDependency
+                } else {
+                    val version = versionElement?.text ?: "UNKNOWN"
+
+                    val classifier = dependencyElement.element("classifier")?.text
+                    val packaging = dependencyElement.element("packaging")?.text
+
+                    val versionInterpolated = try {
+                        strSubstitutor.replace(version)
+                    } catch (e: java.lang.IllegalStateException) {
+                        LOGGER.warn("while interpolating version", e)
+
+                        "UNKNOWN"
+                    }
+
+                    Dependency(groupId, artifactId, versionInterpolated, classifier, packaging)
+                }
             }?.toList() ?: emptyList()
 
         this.dependencies.addAll(
