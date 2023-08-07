@@ -8,6 +8,10 @@
     <artifactId>pom-operator</artifactId>
     <version>0.0.12</version>
 
+    <name>pom-operator</name>
+    <description>A utility for querying and modifying Maven POM files</description>
+    <url>https://github.com/pixee/pom-operator</url>
+
     <scm>
         <connection>scm:git:git://github.com/pixee/pom-operator.git</connection>
         <developerConnection>scm:git:ssh://github.com:pixee/pom-operator.git</developerConnection>
@@ -46,7 +50,6 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <kotlin.version>1.7.10</kotlin.version>
         <slf4j.version>2.0.0</slf4j.version>
-        <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
         <versions.maven.resolver>1.9.2</versions.maven.resolver>
         <versions.maven.core>3.8.6</versions.maven.core>
         <versions.maven-javadoc-plugin>2.9.1</versions.maven-javadoc-plugin>
@@ -291,14 +294,6 @@
                             </goals>
                         </execution>
                     </executions>
-                </plugin>
-                <plugin>
-                    <artifactId>maven-release-plugin</artifactId>
-                    <version>${maven-release-plugin.version}</version>
-                    <configuration>
-                        <scmCommentPrefix>[ci skip]</scmCommentPrefix>
-                        <tagNameFormat>@{project.version}</tagNameFormat>
-                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.jetbrains.kotlin</groupId>
