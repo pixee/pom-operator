@@ -158,7 +158,7 @@ class QueryByParsing : AbstractQueryCommand() {
     }
 
     companion object {
-        val RE_INTERPOLATION = Regex(""".*\$\{[\p{Alnum}.-_]\}.*""")
+        val RE_INTERPOLATION = Regex(""".*\$\{[\p{Alnum}.-_]+\}.*""")
 
         val logger: Logger = LoggerFactory.getLogger(QueryByParsing::class.java)
     }
