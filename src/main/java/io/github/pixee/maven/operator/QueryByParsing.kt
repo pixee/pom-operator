@@ -18,9 +18,9 @@ class QueryByParsing : AbstractQueryCommand() {
         TODO("Not yet implemented")
     }
 
-    val dependencies: MutableSet<Dependency> = LinkedHashSet()
+    private val dependencies: MutableSet<Dependency> = LinkedHashSet()
 
-    val dependencyManagement: MutableSet<Dependency> =
+    private val dependencyManagement: MutableSet<Dependency> =
         TreeSet(object : Comparator<Dependency> {
             override fun compare(o1: Dependency?, o2: Dependency?): Int {
                 if (o1 == o2)
@@ -37,7 +37,7 @@ class QueryByParsing : AbstractQueryCommand() {
             }
         })
 
-    val properties: MutableMap<String, String> = LinkedHashMap()
+    private val properties: MutableMap<String, String> = LinkedHashMap()
 
     private val strSubstitutor = StrSubstitutor(properties)
 
