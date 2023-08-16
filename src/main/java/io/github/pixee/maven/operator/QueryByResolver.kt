@@ -107,6 +107,8 @@ class QueryByResolver : AbstractQueryCommand() {
 
             return true
         } catch (e: DependencyCollectionException) {
+            LOGGER.warn("while resolving: ", e)
+
             return false
         }
     }
