@@ -2,9 +2,11 @@ package io.github.pixee.maven.operator.test
 
 import io.github.pixee.maven.operator.*
 import junit.framework.TestCase.assertTrue
+import junit.framework.TestCase.assertFalse
 import org.junit.Test
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.util.*
 
 class POMOperatorVersionQueryTest {
     companion object {
@@ -16,15 +18,20 @@ class POMOperatorVersionQueryTest {
         val pomFile = "pom-1.xml"
 
         QueryType.values().filterNot { it == QueryType.NONE }.forEach { queryType ->
-            val versions = versionDefinitions(pomFile, queryType)
+            val optionalVersionQueryResponse = versionDefinitions(pomFile, queryType)
 
-            LOGGER.debug("Versions  found: {}", versions)
+            LOGGER.debug("Versions found: {}", optionalVersionQueryResponse)
 
-            assertTrue("Versions are not empty", versions.isNotEmpty())
+            val versionQueryResponse = optionalVersionQueryResponse.get()
 
             assertTrue(
-                "Version defined is 1.8",
-                versions.map { it.value }.toSet().first().equals("1.8")
+                "Version defined is 1.8 as source",
+                versionQueryResponse.source.satisfies("=1.8.0"),
+            )
+
+            assertTrue(
+                "Version defined is 1.8 as target",
+                versionQueryResponse.target.satisfies("=1.8.0"),
             )
         }
     }
@@ -32,9 +39,9 @@ class POMOperatorVersionQueryTest {
     @Test
     fun testPomVersionZero() {
         QueryType.values().filterNot { it == QueryType.NONE }.forEach { queryType ->
-            val versions = versionDefinitions("pom-version-0.xml", queryType)
+            val optionalVersionResponse = versionDefinitions("pom-version-0.xml", queryType)
 
-            assertTrue("No versions defined (queryType: $queryType)", versions.isEmpty())
+            assertFalse("No versions defined (queryType: $queryType)", optionalVersionResponse.isPresent)
         }
     }
 
@@ -48,15 +55,20 @@ class POMOperatorVersionQueryTest {
             QueryType.values().filterNot { it == QueryType.NONE }.forEach { queryType ->
                 LOGGER.info("using queryType: $queryType")
 
-                val versions = versionDefinitions(pomFile, queryType)
+                val optionalVersionQueryResponse = versionDefinitions(pomFile, queryType)
 
-                LOGGER.debug("Versions  found: {}", versions)
+                LOGGER.debug("Versions found: {}", optionalVersionQueryResponse)
 
-                assertTrue("Versions are not empty", versions.isNotEmpty())
+                val versionQueryResponse = optionalVersionQueryResponse.get()
 
                 assertTrue(
-                    "Version defined is 1.8",
-                    versions.map { it.value }.toSet().first().equals("1.8")
+                    "Version defined is 1.8 as source",
+                    versionQueryResponse.source.satisfies("=1.8.0"),
+                )
+
+                assertTrue(
+                    "Version defined is 1.8 as target",
+                    versionQueryResponse.target.satisfies("=1.8.0"),
                 )
             }
         }
@@ -72,15 +84,20 @@ class POMOperatorVersionQueryTest {
             QueryType.values().filterNot { it == QueryType.NONE }.forEach { queryType ->
                 LOGGER.info("using queryType: $queryType")
 
-                val versions = versionDefinitions(pomFile, queryType, offline = true)
+                val optionalVersionQueryResponse = versionDefinitions(pomFile, queryType, offline = true)
 
-                LOGGER.debug("Versions  found: {}", versions)
+                LOGGER.debug("Versions found: {}", optionalVersionQueryResponse)
 
-                assertTrue("Versions are not empty", versions.isNotEmpty())
+                val versionQueryResponse = optionalVersionQueryResponse.get()
 
                 assertTrue(
-                    "Version defined is 1.8",
-                    versions.map { it.value }.toSet().first().equals("1.8")
+                    "Version defined is 1.8 as source",
+                    versionQueryResponse.source.satisfies("=1.8.0"),
+                )
+
+                assertTrue(
+                    "Version defined is 1.8 as target",
+                    versionQueryResponse.target.satisfies("=1.8.0"),
                 )
             }
         }
@@ -95,33 +112,44 @@ class POMOperatorVersionQueryTest {
         QueryType.values().filterNot { it == QueryType.NONE }.forEach { queryType ->
             LOGGER.info("using queryType: $queryType")
 
-            val versions = versionDefinitions(pomFile, queryType)
+            val optionalVersionQueryResponse = versionDefinitions(pomFile, queryType)
 
-            LOGGER.debug("Versions  found: {}", versions)
+            LOGGER.debug("Versions found: {}", optionalVersionQueryResponse)
 
-            assertTrue("Versions are not empty", versions.isNotEmpty())
+            val versionQueryResponse = optionalVersionQueryResponse.get()
 
             assertTrue(
                 "Version defined is 9",
-                versions.map { it.value }.toSet().first().equals("9")
+                versionQueryResponse.source.satisfies("=9.0.0"),
             )
 
             assertTrue(
-                "Only type defined is RELEASE",
-                versions.map { it.kind}.toSet() == setOf(Kind.RELEASE)
+                "Version defined is 9",
+                versionQueryResponse.target.satisfies("=9.0.0"),
             )
         }
     }
 
     @Test
     fun testPomVersionsMismatching() {
+        val pomFile = "pom-version-7.xml"
+
         QueryType.values().filterNot { it == QueryType.NONE }.forEach { queryType ->
-            val versions = versionDefinitions("pom-version-7.xml", queryType)
+            val optionalVersionQueryResponse = versionDefinitions(pomFile, queryType)
 
-            assertTrue("Versions defined (queryType: $queryType)", versions.isNotEmpty())
+            LOGGER.debug("Versions found: {}", optionalVersionQueryResponse)
 
-            assertTrue("Versions has source set to 1.7", versions.first { it.kind == Kind.SOURCE }.value.equals("1.7"))
-            assertTrue("Versions has target set to 1.8", versions.first { it.kind == Kind.TARGET }.value.equals("1.8"))
+            val versionQueryResponse = optionalVersionQueryResponse.get()
+
+            assertTrue(
+                "Version defined is 1.7 as source",
+                versionQueryResponse.source.satisfies("=1.7.0"),
+            )
+
+            assertTrue(
+                "Version defined is 1.8 as target",
+                versionQueryResponse.target.satisfies("=1.8.0"),
+            )
         }
     }
 
@@ -130,7 +158,7 @@ class POMOperatorVersionQueryTest {
         pomFile: String,
         queryType: QueryType,
         offline: Boolean = false
-    ): Set<VersionDefinition> {
+    ): Optional<VersionQueryResponse> {
         val context =
             ProjectModelFactory
                 .load(this.javaClass.getResource(pomFile)!!)
