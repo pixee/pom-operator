@@ -3,7 +3,13 @@ package io.github.pixee.maven.operator
 import org.apache.commons.lang3.builder.CompareToBuilder
 import java.util.*
 
+/**
+ * Base Class for Version Guessing Commands
+ */
 open class AbstractVersionCommand : AbstractCommand() {
+    /**
+     * Internal Result
+     */
     internal val result: MutableSet<VersionDefinition> =
         TreeSet<VersionDefinition>(VERSION_KIND_COMPARATOR)
 

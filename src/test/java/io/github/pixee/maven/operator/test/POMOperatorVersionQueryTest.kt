@@ -30,6 +30,15 @@ class POMOperatorVersionQueryTest {
     }
 
     @Test
+    fun testPomVersionZero() {
+        QueryType.values().filterNot { it == QueryType.NONE }.forEach { queryType ->
+            val versions = versionDefinitions("pom-version-0.xml", queryType)
+
+            assertTrue("No versions defined (queryType: $queryType)", versions.isEmpty())
+        }
+    }
+
+    @Test
     fun testPomVersion1and2() {
         (1..2).forEach {index ->
             val pomFile = "pom-version-$index.xml"
@@ -103,6 +112,19 @@ class POMOperatorVersionQueryTest {
             )
         }
     }
+
+    @Test
+    fun testPomVersionsMismatching() {
+        QueryType.values().filterNot { it == QueryType.NONE }.forEach { queryType ->
+            val versions = versionDefinitions("pom-version-7.xml", queryType)
+
+            assertTrue("Versions defined (queryType: $queryType)", versions.isNotEmpty())
+
+            assertTrue("Versions has source set to 1.7", versions.first { it.kind == Kind.SOURCE }.value.equals("1.7"))
+            assertTrue("Versions has target set to 1.8", versions.first { it.kind == Kind.TARGET }.value.equals("1.8"))
+        }
+    }
+
 
     private fun versionDefinitions(
         pomFile: String,
