@@ -55,7 +55,7 @@ class POMOperatorVersionQueryTest {
 
     @Test
     fun testPomVersion4and5and6Offline() {
-        (4..5).forEach {index ->
+        (4..6).forEach {index ->
             val pomFile = "pom-version-$index.xml"
 
             LOGGER.info("Using file: $pomFile")
