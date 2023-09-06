@@ -25,6 +25,14 @@ object POMOperator {
 
     /**
      * Public API - Query for Java Versions
+     *
+     * It will return a set of type VersionDescription with either zero, one or two elements
+     *
+     * If zero - no versions were detected. Defaults to original JDK Version (I'd say most likely between 1.4 and 1.8)
+     * If one - most likely the -release flag (java 9 onwards). Something such as new VersionDescription(Kind.RELEASE, "9") will be set
+     * if two - likely before 9. So there'll be two items: new VersionDescription(Kind.SOURCE, "1.8") and another one with kind set to Kind.TARGET
+     *
+     * @return set of VersionDescription
      */
     @JvmStatic
     fun queryVersions(
