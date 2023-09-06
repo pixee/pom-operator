@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator
 
 import io.github.pixee.maven.operator.Util.selectXPathNodes
+import org.apache.commons.lang3.text.StrSubstitutor
 import org.dom4j.Element
 import java.util.*
 
@@ -14,10 +15,14 @@ class VersionByCompilerDefinition : AbstractVersionCommand() {
             "//m:project/m:build/m:plugins"
         )
 
+        val properties = pm.resolvedProperties
+
+        val sub = StrSubstitutor(properties)
+
         parents.forEach { parent ->
             pm.allPomFiles.forEach { doc ->
                 val pluginExpression =
-                    "$parent/m:plugin[./m:artifactId[text()='maven-compiler-plugin']]"
+                    "$parent/m:plugin[./m:artifactId[text()='maven-compiler-plugin']]//m:configuration"
                 val compilerNode = doc.resultPom.selectXPathNodes(pluginExpression).firstOrNull()
 
                 if (compilerNode != null) {
@@ -25,7 +30,7 @@ class VersionByCompilerDefinition : AbstractVersionCommand() {
                         val childElement = (compilerNode as Element).element(it.key)
 
                         if (childElement != null) {
-                            VersionDefinition(it.value, childElement.textTrim)
+                            VersionDefinition(it.value, sub.replace(childElement.textTrim))
                         } else {
                             null
                         }

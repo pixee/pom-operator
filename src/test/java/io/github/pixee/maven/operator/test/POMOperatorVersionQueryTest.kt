@@ -54,6 +54,30 @@ class POMOperatorVersionQueryTest {
     }
 
     @Test
+    fun testPomVersion4and5and6Offline() {
+        (4..5).forEach {index ->
+            val pomFile = "pom-version-$index.xml"
+
+            LOGGER.info("Using file: $pomFile")
+
+            QueryType.values().filterNot { it == QueryType.NONE }.forEach { queryType ->
+                LOGGER.info("using queryType: $queryType")
+
+                val versions = versionDefinitions(pomFile, queryType, offline = true)
+
+                LOGGER.debug("Versions  found: {}", versions)
+
+                assertTrue("Versions are not empty", versions.isNotEmpty())
+
+                assertTrue(
+                    "Version defined is 1.8",
+                    versions.map { it.value }.toSet().first().equals("1.8")
+                )
+            }
+        }
+    }
+
+    @Test
     fun testPomVersion3() {
         val pomFile = "pom-version-3.xml"
 
@@ -82,12 +106,14 @@ class POMOperatorVersionQueryTest {
 
     private fun versionDefinitions(
         pomFile: String,
-        queryType: QueryType
+        queryType: QueryType,
+        offline: Boolean = false
     ): Set<VersionDefinition> {
         val context =
             ProjectModelFactory
                 .load(this.javaClass.getResource(pomFile)!!)
                 .withQueryType(queryType)
+                .withOffline(offline)
                 .build()
 
         return POMOperator.queryVersions(context)
