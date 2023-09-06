@@ -69,7 +69,7 @@ object POMOperator {
         executeChain(commandList, chain, projectModel)
 
         val lastCommand = chain.commandList.filterIsInstance<AbstractVersionCommand>()
-            .lastOrNull { it.result != null }
+            .lastOrNull { it.result != null && it.result.isNotEmpty() }
             ?: return emptySet()
 
         return lastCommand.result!!

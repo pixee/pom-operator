@@ -6,7 +6,7 @@ import java.util.*
 
 class VersionByCompilerDefinition : AbstractVersionCommand() {
     override fun execute(pm: ProjectModel): Boolean {
-        val definedProperties: MutableSet<VersionDefinition> =
+        val definedSettings: MutableSet<VersionDefinition> =
             TreeSet<VersionDefinition>(VERSION_KIND_COMPARATOR)
 
         val parents = listOf(
@@ -21,7 +21,7 @@ class VersionByCompilerDefinition : AbstractVersionCommand() {
                 val compilerNode = doc.resultPom.selectXPathNodes(pluginExpression).firstOrNull()
 
                 if (compilerNode != null) {
-                    CHILD_TO_VERSION.entries.mapNotNull {
+                    TYPE_TO_KIND.entries.mapNotNull {
                         val childElement = (compilerNode as Element).element(it.key)
 
                         if (childElement != null) {
@@ -30,22 +30,15 @@ class VersionByCompilerDefinition : AbstractVersionCommand() {
                             null
                         }
                     }.forEach {
-                        definedProperties.add(it)
+                        definedSettings.add(it)
                     }
                 }
             }
         }
 
-        this.result.addAll(definedProperties)
+        this.result.addAll(definedSettings)
 
-        return definedProperties.isNotEmpty()
+        return definedSettings.isNotEmpty()
     }
 
-    companion object {
-        private val CHILD_TO_VERSION = mapOf(
-            "source" to Kind.SOURCE,
-            "target" to Kind.TARGET,
-            "release" to Kind.RELEASE,
-        )
-    }
 }
