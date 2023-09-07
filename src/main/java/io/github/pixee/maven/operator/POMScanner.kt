@@ -1,5 +1,6 @@
 package io.github.pixee.maven.operator
 
+import org.apache.maven.model.building.ModelBuildingException
 import org.dom4j.Element
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -21,7 +22,11 @@ object POMScanner {
         val parentPoms: List<File> = try {
             getParentPoms(originalFile)
         } catch (e: Exception) {
-            LOGGER.warn("While trying embedder: ", e)
+            if (e is ModelBuildingException) {
+                Ignorable.LOGGER.debug("mbe (you can ignore): ", e)
+            } else {
+                LOGGER.warn("While trying embedder: ", e)
+            }
 
             return legacyScanFrom(originalFile, topLevelDirectory)
         }
@@ -133,9 +138,10 @@ object POMScanner {
 
 
     private fun getParentPoms(originalFile: File): List<File> {
-        val embedderFacadeResponse = EmbedderFacade.invokeEmbedder(
-            EmbedderFacadeRequest(offline = true, pomFile = originalFile)
-        )
+        val embedderFacadeResponse =
+            EmbedderFacade.invokeEmbedder(
+                EmbedderFacadeRequest(offline = true, pomFile = originalFile)
+            )
 
         val res = embedderFacadeResponse.modelBuildingResult
 
