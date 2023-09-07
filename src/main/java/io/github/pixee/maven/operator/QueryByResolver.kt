@@ -41,7 +41,7 @@ class QueryByResolver : AbstractQueryCommand() {
         try {
             embedderFacadeResponse = EmbedderFacade.invokeEmbedder(req)
         } catch (mbe: ModelBuildingException) {
-            LOGGER.warn("Oops:", mbe)
+            Ignorable.LOGGER.debug("mbe (you can ignore): ", mbe)
 
             return false
         }
