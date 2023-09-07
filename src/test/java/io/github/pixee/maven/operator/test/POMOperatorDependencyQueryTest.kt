@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory
 import java.io.File
 import java.nio.file.Files
 
-class POMOperatorQueryTest {
+class POMOperatorDependencyQueryTest {
     companion object {
         private val LOGGER: Logger = LoggerFactory.getLogger(POMOperatorTest::class.java)
     }
@@ -59,7 +59,7 @@ class POMOperatorQueryTest {
     @Test
     fun testAllQueryTypes() {
         listOf("pom-1.xml", "pom-3.xml").forEach { pomFile ->
-            Chain.AVAILABLE_QUERY_COMMANDS.forEach {
+            Chain.AVAILABLE_DEPENDENCY_QUERY_COMMANDS.forEach {
                 val commandClassName = "io.github.pixee.maven.operator.${it.second}"
 
                 val commandListOverride =

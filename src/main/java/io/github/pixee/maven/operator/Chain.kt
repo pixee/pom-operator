@@ -34,6 +34,8 @@ class Chain(vararg commands: Command) {
                     c.modifiedByCommand = true
                 }
 
+                c.finishedByClass = nextCommand.javaClass.name
+
                 break
             }
         }
@@ -56,19 +58,9 @@ class Chain(vararg commands: Command) {
         return result
     }
 
+
     companion object {
         private val LOGGER: Logger = LoggerFactory.getLogger(Chain::class.java)
-
-        /**
-         * Some classes won't have all available dependencies on the classpath during runtime
-         * for this reason we'll use <pre>Class.forName</pre> and report issues creating
-         */
-        val AVAILABLE_QUERY_COMMANDS = listOf(
-            QueryType.SAFE to "QueryByResolver",
-            QueryType.SAFE to "QueryByParsing",
-            QueryType.UNSAFE to "QueryByEmbedder",
-            QueryType.UNSAFE to "QueryByInvoker",
-        )
 
         /**
          * Returns a Pre-Configured Chain with the Defaults for Modifying a POM
@@ -85,12 +77,14 @@ class Chain(vararg commands: Command) {
                 SimpleInsert
             )
 
-        /**
-         * returns a pre-configured chain with the defaults for Querying
-         */
-        fun createForQuery(queryType: QueryType = QueryType.SAFE): Chain {
-            val filteredCommands: List<Command> = AVAILABLE_QUERY_COMMANDS
-                .filter { it.first == queryType }.mapNotNull {
+        private fun filterByQueryType(
+            commandList: List<Pair<QueryType, String>>,
+            queryType: QueryType,
+            initialCommands: List<AbstractQueryCommand> = emptyList(),
+            queryTypeFilter: ((queryType: QueryType) -> Boolean)
+        ): Chain {
+            val filteredCommands: List<Command> = commandList
+                .filter { queryTypeFilter(it.first) }.mapNotNull {
                     val commandClassName = "io.github.pixee.maven.operator.${it.second}"
 
                     try {
@@ -103,12 +97,54 @@ class Chain(vararg commands: Command) {
                 }
                 .toList()
 
-            val commands : List<Command> = listOf(CHECK_PARENT_DIR_COMMAND) + filteredCommands
+            val commands: List<Command> = initialCommands + filteredCommands
 
             if (commands.isEmpty())
                 throw IllegalStateException("Unable to load any available strategy for ${queryType.name}")
 
             return Chain(*commands.toTypedArray())
         }
+
+        /**
+         * Some classes won't have all available dependencies on the classpath during runtime
+         * for this reason we'll use <pre>Class.forName</pre> and report issues creating
+         */
+        val AVAILABLE_DEPENDENCY_QUERY_COMMANDS = listOf<Pair<QueryType, String>>(
+            QueryType.SAFE to "QueryByResolver",
+            QueryType.SAFE to "QueryByParsing",
+            QueryType.UNSAFE to "QueryByEmbedder",
+            QueryType.UNSAFE to "QueryByInvoker",
+        )
+
+        /**
+         * returns a pre-configured chain with the defaults for Dependency Querying
+         */
+        fun createForDependencyQuery(queryType: QueryType = QueryType.SAFE): Chain =
+            filterByQueryType(
+                AVAILABLE_DEPENDENCY_QUERY_COMMANDS,
+                queryType,
+                listOf(CHECK_PARENT_DIR_COMMAND),
+                { it == queryType }
+            )
+
+        /**
+         * List of Commands for Version Query
+         */
+        val AVAILABLE_QUERY_VERSION_COMMANDS = listOf<Pair<QueryType, String>>(
+            QueryType.NONE to "UnwrapEffectivePom",
+            QueryType.SAFE to "VersionByCompilerDefinition",
+            QueryType.SAFE to "VersionByProperty",
+        )
+
+        /**
+         * returns a pre-configured chain for Version Query
+         */
+        fun createForVersionQuery(queryType: QueryType = QueryType.SAFE): Chain =
+            filterByQueryType(
+                AVAILABLE_QUERY_VERSION_COMMANDS,
+                queryType,
+                emptyList(),
+                { it.ordinal <= queryType.ordinal }
+            )
     }
 }

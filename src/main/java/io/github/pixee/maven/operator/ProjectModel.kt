@@ -23,6 +23,8 @@ class ProjectModel internal constructor(
 
     val repositoryPath: File? = null,
 
+    var finishedByClass: String? = null,
+
     val offline: Boolean = false,
 ) {
     internal var modifiedByCommand = false
