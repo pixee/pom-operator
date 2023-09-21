@@ -1789,7 +1789,10 @@
                 <configuration>
                   <target>
                     <mkdir dir="${project.build.directory}/dependency"/>
-      <['http://maven.apache.org/POM/4.0.0']::mkdir dir='${project.build.directory}/dependency'>   </executions>
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
           </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
