@@ -446,4 +446,32 @@ class POMOperatorTest : AbstractTestBase() {
         )
     }
 
+    @Test
+    fun testCaseWithEmptyElementFromCustomer() {
+        val dependencyToUpgrade =
+            Dependency("io.github.pixee", "java-security-toolkit", version = "1.0.2")
+
+        val context = gwt(
+            "hack23-cia",
+            ProjectModelFactory.load(
+                POMOperatorTest::class.java.getResource("pom-hack23-cia.xml")!!,
+            ).withDependency(dependencyToUpgrade).withUseProperties(true)
+        )
+
+        assertTrue(context.pomFile.dirty, "Original POM File is Dirty")
+
+        val resultPomAsString = String(context.pomFile.resultPomBytes)
+
+        assertTrue(
+            resultPomAsString.contains("<sonar.zaproxy.reportPath></sonar.zaproxy.reportPath>"),
+            "There must be an untouched empty element"
+        )
+
+        /*
+        assertTrue(
+            resultPomAsString.contains("<mkdir dir=\"\${project.build.directory}/dependency\"></mkdir>"),
+            "There must be an untouched element with attributes"
+        )
+        */
+    }
 }
