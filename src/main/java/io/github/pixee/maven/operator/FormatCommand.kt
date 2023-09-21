@@ -336,6 +336,6 @@ class FormatCommand : AbstractCommand() {
     companion object {
         val LINE_ENDINGS = setOf("\r\n", "\n", "\r")
 
-        val RE_EMPTY_ELEMENT = Regex("""<([\p{Alnum}\-\.]+)></\1>|<([\p{Alnum}\-\.]+)\s*/>""")
+        val RE_EMPTY_ELEMENT = Regex("""<([\p{Alnum}_\-\.]+)></\1>|<([\p{Alnum}_\-\.]+)\s*/>""")
     }
 }
