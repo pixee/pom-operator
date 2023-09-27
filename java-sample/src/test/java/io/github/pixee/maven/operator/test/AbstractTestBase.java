@@ -1,4 +1,4 @@
-package io.github.pixee.it;
+package io.github.pixee.maven.operator.test;
 
 import fun.mike.dmp.DiffMatchPatch;
 import fun.mike.dmp.Patch;
