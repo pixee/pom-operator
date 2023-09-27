@@ -51,7 +51,6 @@ public class AbstractTestBase {
     }
 
     protected ProjectModel gwt(final String testName, final ProjectModel context) throws DocumentException, IOException {
-        System.out.println("HOLAAAAA");
         final String resultFile = "pom-"+testName+"-result.xml";
         final URL resource = this.getClass().getResource(resultFile);
 
