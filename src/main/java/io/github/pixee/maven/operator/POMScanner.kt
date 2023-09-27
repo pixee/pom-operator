@@ -2,6 +2,7 @@ package io.github.pixee.maven.operator
 
 import org.apache.maven.model.building.ModelBuildingException
 import org.dom4j.Element
+import org.dom4j.tree.DefaultElement
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
@@ -45,8 +46,14 @@ object POMScanner {
         val relativePathElement =
             pomFile.pomDocument.rootElement.element("parent")?.element("relativePath")
 
+        val parentElement = pomFile.pomDocument.rootElement.element("parent")
+
         if (relativePathElement != null && relativePathElement.textTrim.isNotEmpty()) {
             pomFileQueue.add(relativePathElement)
+        } else if (relativePathElement == null && parentElement != null) {
+            pomFileQueue.add(DefaultElement("relativePath").apply {
+                this.text = "../pom.xml"
+            })
         }
 
         var lastFile: File = originalFile
@@ -98,6 +105,12 @@ object POMScanner {
                 throw InvalidPathException(pomFile.file, relativePath)
 
             val newPomFile = POMDocumentFactory.load(newPath.toFile())
+
+            val hasParent = newPomFile.pomDocument.rootElement.element("parent") != null
+            val hasRelativePath = newPomFile.pomDocument.rootElement.element("parent")?.element("relativePath") != null
+
+            if (! hasRelativePath && hasParent)
+                newPomFile.pomDocument.rootElement.element("parent").element("relativePath").text = "../pom.xml"
 
             parentPomFiles.add(newPomFile)
 
