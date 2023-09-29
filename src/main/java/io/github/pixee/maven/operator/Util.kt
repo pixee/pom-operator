@@ -3,6 +3,7 @@
 package io.github.pixee.maven.operator
 
 import com.github.zafarkhaja.semver.Version
+import io.github.pixee.maven.operator.java.UtilJ
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.SystemUtils
 import org.apache.commons.lang3.text.StrSubstitutor
@@ -88,13 +89,13 @@ object Util {
      */
     private fun upgradeProperty(c: ProjectModel, d: POMDocument, propertyName: String) {
         if (null == d.resultPom.rootElement.element("properties")) {
-            d.resultPom.rootElement.addIndentedElement(d, "properties")
+            UtilJ.addIndentedElement(d.resultPom.rootElement,d, "properties")
         }
 
         val parentPropertyElement = d.resultPom.rootElement.element("properties")
 
         if (null == parentPropertyElement.element(propertyName)) {
-            parentPropertyElement.addIndentedElement(d, propertyName)
+            UtilJ.addIndentedElement(parentPropertyElement,d, propertyName)
         } else {
             if (!c.overrideIfAlreadyExists) {
                 val propertyReferenceRE = Regex.fromLiteral("\${$propertyName}")

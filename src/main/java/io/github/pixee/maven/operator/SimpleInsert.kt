@@ -1,6 +1,6 @@
 package io.github.pixee.maven.operator
 
-import io.github.pixee.maven.operator.Util.addIndentedElement
+import io.github.pixee.maven.operator.java.UtilJ
 import io.github.pixee.maven.operator.Util.selectXPathNodes
 import io.github.pixee.maven.operator.Util.upgradeVersionNode
 import org.dom4j.Element
@@ -15,13 +15,10 @@ val SimpleInsert = object : Command {
 
         val dependenciesNode = if (dependencyManagementNodeList.isEmpty()) {
             val newDependencyManagementNode =
-                pm.pomFile.resultPom.rootElement.addIndentedElement(
-                    pm.pomFile,
-                    "dependencyManagement"
-                )
+                UtilJ.addIndentedElement(pm.pomFile.resultPom.rootElement, pm.pomFile, "dependencyManagement")
 
             val dependencyManagementNode =
-                newDependencyManagementNode.addIndentedElement(pm.pomFile, "dependencies")
+                UtilJ.addIndentedElement(newDependencyManagementNode, pm.pomFile, "dependencies")
 
             dependencyManagementNode
         } else {
@@ -30,7 +27,7 @@ val SimpleInsert = object : Command {
 
         val dependencyNode = appendCoordinates(dependenciesNode, pm)
 
-        val versionNode = dependencyNode.addIndentedElement(pm.pomFile, "version")
+        val versionNode = UtilJ.addIndentedElement(dependencyNode, pm.pomFile, "version")
 
         upgradeVersionNode(pm, versionNode, pm.pomFile)
 
@@ -38,7 +35,7 @@ val SimpleInsert = object : Command {
             pm.pomFile.resultPom.selectXPathNodes("//m:project/m:dependencies")
 
         val rootDependencyNode: Element = if (dependenciesNodeList.isEmpty()) {
-            pm.pomFile.resultPom.rootElement.addIndentedElement(pm.pomFile, "dependencies")
+            UtilJ.addIndentedElement(pm.pomFile.resultPom.rootElement, pm.pomFile, "dependencies")
         } else if (dependenciesNodeList.size == 1) {
             dependenciesNodeList[0] as Element
         } else {
@@ -57,15 +54,15 @@ val SimpleInsert = object : Command {
         dependenciesNode: Element,
         c: ProjectModel
     ): Element {
-        val dependencyNode = dependenciesNode.addIndentedElement(c.pomFile, "dependency")
+        val dependencyNode = UtilJ.addIndentedElement(dependenciesNode, c.pomFile, "dependency")
 
-        val groupIdNode = dependencyNode.addIndentedElement(c.pomFile, "groupId")
+        val groupIdNode = UtilJ.addIndentedElement(dependencyNode, c.pomFile, "groupId")
 
         val dep = c.dependency!!
 
         groupIdNode.text = dep.groupId
 
-        val artifactIdNode = dependencyNode.addIndentedElement(c.pomFile, "artifactId")
+        val artifactIdNode = UtilJ.addIndentedElement(dependencyNode, c.pomFile, "artifactId")
 
         artifactIdNode.text = dep.artifactId
 
@@ -74,4 +71,3 @@ val SimpleInsert = object : Command {
 
     override fun postProcess(c: ProjectModel): Boolean = false
 }
-

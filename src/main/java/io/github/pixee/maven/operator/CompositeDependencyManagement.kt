@@ -1,7 +1,7 @@
 package io.github.pixee.maven.operator
 
-import io.github.pixee.maven.operator.Util.addIndentedElement
 import io.github.pixee.maven.operator.Util.selectXPathNodes
+import io.github.pixee.maven.operator.java.UtilJ
 import org.dom4j.Element
 import java.lang.IllegalStateException
 
@@ -25,7 +25,7 @@ class CompositeDependencyManagement : AbstractCommand() {
 
         val dependencyManagementElement =
             if (parentPomFile.resultPom.rootElement.elements("dependencyManagement").isEmpty()) {
-                parentPomFile.resultPom.rootElement.addIndentedElement(
+                UtilJ.addIndentedElement(parentPomFile.resultPom.rootElement,
                     parentPomFile,
                     "dependencyManagement"
                 )
@@ -42,13 +42,13 @@ class CompositeDependencyManagement : AbstractCommand() {
         )
 
         if (pm.useProperties) {
-            val newVersionNode =
-                newDependencyManagementElement?.addIndentedElement(parentPomFile, "version")
-                    ?: throw IllegalStateException("newDependencyManagementElement is missing")
+            if (newDependencyManagementElement != null) {
+                val newVersionNode = UtilJ.addIndentedElement(newDependencyManagementElement, parentPomFile, "version")
 
-            val whereToUpgradeVersionProperty = parentPomFile
-
-            Util.upgradeVersionNode(pm, newVersionNode, whereToUpgradeVersionProperty)
+                Util.upgradeVersionNode(pm, newVersionNode, parentPomFile)
+            } else {
+                throw IllegalStateException("newDependencyManagementElement is missing")
+            }
         }
 
         // add dependency to pom - sans version
@@ -94,23 +94,23 @@ class CompositeDependencyManagement : AbstractCommand() {
                 if (null != parentElement.element("dependencies")) {
                     parentElement.element("dependencies")
                 } else {
-                    parentElement.addIndentedElement(
+                    UtilJ.addIndentedElement(parentElement,
                         pomFileToModify,
                         "dependencies"
                     )
                 }
 
             val dependencyNode: Element =
-                dependenciesNode.addIndentedElement(pomFileToModify, "dependency")
+                UtilJ.addIndentedElement(dependenciesNode,pomFileToModify, "dependency")
 
-            dependencyNode.addIndentedElement(pomFileToModify, "groupId").text =
+            UtilJ.addIndentedElement(dependencyNode,pomFileToModify, "groupId").text =
                 c.dependency!!.groupId
-            dependencyNode.addIndentedElement(pomFileToModify, "artifactId").text =
+            UtilJ.addIndentedElement(dependencyNode,pomFileToModify, "artifactId").text =
                 c.dependency!!.artifactId
 
             if (dependencyManagementNode) {
                 if (!c.useProperties) {
-                    dependencyNode.addIndentedElement(pomFileToModify, "version").text =
+                    UtilJ.addIndentedElement(dependencyNode,pomFileToModify, "version").text =
                         c.dependency!!.version!!
                 }
             }
