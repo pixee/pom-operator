@@ -45,7 +45,7 @@ class CompositeDependencyManagement : AbstractCommand() {
             if (newDependencyManagementElement != null) {
                 val newVersionNode = UtilJ.addIndentedElement(newDependencyManagementElement, parentPomFile, "version")
 
-                Util.upgradeVersionNode(pm, newVersionNode, parentPomFile)
+                UtilJ.upgradeVersionNode(pm, newVersionNode, parentPomFile)
             } else {
                 throw IllegalStateException("newDependencyManagementElement is missing")
             }

@@ -2,7 +2,6 @@ package io.github.pixee.maven.operator
 
 import io.github.pixee.maven.operator.java.UtilJ
 import io.github.pixee.maven.operator.Util.selectXPathNodes
-import io.github.pixee.maven.operator.Util.upgradeVersionNode
 import org.dom4j.Element
 
 /**
@@ -29,7 +28,7 @@ val SimpleInsert = object : Command {
 
         val versionNode = UtilJ.addIndentedElement(dependencyNode, pm.pomFile, "version")
 
-        upgradeVersionNode(pm, versionNode, pm.pomFile)
+        UtilJ.upgradeVersionNode(pm, versionNode, pm.pomFile)
 
         val dependenciesNodeList =
             pm.pomFile.resultPom.selectXPathNodes("//m:project/m:dependencies")

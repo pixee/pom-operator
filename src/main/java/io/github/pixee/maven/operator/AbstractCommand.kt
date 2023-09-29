@@ -2,7 +2,7 @@ package io.github.pixee.maven.operator
 
 import io.github.pixee.maven.operator.Util.findOutIfUpgradeIsNeeded
 import io.github.pixee.maven.operator.Util.selectXPathNodes
-import io.github.pixee.maven.operator.Util.upgradeVersionNode
+import io.github.pixee.maven.operator.java.UtilJ
 import org.dom4j.Element
 import java.io.File
 
@@ -31,7 +31,7 @@ abstract class AbstractCommand : Command {
                 }
 
                 if (mustUpgrade) {
-                    upgradeVersionNode(pm, versionNode, pm.pomFile)
+                    UtilJ.upgradeVersionNode(pm, versionNode, pm.pomFile)
                 }
 
                 return true

@@ -71,85 +71,6 @@ public class UtilJ {
         return level;
     }
 
-    /*
-    private static void upgradeProperty(ProjectModel c, POMDocument d, String propertyName) {
-        if (d.getResultPom().getRootElement().element("properties") == null) {
-            addIndentedElement(d.getResultPom().getRootElement(), d, "properties");
-        }
-
-        Element parentPropertyElement = d.getResultPom().getRootElement().element("properties");
-
-        if (parentPropertyElement.element(propertyName) == null) {
-            addIndentedElement(parentPropertyElement, d, propertyName);
-        } else {
-            if (!c.getOverrideIfAlreadyExists()) {
-                // Find and count matches using Java's Pattern and Matcher
-                Matcher matcher = PROPERTY_REFERENCE_PATTERN.matcher(d.getResultPom().asXML());
-                int numberOfAllCurrentMatches = 0;
-                while (matcher.find()) {
-                    numberOfAllCurrentMatches++;
-                }
-
-                if (numberOfAllCurrentMatches > 1) {
-                    throw new IllegalStateException("Property " + propertyName + " is already defined - and used more than once.");
-                }
-            }
-        }
-
-        Element propertyElement = parentPropertyElement.element(propertyName);
-
-        String propertyText = (propertyElement.getText() != null) ? propertyElement.getText().trim() : "";
-
-        if (c.getDependency() != null && c.getDependency().getVersion() != null && !propertyText.equals(c.getDependency().getVersion())) {
-            propertyElement.setText(c.getDependency().getVersion());
-            d.setDirty(true);
-        }
-    }
-
-    static String propertyName(ProjectModel c, Element versionNode) {
-        String version = versionNode.getTextTrim();
-
-        if (PROPERTY_REFERENCE_PATTERN.matcher(version).matches()) {
-            Matcher matcher = PROPERTY_REFERENCE_PATTERN.matcher(version);
-
-            if (matcher.find()) {
-                return matcher.group(1);
-            }
-        }
-
-        if (c.getDependency() != null) {
-            c.getDependency().getArtifactId();
-            return "versions." + c.getDependency().getArtifactId();
-        }
-
-        return "versions.default";
-    }
-
-    public static boolean findOutIfUpgradeIsNeeded(ProjectModel c, Element versionNode) {
-        String currentVersionNodeText = resolveVersion(c, versionNode.getText());
-
-        Version currentVersion = Version.valueOf(currentVersionNodeText);
-        Version newVersion = Version.valueOf(c.getDependency().getVersion());
-
-        boolean versionsAreIncreasing = newVersion.greaterThan(currentVersion);
-
-        return versionsAreIncreasing;
-    }
-
-    private static String resolveVersion(ProjectModel c, String versionText) {
-        if (PROPERTY_REFERENCE_PATTERN.matcher(versionText).matches()) {
-            StrSubstitutor substitutor = new StrSubstitutor(c.getResolvedProperties());
-            String resolvedVersion = substitutor.replace(versionText);
-            return resolvedVersion;
-        } else {
-            return versionText;
-        }
-    }
-
-    private static String escapedPropertyName(String propertyName) {
-        return "${" + propertyName + "}";
-    }
-
     public static void upgradeVersionNode(
             ProjectModel c,
             Element versionNode,
@@ -174,6 +95,96 @@ public class UtilJ {
             }
         }
     }
+
+    private static void upgradeProperty(ProjectModel c, POMDocument d, String propertyName) {
+        if (d.getResultPom().getRootElement().element("properties") == null) {
+            addIndentedElement(d.getResultPom().getRootElement(), d, "properties");
+        }
+
+        Element parentPropertyElement = d.getResultPom().getRootElement().element("properties");
+
+        if (parentPropertyElement.element(propertyName) == null) {
+            addIndentedElement(parentPropertyElement, d, propertyName);
+        } else {
+            if (!c.getOverrideIfAlreadyExists()) {
+
+                Pattern propertyReferencePattern = Pattern.compile("\\$\\{" + propertyName + "}");
+
+                Matcher matcher = propertyReferencePattern.matcher(d.getResultPom().asXML());
+                int numberOfAllCurrentMatches = 0;
+
+                while (matcher.find()) {
+                    numberOfAllCurrentMatches++;
+                }
+
+                if (numberOfAllCurrentMatches > 1) {
+                    throw new IllegalStateException("Property " + propertyName + " is already defined - and used more than once.");
+                }
+            }
+        }
+
+        Element propertyElement = parentPropertyElement.element(propertyName);
+
+        String propertyText = (propertyElement.getText() != null) ? propertyElement.getText().trim() : "";
+
+        if (c.getDependency() != null && c.getDependency().getVersion() != null && !propertyText.equals(c.getDependency().getVersion())) {
+            propertyElement.setText(c.getDependency().getVersion());
+            d.setDirty(true);
+        }
+    }
+
+    private static String escapedPropertyName(String propertyName) {
+        return "${" + propertyName + "}";
+    }
+
+    static String propertyName(ProjectModel c, Element versionNode) {
+        String version = versionNode.getTextTrim();
+
+        if (PROPERTY_REFERENCE_PATTERN.matcher(version).matches()) {
+            Matcher matcher = PROPERTY_REFERENCE_PATTERN.matcher(version);
+
+            if (matcher.find()) {
+                return matcher.group(1);
+            }
+        }
+
+        if (c.getDependency() != null) {
+            c.getDependency().getArtifactId();
+            return "versions." + c.getDependency().getArtifactId();
+        }
+
+        return "versions.default";
+    }
+
+    /*
+
+
+
+
+    public static boolean findOutIfUpgradeIsNeeded(ProjectModel c, Element versionNode) {
+        String currentVersionNodeText = resolveVersion(c, versionNode.getText());
+
+        Version currentVersion = Version.valueOf(currentVersionNodeText);
+        Version newVersion = Version.valueOf(c.getDependency().getVersion());
+
+        boolean versionsAreIncreasing = newVersion.greaterThan(currentVersion);
+
+        return versionsAreIncreasing;
+    }
+
+    private static String resolveVersion(ProjectModel c, String versionText) {
+        if (PROPERTY_REFERENCE_PATTERN.matcher(versionText).matches()) {
+            StrSubstitutor substitutor = new StrSubstitutor(c.getResolvedProperties());
+            String resolvedVersion = substitutor.replace(versionText);
+            return resolvedVersion;
+        } else {
+            return versionText;
+        }
+    }
+
+
+
+
 
     public static String buildLookupExpressionForDependency(Dependency dependency) {
         return "/m:project" +
