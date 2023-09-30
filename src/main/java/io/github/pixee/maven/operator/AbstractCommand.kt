@@ -1,6 +1,5 @@
 package io.github.pixee.maven.operator
 
-import io.github.pixee.maven.operator.Util.findOutIfUpgradeIsNeeded
 import io.github.pixee.maven.operator.Util.selectXPathNodes
 import io.github.pixee.maven.operator.java.UtilJ
 import org.dom4j.Element
@@ -27,7 +26,7 @@ abstract class AbstractCommand : Command {
                 var mustUpgrade = true
 
                 if (pm.skipIfNewer) {
-                    mustUpgrade = findOutIfUpgradeIsNeeded(pm, versionNode)
+                    mustUpgrade = UtilJ.findOutIfUpgradeIsNeeded(pm, versionNode)
                 }
 
                 if (mustUpgrade) {

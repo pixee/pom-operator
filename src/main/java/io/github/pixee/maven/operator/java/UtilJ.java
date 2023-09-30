@@ -156,11 +156,6 @@ public class UtilJ {
         return "versions.default";
     }
 
-    /*
-
-
-
-
     public static boolean findOutIfUpgradeIsNeeded(ProjectModel c, Element versionNode) {
         String currentVersionNodeText = resolveVersion(c, versionNode.getText());
 
@@ -181,6 +176,10 @@ public class UtilJ {
             return versionText;
         }
     }
+
+    /*
+
+
 
 
 
