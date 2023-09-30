@@ -1,5 +1,6 @@
 package io.github.pixee.maven.operator
 
+import io.github.pixee.maven.operator.java.IgnorableJ
 import org.apache.maven.model.building.ModelBuildingException
 import org.eclipse.aether.artifact.DefaultArtifact
 import org.eclipse.aether.collection.CollectRequest
@@ -41,7 +42,7 @@ class QueryByResolver : AbstractQueryCommand() {
         try {
             embedderFacadeResponse = EmbedderFacade.invokeEmbedder(req)
         } catch (mbe: ModelBuildingException) {
-            Ignorable.LOGGER.debug("mbe (you can ignore): ", mbe)
+            IgnorableJ.LOGGER.debug("mbe (you can ignore): ", mbe)
 
             return false
         }

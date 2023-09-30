@@ -1,5 +1,6 @@
 package io.github.pixee.maven.operator
 
+import io.github.pixee.maven.operator.java.IgnorableJ
 import org.apache.maven.model.building.ModelBuildingException
 import org.codehaus.plexus.util.xml.Xpp3Dom
 import org.slf4j.Logger
@@ -16,7 +17,7 @@ class UnwrapEffectivePom : AbstractVersionCommand() {
         } catch (e: Exception) {
 
             if (e is ModelBuildingException) {
-                Ignorable.LOGGER.debug("mbe (you can ignore): ", e)
+                IgnorableJ.LOGGER.debug("mbe (you can ignore): ", e)
             } else {
                 LOGGER.warn("While trying embedder: ", e)
             }
