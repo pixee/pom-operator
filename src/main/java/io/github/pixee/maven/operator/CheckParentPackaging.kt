@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator
 
 import io.github.pixee.maven.operator.Util.selectXPathNodes
+import io.github.pixee.maven.operator.java.WrongDependencyTypeExceptionJ
 import org.dom4j.Element
 import org.dom4j.Text
 
@@ -24,13 +25,13 @@ val CheckParentPackaging = object : AbstractCommand() {
         val wrongParentPoms = pm.parentPomFiles.filterNot { packagingTypePredicate(it, "pom") }
 
         if (wrongParentPoms.isNotEmpty()) {
-            throw WrongDependencyTypeException("wrong packaging type for parentPom")
+            throw WrongDependencyTypeExceptionJ("wrong packaging type for parentPom")
         }
 
         if (pm.parentPomFiles.isNotEmpty()) {
             // check main pom file has a inheritance to one of the members listed
             if (!hasValidParentAndPackaging(pm.pomFile)) {
-                throw WrongDependencyTypeException("invalid parent/packaging combo for main pomfile")
+                throw WrongDependencyTypeExceptionJ("invalid parent/packaging combo for main pomfile")
             }
         }
 
