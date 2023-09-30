@@ -1,9 +1,9 @@
 package io.github.pixee.maven.operator.test
 
 import io.github.pixee.maven.operator.*
-import io.github.pixee.maven.operator.Util.buildLookupExpressionForDependency
 import io.github.pixee.maven.operator.Util.selectXPathNodes
 import io.github.pixee.maven.operator.Util.which
+import io.github.pixee.maven.operator.java.UtilJ
 import org.apache.commons.lang3.SystemUtils
 import org.dom4j.DocumentException
 import org.hamcrest.MatcherAssert.assertThat
@@ -208,7 +208,7 @@ class POMOperatorTest : AbstractTestBase() {
 
         assertThat(
             "Dependencies Section did change",
-            effectivePom.selectXPathNodes(buildLookupExpressionForDependency(dependencyToUpgrade))
+            effectivePom.selectXPathNodes(UtilJ.buildLookupExpressionForDependency(dependencyToUpgrade))
                 .isNotEmpty()
         )
     }

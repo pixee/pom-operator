@@ -54,7 +54,7 @@ class CompositeDependencyManagement : AbstractCommand() {
         // add dependency to pom - sans version
         modifyDependency(
             pm.pomFile,
-            Util.buildLookupExpressionForDependency(pm.dependency!!),
+            UtilJ.buildLookupExpressionForDependency(pm.dependency!!),
             pm,
             pm.pomFile.resultPom.rootElement,
             dependencyManagementNode = false,

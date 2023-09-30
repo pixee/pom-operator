@@ -177,6 +177,14 @@ public class UtilJ {
         }
     }
 
+    public static String buildLookupExpressionForDependency(Dependency dependency) {
+        return "/m:project" +
+                "/m:dependencies" +
+                "/m:dependency" +
+                "[./m:groupId[text()='" + dependency.getGroupId() + "'] and " +
+                "./m:artifactId[text()='" + dependency.getArtifactId() + "']]";
+    }
+
     /*
 
 
@@ -185,13 +193,7 @@ public class UtilJ {
 
 
 
-    public static String buildLookupExpressionForDependency(Dependency dependency) {
-        return "/m:project" +
-                "/m:dependencies" +
-                "/m:dependency" +
-                "[./m:groupId[text()='" + dependency.getGroupId() + "'] and " +
-                "./m:artifactId[text()='" + dependency.getArtifactId() + "']]";
-    }
+
 
     public static String buildLookupExpressionForDependencyManagement(Dependency dependency) {
         return "/m:project" +
