@@ -1,5 +1,6 @@
 package io.github.pixee.maven.operator
 
+import io.github.pixee.maven.operator.java.SupportCommandJ
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -30,7 +31,7 @@ class Chain(vararg commands: Command) {
             done = nextCommand.execute(c)
 
             if (done) {
-                if (c.queryType == QueryType.NONE && (nextCommand !is SupportCommand)) {
+                if (c.queryType == QueryType.NONE && (nextCommand !is SupportCommandJ)) {
                     c.modifiedByCommand = true
                 }
 
