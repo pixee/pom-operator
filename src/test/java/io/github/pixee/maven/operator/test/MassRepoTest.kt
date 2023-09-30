@@ -4,7 +4,7 @@ import io.github.pixee.maven.operator.Dependency
 import io.github.pixee.maven.operator.POMOperator
 import io.github.pixee.maven.operator.POMScanner
 import io.github.pixee.maven.operator.ProjectModelFactory
-import io.github.pixee.maven.operator.Util.which
+import io.github.pixee.maven.operator.java.UtilJ
 import org.apache.commons.lang3.SystemUtils
 import org.junit.Assert.*
 import org.junit.Test
@@ -271,11 +271,11 @@ class MassRepoIT {
         }
 
         val command = if (SystemUtils.IS_OS_WINDOWS) {
-            listOf(which("cmd")!!.canonicalPath, "/c")
+            listOf(UtilJ.which("cmd")!!.canonicalPath, "/c")
         } else {
             emptyList()
         } + listOf(
-            which("mvn")!!.canonicalPath,
+            UtilJ.which("mvn")!!.canonicalPath,
             "-B",
             "-f",
             pomPath,

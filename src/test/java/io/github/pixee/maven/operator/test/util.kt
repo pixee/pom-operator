@@ -1,7 +1,7 @@
 package io.github.pixee.maven.operator.test
 
 import io.github.pixee.maven.operator.ProjectModel
-import io.github.pixee.maven.operator.Util.which
+import io.github.pixee.maven.operator.java.UtilJ
 import org.apache.commons.lang3.SystemUtils
 import org.dom4j.Document
 import org.dom4j.io.SAXReader
@@ -24,7 +24,7 @@ internal fun ProjectModel.getEffectivePom(): Document {
 
     val processArgs: MutableList<String> =
             mutableListOf<String>(
-                which("mvn")!!.absolutePath,
+                UtilJ.which("mvn")!!.absolutePath,
                 "-B",
                 "-N",
                 "-f",

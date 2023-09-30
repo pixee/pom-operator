@@ -1,5 +1,6 @@
 package io.github.pixee.maven.operator.test;
 
+import io.github.pixee.maven.operator.java.UtilJ;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.Test;
 
@@ -13,7 +14,7 @@ import static org.junit.Assert.assertEquals;
 public class POMOperatorJavaIT {
   @Test
   public void testJavaSample() throws Exception {
-    String mvnAbsPath = Util.INSTANCE.which$pom_operator("mvn").getAbsolutePath();
+    String mvnAbsPath = UtilJ.which("mvn").getAbsolutePath();
 
     List<String> argList = Arrays.asList(
         mvnAbsPath,
@@ -25,7 +26,7 @@ public class POMOperatorJavaIT {
     );
 
     if (SystemUtils.IS_OS_WINDOWS) {
-      List<String> newArgList = Arrays.asList(Util.INSTANCE.which$pom_operator("cmd").getAbsolutePath(), "/c");
+      List<String> newArgList = Arrays.asList(UtilJ.which("cmd").getAbsolutePath(), "/c");
 
       newArgList.addAll(argList);
 

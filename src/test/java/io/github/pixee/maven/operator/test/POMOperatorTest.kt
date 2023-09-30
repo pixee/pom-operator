@@ -2,7 +2,6 @@ package io.github.pixee.maven.operator.test
 
 import io.github.pixee.maven.operator.*
 import io.github.pixee.maven.operator.Util.selectXPathNodes
-import io.github.pixee.maven.operator.Util.which
 import io.github.pixee.maven.operator.java.UtilJ
 import org.apache.commons.lang3.SystemUtils
 import org.dom4j.DocumentException
@@ -172,7 +171,7 @@ class POMOperatorTest : AbstractTestBase() {
                 listOf()
             } +
                     listOf(
-                        which("mvn")!!.absolutePath,
+                        UtilJ.which("mvn")!!.absolutePath,
                         "-N",
                         "install:install-file",
                         "-DgroupId=org.owasp.webgoat",

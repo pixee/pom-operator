@@ -194,34 +194,7 @@ public class UtilJ {
                 "./m:artifactId[text()='" + dependency.getArtifactId() + "']]";
     }
 
-    /*
-
-
-    public static List<Node> selectXPathNodes(Node node, String expression) {
-        try {
-            XPath xpath = (XPath) createXPathExpression(expression);
-            return xpath.selectNodes(node);
-        } catch (Exception e) {
-            LOGGER.warn("selectXPathNodes " + e);
-            return new ArrayList<>();
-        }
-    }
-
-    private static Dom4jXPath createXPathExpression(String expression) throws Exception {
-        Dom4jXPath xpath = new Dom4jXPath(expression);
-        xpath.setNamespaceContext(namespaceContext);
-        return xpath;
-    }
-
-    private static final SimpleNamespaceContext namespaceContext;
-
-    static {
-        Map<String, String> namespaces = new HashMap<>();
-        namespaces.put("m", "http://maven.apache.org/POM/4.0.0");
-        namespaceContext = new SimpleNamespaceContext(namespaces);
-    }
-
-    static File which(String path) {
+    public static File which(String path) {
         List<String> nativeExecutables;
         if (SystemUtils.IS_OS_WINDOWS) {
             nativeExecutables = new ArrayList<>();
@@ -261,5 +234,34 @@ public class UtilJ {
         }
 
         return result;
-    }*/
+    }
+
+    /*
+
+
+    public static List<Node> selectXPathNodes(Node node, String expression) {
+        try {
+            XPath xpath = (XPath) createXPathExpression(expression);
+            return xpath.selectNodes(node);
+        } catch (Exception e) {
+            LOGGER.warn("selectXPathNodes " + e);
+            return new ArrayList<>();
+        }
+    }
+
+    private static Dom4jXPath createXPathExpression(String expression) throws Exception {
+        Dom4jXPath xpath = new Dom4jXPath(expression);
+        xpath.setNamespaceContext(namespaceContext);
+        return xpath;
+    }
+
+    private static final SimpleNamespaceContext namespaceContext;
+
+    static {
+        Map<String, String> namespaces = new HashMap<>();
+        namespaces.put("m", "http://maven.apache.org/POM/4.0.0");
+        namespaceContext = new SimpleNamespaceContext(namespaces);
+    }
+
+    */
 }

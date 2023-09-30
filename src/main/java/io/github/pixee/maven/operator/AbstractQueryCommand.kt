@@ -1,6 +1,6 @@
 package io.github.pixee.maven.operator
 
-import io.github.pixee.maven.operator.Util.which
+import io.github.pixee.maven.operator.java.UtilJ
 import org.apache.commons.lang3.SystemUtils
 import org.apache.maven.shared.invoker.DefaultInvocationRequest
 import org.apache.maven.shared.invoker.InvocationRequest
@@ -181,7 +181,7 @@ abstract class AbstractQueryCommand : AbstractCommand() {
         /**
          * Step 2: Find Maven Executable given the operating system and PATH variable contents
          */
-        val foundExecutable = listOf("mvn", "mvnw").map { which(it) }.firstOrNull()
+        val foundExecutable = listOf("mvn", "mvnw").map { UtilJ.which(it) }.firstOrNull()
 
         if (null != foundExecutable) {
             invocationRequest.mavenExecutable = foundExecutable
