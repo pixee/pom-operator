@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator
 
 import io.github.pixee.maven.operator.java.IgnorableJ
+import io.github.pixee.maven.operator.java.VersionDefinitionJ
 import org.apache.maven.model.building.ModelBuildingException
 import org.codehaus.plexus.util.xml.Xpp3Dom
 import org.slf4j.Logger
@@ -29,8 +30,8 @@ class UnwrapEffectivePom : AbstractVersionCommand() {
             EmbedderFacadeRequest(offline = pm.offline, pomFile = pm.pomFile.file)
         )
 
-        val definedVersions: MutableSet<VersionDefinition> =
-            TreeSet<VersionDefinition>(VERSION_KIND_COMPARATOR)
+        val definedVersions: MutableSet<VersionDefinitionJ> =
+            TreeSet<VersionDefinitionJ>(VERSION_KIND_COMPARATOR)
 
         val res = embedderFacadeResponse.modelBuildingResult
 
@@ -47,7 +48,7 @@ class UnwrapEffectivePom : AbstractVersionCommand() {
                     val child = config.getChild(it.key)
 
                     if (null != child) {
-                        VersionDefinition(it.value, child.value)
+                        VersionDefinitionJ(it.value, child.value)
                     } else {
                         null
                     }
@@ -60,7 +61,7 @@ class UnwrapEffectivePom : AbstractVersionCommand() {
             if (PROPERTY_TO_KIND.containsKey(it.key as String)) {
                 val kind = PROPERTY_TO_KIND[it.key]!!
 
-                VersionDefinition(kind, it.value as String)
+                VersionDefinitionJ(kind, it.value as String)
             } else {
                 null
             }

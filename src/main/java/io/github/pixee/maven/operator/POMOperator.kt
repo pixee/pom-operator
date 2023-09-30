@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator
 
 import com.github.zafarkhaja.semver.Version
+import io.github.pixee.maven.operator.java.VersionDefinitionJ
 import io.github.pixee.maven.operator.java.VersionQueryResponseJ
 import java.util.*
 
@@ -126,7 +127,7 @@ object POMOperator {
     internal fun queryVersions(
         projectModel: ProjectModel,
         commandList: List<Command>
-    ): Set<VersionDefinition> {
+    ): Set<VersionDefinitionJ> {
         val chain = Chain.createForVersionQuery(projectModel.queryType)
 
         executeChain(commandList, chain, projectModel)
