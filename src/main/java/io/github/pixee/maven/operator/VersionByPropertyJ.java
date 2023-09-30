@@ -9,7 +9,8 @@ import java.util.*;
 
 public class VersionByPropertyJ extends AbstractVersionCommandJ {
 
-    public static boolean execute(final Set<VersionDefinitionJ> result , ProjectModel pm ){
+    @Override
+    public boolean execute(ProjectModel pm) {
         Set<VersionDefinitionJ> definedProperties = new TreeSet<>(VERSION_KIND_COMPARATOR);
 
         for (Map.Entry<String, List<kotlin.Pair<String, POMDocument>>> entry : pm.getPropertiesDefinedByFile().entrySet()) {
@@ -26,11 +27,6 @@ public class VersionByPropertyJ extends AbstractVersionCommandJ {
         result.addAll(definedProperties);
 
         return !definedProperties.isEmpty();
-    }
-
-    @Override
-    public boolean execute(ProjectModel pm) {
-        return execute(result, pm);
     }
 
     private static class Pair<K, V> {
