@@ -1,11 +1,12 @@
 package io.github.pixee.maven.operator
 
+import io.github.pixee.maven.operator.java.AbstractCommandJ
 import io.github.pixee.maven.operator.java.UtilJ.selectXPathNodes
 import io.github.pixee.maven.operator.java.UtilJ
 import org.dom4j.Element
 import java.lang.IllegalStateException
 
-class CompositeDependencyManagement : AbstractCommand() {
+class CompositeDependencyManagement : AbstractCommandJ() {
     override fun execute(pm: ProjectModel): Boolean {
         /**
          * Abort if not multi-pom

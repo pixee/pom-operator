@@ -1,5 +1,6 @@
 package io.github.pixee.maven.operator
 
+import io.github.pixee.maven.operator.java.AbstractCommandJ
 import io.github.pixee.maven.operator.java.UtilJ
 import org.apache.commons.lang3.SystemUtils
 import org.apache.maven.shared.invoker.DefaultInvocationRequest
@@ -15,7 +16,7 @@ import java.util.*
  * relying on dependency:tree mojo outputting into a text file - which might be cached.
  *
  */
-abstract class AbstractQueryCommand : AbstractCommand() {
+abstract class AbstractQueryCommand : AbstractCommandJ() {
     /**
      * Generates a temporary file path used to store the output of the <pre>dependency:tree</pre> mojo
      *

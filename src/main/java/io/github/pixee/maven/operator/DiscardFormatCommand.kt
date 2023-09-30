@@ -1,12 +1,13 @@
 package io.github.pixee.maven.operator
 
+import io.github.pixee.maven.operator.java.AbstractCommandJ
 import org.xmlunit.builder.DiffBuilder
 import org.xmlunit.builder.Input
 
 /**
  * Command Class to Short-Circuit/Discard Processing when no pom changes were made
  */
-class DiscardFormatCommand : AbstractCommand() {
+class DiscardFormatCommand : AbstractCommandJ() {
     override fun postProcess(pm: ProjectModel): Boolean {
         var mustSkip = false
 

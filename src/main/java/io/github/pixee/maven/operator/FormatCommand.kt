@@ -1,5 +1,6 @@
 package io.github.pixee.maven.operator
 
+import io.github.pixee.maven.operator.java.AbstractCommandJ
 import org.apache.commons.lang3.StringUtils
 import org.mozilla.universalchardet.UniversalDetector
 import java.io.StringWriter
@@ -26,7 +27,7 @@ data class MatchData(
  * which are the only ones which are tricky to format (due to element and its attributes being freeform - thus formatting lost when serializing the DOM
  * and the PI being completely optional for the POM Document)
  */
-class FormatCommand : AbstractCommand() {
+class FormatCommand : AbstractCommandJ() {
     /**
      * StAX InputFactory
      */

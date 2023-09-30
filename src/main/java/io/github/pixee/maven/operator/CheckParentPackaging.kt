@@ -1,5 +1,6 @@
 package io.github.pixee.maven.operator
 
+import io.github.pixee.maven.operator.java.AbstractCommandJ
 import io.github.pixee.maven.operator.java.UtilJ.selectXPathNodes
 import io.github.pixee.maven.operator.java.WrongDependencyTypeExceptionJ
 import org.dom4j.Element
@@ -8,7 +9,7 @@ import org.dom4j.Text
 /**
  * Guard Command Singleton use to validate required parameters
  */
-val CheckParentPackaging = object : AbstractCommand() {
+val CheckParentPackaging = object : AbstractCommandJ() {
     fun packagingTypePredicate(d: POMDocument, packagingType: String): Boolean {
         val elementText =
             selectXPathNodes(d.pomDocument.rootElement,"/m:project/m:packaging/text()")

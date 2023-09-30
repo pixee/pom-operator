@@ -1,5 +1,6 @@
 package io.github.pixee.maven.operator
 
+import io.github.pixee.maven.operator.java.AbstractCommandJ
 import io.github.pixee.maven.operator.java.VersionDefinitionJ
 import org.apache.commons.lang3.builder.CompareToBuilder
 import java.util.*
@@ -7,7 +8,7 @@ import java.util.*
 /**
  * Base Class for Version Detection Commands
  */
-open class AbstractVersionCommand : AbstractCommand() {
+open class AbstractVersionCommand : AbstractCommandJ() {
     /**
      * Internal Result
      */
