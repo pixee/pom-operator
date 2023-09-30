@@ -2,12 +2,13 @@ package io.github.pixee.maven.operator
 
 import io.github.pixee.maven.operator.java.UtilJ
 import io.github.pixee.maven.operator.Util.selectXPathNodes
+import io.github.pixee.maven.operator.java.CommandJ
 import org.dom4j.Element
 
 /**
  * Represents a POM Upgrade Strategy by simply adding a dependency/ section (and optionally a dependencyManagement/ section as well)
  */
-val SimpleInsert = object : Command {
+val SimpleInsert = object : CommandJ {
     override fun execute(pm: ProjectModel): Boolean {
         val dependencyManagementNodeList =
             pm.pomFile.resultPom.selectXPathNodes("/m:project/m:dependencyManagement")

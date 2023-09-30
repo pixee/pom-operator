@@ -1,5 +1,6 @@
 package io.github.pixee.maven.operator
 
+import io.github.pixee.maven.operator.java.CommandJ
 import io.github.pixee.maven.operator.java.SupportCommandJ
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -9,11 +10,11 @@ import org.slf4j.LoggerFactory
  *
  * @constructor commands: Commands to Use
  */
-class Chain(vararg commands: Command) {
+class Chain(vararg commands: CommandJ) {
     /**
      * Internal ArrayList of the Commands
      */
-    internal val commandList: MutableList<Command> = ArrayList(commands.toList())
+    internal val commandList: MutableList<CommandJ> = ArrayList(commands.toList())
 
     /**
      * Executes the Commands in the Chain of Responsibility
@@ -84,12 +85,12 @@ class Chain(vararg commands: Command) {
             initialCommands: List<AbstractQueryCommand> = emptyList(),
             queryTypeFilter: ((queryType: QueryType) -> Boolean)
         ): Chain {
-            val filteredCommands: List<Command> = commandList
+            val filteredCommands: List<CommandJ> = commandList
                 .filter { queryTypeFilter(it.first) }.mapNotNull {
                     val commandClassName = "io.github.pixee.maven.operator.${it.second}"
 
                     try {
-                        Class.forName(commandClassName).newInstance() as Command
+                        Class.forName(commandClassName).newInstance() as CommandJ
                     } catch (e: Throwable) {
                         LOGGER.warn("Creating class '{}': ", commandClassName, e)
 
@@ -98,7 +99,7 @@ class Chain(vararg commands: Command) {
                 }
                 .toList()
 
-            val commands: List<Command> = initialCommands + filteredCommands
+            val commands: List<CommandJ> = initialCommands + filteredCommands
 
             if (commands.isEmpty())
                 throw IllegalStateException("Unable to load any available strategy for ${queryType.name}")

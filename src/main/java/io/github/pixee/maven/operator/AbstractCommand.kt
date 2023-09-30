@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator
 
 import io.github.pixee.maven.operator.Util.selectXPathNodes
+import io.github.pixee.maven.operator.java.CommandJ
 import io.github.pixee.maven.operator.java.UtilJ
 import org.dom4j.Element
 import java.io.File
@@ -8,7 +9,7 @@ import java.io.File
 /**
  * Base implementation of Command - used by SimpleDependency and SimpleInsert
  */
-abstract class AbstractCommand : Command {
+abstract class AbstractCommand : CommandJ {
     /**
      * Given a POM, locate its coordinates for a given dependency based on lookupExpression and figures out the upgrade
      *

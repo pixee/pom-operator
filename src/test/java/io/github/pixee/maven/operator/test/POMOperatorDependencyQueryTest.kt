@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator.test
 
 import io.github.pixee.maven.operator.*
+import io.github.pixee.maven.operator.java.CommandJ
 import junit.framework.TestCase.*
 import org.junit.Test
 import org.slf4j.Logger
@@ -63,7 +64,7 @@ class POMOperatorDependencyQueryTest {
                 val commandClassName = "io.github.pixee.maven.operator.${it.second}"
 
                 val commandListOverride =
-                    listOf(Class.forName(commandClassName).newInstance() as Command)
+                    listOf(Class.forName(commandClassName).newInstance() as CommandJ)
 
                 val context =
                     ProjectModelFactory
@@ -410,12 +411,12 @@ class POMOperatorDependencyQueryTest {
         assertTrue("there's a dependencyManaged-version", foundDependencies != null)
     }
 
-    private fun getCommandListFor(vararg names: String): List<Command> =
+    private fun getCommandListFor(vararg names: String): List<CommandJ> =
         names.map {
             val commandClassName = "io.github.pixee.maven.operator.${it}"
 
             val commandInstance =
-                Class.forName(commandClassName).newInstance() as Command
+                Class.forName(commandClassName).newInstance() as CommandJ
 
             commandInstance
         }.toList()
