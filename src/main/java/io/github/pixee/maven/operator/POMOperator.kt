@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator
 
 import com.github.zafarkhaja.semver.Version
+import io.github.pixee.maven.operator.java.AbstractVersionCommandJ
 import io.github.pixee.maven.operator.java.CommandJ
 import io.github.pixee.maven.operator.java.VersionDefinitionJ
 import io.github.pixee.maven.operator.java.VersionQueryResponseJ
@@ -133,7 +134,7 @@ object POMOperator {
 
         executeChain(commandList, chain, projectModel)
 
-        val lastCommand = chain.commandList.filterIsInstance<AbstractVersionCommand>()
+        val lastCommand = chain.commandList.filterIsInstance<AbstractVersionCommandJ>()
             .lastOrNull { it.result != null && it.result.isNotEmpty() }
             ?: return emptySet()
 

@@ -1,16 +1,17 @@
 package io.github.pixee.maven.operator
 
+import io.github.pixee.maven.operator.java.AbstractVersionCommandJ
 import io.github.pixee.maven.operator.java.VersionDefinitionJ
 import java.util.*
 
-class VersionByProperty : AbstractVersionCommand() {
+class VersionByProperty : AbstractVersionCommandJ() {
     override fun execute(pm: ProjectModel): Boolean {
         val definedProperties: MutableSet<VersionDefinitionJ> =
-            TreeSet<VersionDefinitionJ>(VERSION_KIND_COMPARATOR)
+            TreeSet<VersionDefinitionJ>(AbstractVersionCommandJ.VERSION_KIND_COMPARATOR)
 
-        pm.propertiesDefinedByFile.entries.filter { PROPERTY_TO_KIND.containsKey(it.key) }
+        pm.propertiesDefinedByFile.entries.filter { AbstractVersionCommandJ.PROPERTY_TO_KIND.containsKey(it.key) }
             .forEach { entry ->
-                val kind = PROPERTY_TO_KIND[entry.key]!!
+                val kind = AbstractVersionCommandJ.PROPERTY_TO_KIND[entry.key]!!
 
                 definedProperties.add(VersionDefinitionJ(kind, entry.value.first().first))
             }

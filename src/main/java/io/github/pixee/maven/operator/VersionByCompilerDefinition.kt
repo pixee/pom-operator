@@ -1,15 +1,16 @@
 package io.github.pixee.maven.operator
 
+import io.github.pixee.maven.operator.java.AbstractVersionCommandJ
 import io.github.pixee.maven.operator.java.UtilJ.selectXPathNodes
 import io.github.pixee.maven.operator.java.VersionDefinitionJ
 import org.apache.commons.lang3.text.StrSubstitutor
 import org.dom4j.Element
 import java.util.*
 
-class VersionByCompilerDefinition : AbstractVersionCommand() {
+class VersionByCompilerDefinition : AbstractVersionCommandJ() {
     override fun execute(pm: ProjectModel): Boolean {
         val definedSettings: MutableSet<VersionDefinitionJ> =
-            TreeSet<VersionDefinitionJ>(VERSION_KIND_COMPARATOR)
+            TreeSet<VersionDefinitionJ>(AbstractVersionCommandJ.VERSION_KIND_COMPARATOR)
 
         val parents = listOf(
             "//m:project/m:build/m:pluginManagement/m:plugins",
@@ -27,7 +28,7 @@ class VersionByCompilerDefinition : AbstractVersionCommand() {
                 val compilerNode = selectXPathNodes(doc.resultPom,pluginExpression).firstOrNull()
 
                 if (compilerNode != null) {
-                    TYPE_TO_KIND.entries.mapNotNull {
+                    AbstractVersionCommandJ.TYPE_TO_KIND.entries.mapNotNull {
                         val childElement = (compilerNode as Element).element(it.key)
 
                         if (childElement != null) {

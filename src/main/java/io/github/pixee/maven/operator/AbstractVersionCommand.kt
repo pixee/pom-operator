@@ -1,24 +1,27 @@
 package io.github.pixee.maven.operator
 
-import io.github.pixee.maven.operator.java.AbstractCommandJ
-import io.github.pixee.maven.operator.java.AbstractVersionCommandJ
-import io.github.pixee.maven.operator.java.VersionDefinitionJ
 import org.apache.commons.lang3.builder.CompareToBuilder
 import java.util.*
 
-// TODO-CARLOS this is not fully migrated
 /**
  * Base Class for Version Detection Commands
  */
-open class AbstractVersionCommand : AbstractCommandJ() {
+open class AbstractVersionCommand : AbstractCommand() {
     /**
      * Internal Result
      */
-    internal val result: MutableSet<VersionDefinitionJ> =
-        TreeSet<VersionDefinitionJ>(VERSION_KIND_COMPARATOR)
+    internal val result: MutableSet<VersionDefinition> =
+        TreeSet<VersionDefinition>(VERSION_KIND_COMPARATOR)
 
     companion object {
-        internal val VERSION_KIND_COMPARATOR = AbstractVersionCommandJ.VERSION_KIND_COMPARATOR
+        internal val VERSION_KIND_COMPARATOR = object : Comparator<VersionDefinition> {
+            override fun compare(o1: VersionDefinition?, o2: VersionDefinition?): Int {
+                if (o1 == null) return 1
+                if (o2 == null) return -1
+
+                return CompareToBuilder().append(o1.kind, o2.kind).toComparison()
+            }
+        }
 
         internal val TYPE_TO_KIND = mapOf(
             "source" to Kind.SOURCE,
