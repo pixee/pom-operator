@@ -4,6 +4,7 @@ import com.github.zafarkhaja.semver.Version;
 import io.github.pixee.maven.operator.Dependency;
 import io.github.pixee.maven.operator.POMDocument;
 import io.github.pixee.maven.operator.ProjectModel;
+import io.github.pixee.maven.operator.Util;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
@@ -234,6 +235,10 @@ public class UtilJ {
         }
 
         return result;
+    }
+
+    public static List<Node> selectXPathNodes(Node node, String expression) {
+        return Util.INSTANCE.selectXPathNodes(node, expression);
     }
 
     /*

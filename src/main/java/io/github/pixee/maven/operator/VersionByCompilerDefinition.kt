@@ -1,6 +1,6 @@
 package io.github.pixee.maven.operator
 
-import io.github.pixee.maven.operator.Util.selectXPathNodes
+import io.github.pixee.maven.operator.java.UtilJ.selectXPathNodes
 import io.github.pixee.maven.operator.java.VersionDefinitionJ
 import org.apache.commons.lang3.text.StrSubstitutor
 import org.dom4j.Element
@@ -24,7 +24,7 @@ class VersionByCompilerDefinition : AbstractVersionCommand() {
             pm.allPomFiles.forEach { doc ->
                 val pluginExpression =
                     "$parent/m:plugin[./m:artifactId[text()='maven-compiler-plugin']]//m:configuration"
-                val compilerNode = doc.resultPom.selectXPathNodes(pluginExpression).firstOrNull()
+                val compilerNode = selectXPathNodes(doc.resultPom,pluginExpression).firstOrNull()
 
                 if (compilerNode != null) {
                     TYPE_TO_KIND.entries.mapNotNull {

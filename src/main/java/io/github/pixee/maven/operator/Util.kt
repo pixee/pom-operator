@@ -220,8 +220,8 @@ object Util {
      */
     // TODO-CARLOS
     @Suppress("UNCHECKED_CAST")
-    fun Node.selectXPathNodes(expression: String) =
-        createXPathExpression(expression).selectNodes(this)!! as List<Node>
+    fun selectXPathNodes(node: Node, expression: String) : List<Node> =
+        createXPathExpression(expression).selectNodes(node)!! as List<Node>
 
     /**
      * Creates a XPath Expression from a given expression string

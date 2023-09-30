@@ -1,6 +1,6 @@
 package io.github.pixee.maven.operator
 
-import io.github.pixee.maven.operator.Util.selectXPathNodes
+import io.github.pixee.maven.operator.java.UtilJ.selectXPathNodes
 import io.github.pixee.maven.operator.java.WrongDependencyTypeExceptionJ
 import org.dom4j.Element
 import org.dom4j.Text
@@ -11,7 +11,7 @@ import org.dom4j.Text
 val CheckParentPackaging = object : AbstractCommand() {
     fun packagingTypePredicate(d: POMDocument, packagingType: String): Boolean {
         val elementText =
-            d.pomDocument.rootElement.selectXPathNodes("/m:project/m:packaging/text()")
+            selectXPathNodes(d.pomDocument.rootElement,"/m:project/m:packaging/text()")
                 .firstOrNull()
 
         if (elementText is Text) {
@@ -41,11 +41,11 @@ val CheckParentPackaging = object : AbstractCommand() {
     }
 
     private fun hasValidParentAndPackaging(pomFile: POMDocument): Boolean {
-        val parentNode = pomFile.pomDocument.rootElement.selectXPathNodes("/m:project/m:parent")
+        val parentNode = selectXPathNodes(pomFile.pomDocument.rootElement,"/m:project/m:parent")
             .firstOrNull() as Element? ?: return false
 
         val packagingText =
-            (pomFile.pomDocument.rootElement.selectXPathNodes("/m:project/m:packaging/text()")
+            (selectXPathNodes(pomFile.pomDocument.rootElement,"/m:project/m:packaging/text()")
                 .firstOrNull() as Text?)?.text ?: "jar"
 
         @Suppress("UnnecessaryVariable") val validPackagingType = packagingText.endsWith("ar")

@@ -1,6 +1,6 @@
 package io.github.pixee.maven.operator
 
-import io.github.pixee.maven.operator.Util.selectXPathNodes
+import io.github.pixee.maven.operator.java.UtilJ.selectXPathNodes
 import io.github.pixee.maven.operator.java.UtilJ
 import org.dom4j.Element
 import java.lang.IllegalStateException
@@ -75,10 +75,10 @@ class CompositeDependencyManagement : AbstractCommand() {
         dependencyManagementNode: Boolean,
     ): Element? {
         val dependencyNodes =
-            pomFileToModify.resultPom.selectXPathNodes(lookupExpressionForDependency)
+            selectXPathNodes(pomFileToModify.resultPom,lookupExpressionForDependency)
 
         if (1 == dependencyNodes.size) {
-            val versionNodes = dependencyNodes[0].selectXPathNodes("./m:version")
+            val versionNodes = selectXPathNodes(dependencyNodes[0],"./m:version")
 
             if (1 == versionNodes.size) {
                 val versionNode = versionNodes.first()

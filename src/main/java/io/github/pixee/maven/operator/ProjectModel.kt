@@ -1,6 +1,6 @@
 package io.github.pixee.maven.operator
 
-import io.github.pixee.maven.operator.Util.selectXPathNodes
+import io.github.pixee.maven.operator.java.UtilJ.selectXPathNodes
 import org.dom4j.Element
 import java.io.File
 
@@ -106,7 +106,7 @@ class ProjectModel internal constructor(
         val expression =
             "/m:project/m:profiles/m:profile[./m:id[text()='${profileName}']]/m:properties"
         val propertiesElements =
-            pomFile.pomDocument.selectXPathNodes(expression)
+            selectXPathNodes(pomFile.pomDocument,expression)
 
         val newPropertiesToAppend =
             propertiesElements.filterIsInstance<Element>()

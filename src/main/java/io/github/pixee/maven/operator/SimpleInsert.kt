@@ -1,7 +1,7 @@
 package io.github.pixee.maven.operator
 
 import io.github.pixee.maven.operator.java.UtilJ
-import io.github.pixee.maven.operator.Util.selectXPathNodes
+import io.github.pixee.maven.operator.java.UtilJ.selectXPathNodes
 import io.github.pixee.maven.operator.java.CommandJ
 import org.dom4j.Element
 
@@ -11,7 +11,7 @@ import org.dom4j.Element
 val SimpleInsert = object : CommandJ {
     override fun execute(pm: ProjectModel): Boolean {
         val dependencyManagementNodeList =
-            pm.pomFile.resultPom.selectXPathNodes("/m:project/m:dependencyManagement")
+            selectXPathNodes(pm.pomFile.resultPom,"/m:project/m:dependencyManagement")
 
         val dependenciesNode = if (dependencyManagementNodeList.isEmpty()) {
             val newDependencyManagementNode =
@@ -32,7 +32,7 @@ val SimpleInsert = object : CommandJ {
         UtilJ.upgradeVersionNode(pm, versionNode, pm.pomFile)
 
         val dependenciesNodeList =
-            pm.pomFile.resultPom.selectXPathNodes("//m:project/m:dependencies")
+            selectXPathNodes(pm.pomFile.resultPom,"//m:project/m:dependencies")
 
         val rootDependencyNode: Element = if (dependenciesNodeList.isEmpty()) {
             UtilJ.addIndentedElement(pm.pomFile.resultPom.rootElement, pm.pomFile, "dependencies")

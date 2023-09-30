@@ -1,6 +1,6 @@
 package io.github.pixee.maven.operator
 
-import io.github.pixee.maven.operator.Util.selectXPathNodes
+import io.github.pixee.maven.operator.java.UtilJ.selectXPathNodes
 import io.github.pixee.maven.operator.java.CommandJ
 import io.github.pixee.maven.operator.java.UtilJ
 import org.dom4j.Element
@@ -16,10 +16,10 @@ abstract class AbstractCommand : CommandJ {
      * TODO review this
      */
     protected fun handleDependency(pm: ProjectModel, lookupExpression: String): Boolean {
-        val dependencyNodes = pm.pomFile.resultPom.selectXPathNodes(lookupExpression)
+        val dependencyNodes = selectXPathNodes(pm.pomFile.resultPom,lookupExpression)
 
         if (1 == dependencyNodes.size) {
-            val versionNodes = dependencyNodes[0].selectXPathNodes("./m:version")
+            val versionNodes = selectXPathNodes(dependencyNodes[0],"./m:version")
 
             if (1 == versionNodes.size) {
                 val versionNode = versionNodes[0] as Element
