@@ -1,13 +1,15 @@
 package io.github.pixee.maven.operator.test
 
 import io.github.pixee.maven.operator.InvalidPathException
+import io.github.pixee.maven.operator.POMDocumentFactory
 import io.github.pixee.maven.operator.POMScanner
+import io.github.pixee.maven.operator.ProjectModelFactory
 import org.junit.Test
 import java.io.File
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
-class POMScannerTest: AbstractTestBase() {
+class POMScannerTest : AbstractTestBase() {
     val currentDirectory = File(System.getProperty("user.dir"))
 
     @Test
@@ -32,7 +34,8 @@ class POMScannerTest: AbstractTestBase() {
 
         assertTrue(pmf.parentPomFiles.size == 2, "There must be two parent pom files")
 
-        val uniquePaths = pmf.allPomFiles.map { it.pomPath!!.toURI().normalize().toString() }.toSet()
+        val uniquePaths =
+            pmf.allPomFiles.map { it.pomPath!!.toURI().normalize().toString() }.toSet()
 
         val uniquePathsAsString = uniquePaths.joinToString(" ")
 
@@ -101,5 +104,15 @@ class POMScannerTest: AbstractTestBase() {
                 throw e
             }
         }
+    }
+
+    @Test
+    fun testWithMissingRelativePath() {
+        val pomFile =
+            getResourceAsFile("sample-parent/sample-child/pom-multiple-pom-parent-level-6.xml")
+
+        val pmf = POMScanner.legacyScanFrom(pomFile, currentDirectory)
+
+        assertTrue(pmf.build().parentPomFiles.isNotEmpty())
     }
 }
