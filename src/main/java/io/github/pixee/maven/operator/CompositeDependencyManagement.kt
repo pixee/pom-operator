@@ -35,7 +35,7 @@ class CompositeDependencyManagement : AbstractCommand() {
 
         val newDependencyManagementElement = modifyDependency(
             parentPomFile,
-            Util.buildLookupExpressionForDependencyManagement(pm.dependency!!),
+            UtilJ.buildLookupExpressionForDependencyManagement(pm.dependency!!),
             pm,
             dependencyManagementElement,
             dependencyManagementNode = true,

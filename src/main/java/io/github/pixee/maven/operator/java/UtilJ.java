@@ -185,16 +185,6 @@ public class UtilJ {
                 "./m:artifactId[text()='" + dependency.getArtifactId() + "']]";
     }
 
-    /*
-
-
-
-
-
-
-
-
-
     public static String buildLookupExpressionForDependencyManagement(Dependency dependency) {
         return "/m:project" +
                 "/m:dependencyManagement" +
@@ -203,6 +193,9 @@ public class UtilJ {
                 "[./m:groupId[text()='" + dependency.getGroupId() + "'] and " +
                 "./m:artifactId[text()='" + dependency.getArtifactId() + "']]";
     }
+
+    /*
+
 
     public static List<Node> selectXPathNodes(Node node, String expression) {
         try {
