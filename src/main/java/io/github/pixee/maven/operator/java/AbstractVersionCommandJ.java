@@ -17,4 +17,17 @@ public class AbstractVersionCommandJ extends AbstractCommandJ {
             return new CompareToBuilder().append(o1.getKind(), o2.getKind()).toComparison();
         }
     };
+
+    public static final Map<String, Kind> TYPE_TO_KIND = new HashMap<>();
+    public static final Map<String, Kind> PROPERTY_TO_KIND = new HashMap<>();
+
+    static {
+        TYPE_TO_KIND.put("source", Kind.SOURCE);
+        TYPE_TO_KIND.put("target", Kind.TARGET);
+        TYPE_TO_KIND.put("release", Kind.RELEASE);
+
+        for (Map.Entry<String, Kind> entry : TYPE_TO_KIND.entrySet()) {
+            PROPERTY_TO_KIND.put("maven.compiler." + entry.getKey(), entry.getValue());
+        }
+    }
 }
