@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator
 
 import com.github.zafarkhaja.semver.Version
+import io.github.pixee.maven.operator.java.VersionQueryResponseJ
 import java.util.*
 
 
@@ -35,7 +36,7 @@ object POMOperator {
     @JvmStatic
     fun queryVersions(
         projectModel: ProjectModel
-    ): Optional<VersionQueryResponse> {
+    ): Optional<VersionQueryResponseJ> {
         val queryVersionResult = queryVersions(projectModel, emptyList())
 
         /*
@@ -54,7 +55,7 @@ object POMOperator {
             val mappedSourceVersion = mapVersion(queryVersionSource.value)
             val mappedTargetVersion = mapVersion(queryVersionTarget.value)
 
-            return Optional.of(VersionQueryResponse(mappedSourceVersion, mappedTargetVersion))
+            return Optional.of(VersionQueryResponseJ(mappedSourceVersion, mappedTargetVersion))
         }
 
         /**
@@ -63,7 +64,7 @@ object POMOperator {
         if (queryVersionResult.size == 1) {
             val mappedVersion = mapVersion(queryVersionResult.first().value)
 
-            val returnValue = VersionQueryResponse(mappedVersion, mappedVersion)
+            val returnValue = VersionQueryResponseJ(mappedVersion, mappedVersion)
 
             return Optional.of(returnValue)
         }

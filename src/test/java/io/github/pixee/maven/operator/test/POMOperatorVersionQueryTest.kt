@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator.test
 
 import io.github.pixee.maven.operator.*
+import io.github.pixee.maven.operator.java.VersionQueryResponseJ
 import junit.framework.TestCase.assertTrue
 import junit.framework.TestCase.assertFalse
 import org.junit.Test
@@ -158,7 +159,7 @@ class POMOperatorVersionQueryTest {
         pomFile: String,
         queryType: QueryType,
         offline: Boolean = false
-    ): Optional<VersionQueryResponse> {
+    ): Optional<VersionQueryResponseJ> {
         val context =
             ProjectModelFactory
                 .load(this.javaClass.getResource(pomFile)!!)
