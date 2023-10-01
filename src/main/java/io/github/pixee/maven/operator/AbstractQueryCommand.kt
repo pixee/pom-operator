@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator
 
 import io.github.pixee.maven.operator.java.AbstractCommandJ
+import io.github.pixee.maven.operator.java.DependencyJ
 import io.github.pixee.maven.operator.java.UtilJ
 import org.apache.commons.lang3.SystemUtils
 import org.apache.maven.shared.invoker.DefaultInvocationRequest
@@ -53,7 +54,7 @@ abstract class AbstractQueryCommand : AbstractCommandJ() {
      *
      * Todo: OF COURSE IT BREAKS THE PROTOCOL
      */
-    internal var result: Collection<Dependency>? = null
+    internal var result: Collection<DependencyJ>? = null
 
     /**
      * We declare the main logic here - details are made in the child classes for now
@@ -100,12 +101,13 @@ abstract class AbstractQueryCommand : AbstractCommandJ() {
     }.associate { (line, elements) ->
         val (groupId, artifactId, packaging, version, scope) = elements
 
-        line to Dependency(
-            groupId = groupId,
-            artifactId = artifactId,
-            version = version,
-            packaging = packaging,
-            scope = scope
+        line to DependencyJ(
+            groupId,
+            artifactId,
+            version,
+            null,
+            packaging,
+            scope
         )
     }
 

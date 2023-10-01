@@ -3,6 +3,7 @@ package io.github.pixee.maven.operator
 import com.github.zafarkhaja.semver.Version
 import io.github.pixee.maven.operator.java.AbstractVersionCommandJ
 import io.github.pixee.maven.operator.java.CommandJ
+import io.github.pixee.maven.operator.java.DependencyJ
 import io.github.pixee.maven.operator.java.VersionDefinitionJ
 import io.github.pixee.maven.operator.java.VersionQueryResponseJ
 import java.util.*
@@ -107,7 +108,7 @@ object POMOperator {
     internal fun queryDependency(
         projectModel: ProjectModel,
         commandList: List<CommandJ>
-    ): Collection<Dependency> {
+    ): Collection<DependencyJ> {
         val chain = Chain.createForDependencyQuery(projectModel.queryType)
 
         executeChain(commandList, chain, projectModel)

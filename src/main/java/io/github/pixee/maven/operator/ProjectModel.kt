@@ -1,5 +1,6 @@
 package io.github.pixee.maven.operator
 
+import io.github.pixee.maven.operator.java.DependencyJ
 import io.github.pixee.maven.operator.java.UtilJ.selectXPathNodes
 import org.dom4j.Element
 import java.io.File
@@ -14,7 +15,7 @@ class ProjectModel internal constructor(
 
     val parentPomFiles: List<POMDocument> = emptyList(),
 
-    var dependency: Dependency?,
+    var dependency: DependencyJ?,
     val skipIfNewer: Boolean,
     val useProperties: Boolean,
     val activeProfiles: Set<String>,

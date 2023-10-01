@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator.test
 
 import io.github.pixee.maven.operator.*
+import io.github.pixee.maven.operator.java.DependencyJ
 import io.github.pixee.maven.operator.java.UtilJ.selectXPathNodes
 import io.github.pixee.maven.operator.java.UtilJ
 import org.apache.commons.lang3.SystemUtils
@@ -24,7 +25,7 @@ class POMOperatorTest : AbstractTestBase() {
             "broken-pom",
             ProjectModelFactory.load(
                 POMOperatorTest::class.java.getResource("broken-pom.xml")!!,
-            ).withDependency(Dependency.fromString("org.dom4j:dom4j:2.0.3"))
+            ).withDependency(DependencyJ.fromString("org.dom4j:dom4j:2.0.3"))
         )
     }
 
@@ -34,7 +35,7 @@ class POMOperatorTest : AbstractTestBase() {
             "org.slf4j:slf4j-api:1.7.25",
             "io.github.pixee:java-code-security-toolkit:1.0.2",
             "org.owasp.encoder:encoder:1.2.3",
-        ).map { Dependency.fromString(it) }.toList()
+        ).map { DependencyJ.fromString(it) }.toList()
 
         val testPom = File.createTempFile("pom", ".xml")
 
@@ -91,7 +92,7 @@ class POMOperatorTest : AbstractTestBase() {
             "case-1",
             ProjectModelFactory.load(
                 POMOperatorTest::class.java.getResource("pom-case-1.xml")!!,
-            ).withDependency(Dependency.fromString("org.dom4j:dom4j:2.0.3"))
+            ).withDependency(DependencyJ.fromString("org.dom4j:dom4j:2.0.3"))
         )
 
         assertTrue(context.pomFile.dirty, "Original POM File is Dirty")
@@ -117,7 +118,7 @@ class POMOperatorTest : AbstractTestBase() {
 
     @Test
     fun testCaseThree() {
-        val dependencyToUpgradeOnCaseThree = Dependency("org.dom4j", "dom4j", version = "2.0.2")
+        val dependencyToUpgradeOnCaseThree = DependencyJ("org.dom4j", "dom4j", "2.0.2", null, null, null)
 
         val context = gwt(
             "case-3",
@@ -144,7 +145,7 @@ class POMOperatorTest : AbstractTestBase() {
 
     @Test
     fun testCaseThreeButWithLowerVersion() {
-        val dependencyToUpgrade = Dependency("org.dom4j", "dom4j", version = "2.0.2")
+        val dependencyToUpgrade = DependencyJ("org.dom4j", "dom4j", "2.0.2", null, null, null)
 
         val context = gwt(
             "pom-case-three-with-lower-version",
@@ -188,7 +189,7 @@ class POMOperatorTest : AbstractTestBase() {
         assertThat("POM install was successful", 0 == exitCode)
 
         val dependencyToUpgrade =
-            Dependency("org.apache.activemq", "activemq-amqp", version = "5.16.2")
+            DependencyJ("org.apache.activemq", "activemq-amqp", "5.16.2", null, null, null)
 
         val context = gwt(
             "case-4",
@@ -215,7 +216,7 @@ class POMOperatorTest : AbstractTestBase() {
     @Test
     fun testCaseWithEmptyElement() {
         val dependencyToUpgrade =
-            Dependency("io.github.pixee", "java-security-toolkit", version = "1.0.2")
+            DependencyJ("io.github.pixee", "java-security-toolkit",  "1.0.2", null, null, null)
 
         val context = gwt(
             "case-5",
@@ -254,7 +255,7 @@ class POMOperatorTest : AbstractTestBase() {
     @Test
     fun testCaseWithEmptyElementHiddenInComment() {
         val dependencyToUpgrade =
-            Dependency("io.github.pixee", "java-security-toolkit", version = "1.0.2")
+            DependencyJ("io.github.pixee", "java-security-toolkit", "1.0.2", null, null, null)
 
         val context = gwt(
             "case-6",
@@ -288,7 +289,7 @@ class POMOperatorTest : AbstractTestBase() {
     @Test
     fun testCaseWithProperty() {
         val dependencyToUpgrade =
-            Dependency("org.dom4j", "dom4j", version = "1.0.0")
+            DependencyJ("org.dom4j", "dom4j", "1.0.0", null, null, null)
 
         val context = gwt(
             "case-with-property",
@@ -326,7 +327,7 @@ class POMOperatorTest : AbstractTestBase() {
     @Test(expected = IllegalStateException::class)
     fun testCaseWithPropertyDefinedTwice() {
         val dependencyToUpgrade =
-            Dependency("org.dom4j", "dom4j", version = "1.0.0")
+            DependencyJ("org.dom4j", "dom4j", "1.0.0", null, null, null)
 
         val originalPom = """
 <?xml version="1.0" encoding="UTF-8"?>
@@ -371,7 +372,7 @@ class POMOperatorTest : AbstractTestBase() {
     @Test
     fun testCaseWithoutPropertyButDefiningOne() {
         val dependencyToUpgrade =
-            Dependency("org.dom4j", "dom4j", version = "1.0.0")
+            DependencyJ("org.dom4j", "dom4j", "1.0.0", null, null, null)
 
         val originalPom = """
 <?xml version="1.0" encoding="UTF-8"?>
@@ -419,7 +420,7 @@ class POMOperatorTest : AbstractTestBase() {
     @Test
     fun testFileWithTabs() {
         val dependencyToUpgrade =
-            Dependency("org.dom4j", "dom4j", version = "1.0.0")
+            DependencyJ("org.dom4j", "dom4j", "1.0.0", null, null, null)
 
         val originalPom =
             "<?xml version=\"1.0\"?>\n<project\n\txsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\n\txmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t<modelVersion>4.0.0</modelVersion>\n\t<parent>\n\t\t<artifactId>build-utils</artifactId>\n\t\t<groupId>org.modafocas.mojo</groupId>\n\t\t<version>0.0.1-SNAPSHOT</version>\n\t\t<relativePath>../pom.xml</relativePath>\n\t</parent>\n\n\t<artifactId>derby-maven-plugin</artifactId>\n\t<packaging>maven-plugin</packaging>\n\n\t<dependencies>\n\t\t<dependency>\n\t\t\t<groupId>org.apache.maven</groupId>\n\t\t\t<artifactId>maven-plugin-api</artifactId>\n\t\t\t<version>2.0</version>\n\t\t</dependency>\n\t\t<dependency>\n\t\t\t<groupId>junit</groupId>\n\t\t\t<artifactId>junit</artifactId>\n\t\t\t<version>3.8.1</version>\n\t\t\t<scope>test</scope>\n\t\t</dependency>\n\t\t<dependency>\n\t\t\t<groupId>org.apache.derby</groupId>\n\t\t\t<artifactId>derby</artifactId>\n\t\t\t<version>\${derbyVersion}</version>\n\t\t</dependency>\n\t\t<dependency>\n\t\t\t<groupId>org.apache.derby</groupId>\n\t\t\t<artifactId>derbynet</artifactId>\n\t\t\t<version>\${derbyVersion}</version>\n\t\t</dependency>\n\t\t<dependency>\n\t\t\t<groupId>org.apache.derby</groupId>\n\t\t\t<artifactId>derbyclient</artifactId>\n\t\t\t<version>\${derbyVersion}</version>\n\t\t</dependency>\n\t\t<dependency>\n\t\t\t<groupId>commons-io</groupId>\n\t\t\t<artifactId>commons-io</artifactId>\n\t\t\t<version>1.4</version>\n\t\t\t<type>jar</type>\n\t\t\t<scope>compile</scope>\n\t\t</dependency>\n\t</dependencies>\n\n\t<properties>\n\t\t<derbyVersion>10.6.2.1</derbyVersion>\n\t</properties>\n</project>\n"

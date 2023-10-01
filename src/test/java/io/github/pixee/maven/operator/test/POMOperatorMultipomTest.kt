@@ -2,6 +2,7 @@ package io.github.pixee.maven.operator.test
 
 import com.google.common.io.Files
 import io.github.pixee.maven.operator.*
+import io.github.pixee.maven.operator.java.DependencyJ
 import io.github.pixee.maven.operator.java.WrongDependencyTypeExceptionJ
 import org.junit.Test
 import java.io.File
@@ -21,7 +22,7 @@ class POMOperatorMultipomTest : AbstractTestBase() {
 
         gwt(
             "parent-and-child",
-            parentPom.withDependency(Dependency.fromString("org.dom4j:dom4j:2.0.3"))
+            parentPom.withDependency(DependencyJ.fromString("org.dom4j:dom4j:2.0.3"))
         )
     }
 
@@ -39,7 +40,7 @@ class POMOperatorMultipomTest : AbstractTestBase() {
 
         gwt(
             "parent-and-child-wrong-type",
-            parentPom.withDependency(Dependency.fromString("org.dom4j:dom4j:2.0.3"))
+            parentPom.withDependency(DependencyJ.fromString("org.dom4j:dom4j:2.0.3"))
         )
     }
 
@@ -56,7 +57,7 @@ class POMOperatorMultipomTest : AbstractTestBase() {
 
         val result = gwt(
             "multiple-pom-basic-no-version-property",
-            projectModelFactory.withDependency(Dependency.fromString("org.dom4j:dom4j:2.0.3"))
+            projectModelFactory.withDependency(DependencyJ.fromString("org.dom4j:dom4j:2.0.3"))
         )
 
         validateDepsFrom(result)
@@ -78,7 +79,7 @@ class POMOperatorMultipomTest : AbstractTestBase() {
 
         val result = gwt(
             "multiple-pom-basic-with-version-property",
-            parentPom.withDependency(Dependency.fromString("org.dom4j:dom4j:2.0.3"))
+            parentPom.withDependency(DependencyJ.fromString("org.dom4j:dom4j:2.0.3"))
         )
 
         validateDepsFrom(result)

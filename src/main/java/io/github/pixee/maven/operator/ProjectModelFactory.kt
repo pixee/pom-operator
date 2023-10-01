@@ -1,5 +1,6 @@
 package io.github.pixee.maven.operator
 
+import io.github.pixee.maven.operator.java.DependencyJ
 import java.io.File
 import java.io.InputStream
 import java.net.URL
@@ -10,7 +11,7 @@ import java.net.URL
 class ProjectModelFactory private constructor(
     private var pomFile: POMDocument,
     private var parentPomFiles: List<POMDocument> = listOf(),
-    private var dependency: Dependency? = null,
+    private var dependency: DependencyJ? = null,
     private var skipIfNewer: Boolean = false,
     private var useProperties: Boolean = false,
     private var activeProfiles: Set<String> = emptySet(),
@@ -43,7 +44,7 @@ class ProjectModelFactory private constructor(
      *
      * @param dep dependency
      */
-    fun withDependency(dep: Dependency): ProjectModelFactory = this.apply {
+    fun withDependency(dep: DependencyJ): ProjectModelFactory = this.apply {
         this.dependency = dep
     }
 

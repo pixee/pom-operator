@@ -1,7 +1,6 @@
 package io.github.pixee.maven.operator.java;
 
 import com.github.zafarkhaja.semver.Version;
-import io.github.pixee.maven.operator.Dependency;
 import io.github.pixee.maven.operator.POMDocument;
 import io.github.pixee.maven.operator.ProjectModel;
 import io.github.pixee.maven.operator.Util;
@@ -178,7 +177,7 @@ public class UtilJ {
         }
     }
 
-    public static String buildLookupExpressionForDependency(Dependency dependency) {
+    public static String buildLookupExpressionForDependency(DependencyJ dependency) {
         return "/m:project" +
                 "/m:dependencies" +
                 "/m:dependency" +
@@ -186,7 +185,7 @@ public class UtilJ {
                 "./m:artifactId[text()='" + dependency.getArtifactId() + "']]";
     }
 
-    public static String buildLookupExpressionForDependencyManagement(Dependency dependency) {
+    public static String buildLookupExpressionForDependencyManagement(DependencyJ dependency) {
         return "/m:project" +
                 "/m:dependencyManagement" +
                 "/m:dependencies" +

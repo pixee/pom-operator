@@ -2,6 +2,7 @@
 
 package io.github.pixee.maven.operator
 
+import io.github.pixee.maven.operator.java.DependencyJ
 import org.apache.commons.lang3.builder.CompareToBuilder
 import org.apache.commons.lang3.text.StrSubstitutor
 import org.slf4j.Logger
@@ -18,11 +19,11 @@ class QueryByParsing : AbstractQueryCommand() {
         TODO("Not yet implemented")
     }
 
-    private val dependencies: MutableSet<Dependency> = LinkedHashSet()
+    private val dependencies: MutableSet<DependencyJ> = LinkedHashSet()
 
-    private val dependencyManagement: MutableSet<Dependency> =
-        TreeSet(object : Comparator<Dependency> {
-            override fun compare(o1: Dependency?, o2: Dependency?): Int {
+    private val dependencyManagement: MutableSet<DependencyJ> =
+        TreeSet(object : Comparator<DependencyJ> {
+            override fun compare(o1: DependencyJ?, o2: DependencyJ?): Int {
                 if (o1 == o2)
                     return 0
 
@@ -61,7 +62,7 @@ class QueryByParsing : AbstractQueryCommand() {
     }
 
     private fun updateDependencyManagement(pomDocument: POMDocument) {
-        val dependencyManagementDependenciesToAdd: Collection<Dependency> =
+        val dependencyManagementDependenciesToAdd: Collection<DependencyJ> =
             pomDocument.pomDocument.//
             rootElement. //
             element("dependencyManagement")?. //
@@ -84,17 +85,17 @@ class QueryByParsing : AbstractQueryCommand() {
                     "UNKNOWN"
                 }
 
-                Dependency(groupId, artifactId, versionInterpolated, classifier, packaging)
+                DependencyJ(groupId, artifactId, versionInterpolated, classifier, packaging, null)
             }?.toList() ?: emptyList()
 
         this.dependencyManagement.addAll(dependencyManagementDependenciesToAdd)
     }
 
-    fun lookForDependencyManagement(groupId: String, artifactId: String): Dependency? =
+    fun lookForDependencyManagement(groupId: String, artifactId: String): DependencyJ? =
         this.dependencyManagement.firstOrNull { it.groupId == groupId && it.artifactId == artifactId }
 
     private fun updateDependencies(pomDocument: POMDocument) {
-        val dependenciesToAdd: Collection<Dependency> =
+        val dependenciesToAdd: Collection<DependencyJ> =
             pomDocument.pomDocument.//
             rootElement. //
             element("dependencies")?. //
@@ -123,7 +124,7 @@ class QueryByParsing : AbstractQueryCommand() {
                         "UNKNOWN"
                     }
 
-                    Dependency(groupId, artifactId, versionInterpolated, classifier, packaging)
+                    DependencyJ(groupId, artifactId, versionInterpolated, classifier, packaging, null)
                 }
             }?.toList() ?: emptyList()
 

@@ -1,5 +1,6 @@
 package io.github.pixee.maven.operator
 
+import io.github.pixee.maven.operator.java.DependencyJ
 import io.github.pixee.maven.operator.java.EmbedderFacadeJ
 import io.github.pixee.maven.operator.java.IgnorableJ
 import org.apache.maven.model.building.ModelBuildingException
@@ -80,19 +81,19 @@ class QueryByResolver : AbstractQueryCommand() {
                 collectRequest
             )
 
-            val returnList: MutableList<Dependency> = mutableListOf()
+            val returnList: MutableList<DependencyJ> = mutableListOf()
 
             collectResult.root.accept(object : DependencyVisitor {
                 override fun visitEnter(node: DependencyNode?): Boolean {
                     node?.dependency?.apply {
                         returnList.add(
-                            Dependency(
-                                groupId = this.artifact.groupId,
-                                artifactId = this.artifact.artifactId,
-                                version = this.artifact.version,
-                                classifier = this.artifact.classifier,
-                                packaging = this.artifact.extension,
-                                scope = this.scope,
+                            DependencyJ(
+                                this.artifact.groupId,
+                                this.artifact.artifactId,
+                                this.artifact.version,
+                                this.artifact.classifier,
+                                this.artifact.extension,
+                                this.scope,
                             )
                         )
                     }
