@@ -28,7 +28,7 @@ class UnwrapEffectivePom : AbstractVersionCommandJ() {
         }
 
     fun executeInternal(pm: ProjectModel): Boolean {
-        val embedderFacadeResponse = EmbedderFacade.invokeEmbedder(
+        val embedderFacadeResponse = EmbedderFacadeJ.invokeEmbedder(
             EmbedderFacadeJ.EmbedderFacadeRequest(pm.offline, null,  pm.pomFile.file, null, null)
         )
 

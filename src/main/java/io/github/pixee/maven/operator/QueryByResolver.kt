@@ -38,10 +38,10 @@ class QueryByResolver : AbstractQueryCommand() {
 
         this.result = emptyList()
 
-        val embedderFacadeResponse: EmbedderFacadeResponse
+        val embedderFacadeResponse: EmbedderFacadeJ.EmbedderFacadeResponse
 
         try {
-            embedderFacadeResponse = EmbedderFacade.invokeEmbedder(req)
+            embedderFacadeResponse = EmbedderFacadeJ.invokeEmbedder(req)
         } catch (mbe: ModelBuildingException) {
             IgnorableJ.LOGGER.debug("mbe (you can ignore): ", mbe)
 

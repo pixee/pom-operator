@@ -154,7 +154,7 @@ object POMScanner {
 
     private fun getParentPoms(originalFile: File): List<File> {
         val embedderFacadeResponse =
-            EmbedderFacade.invokeEmbedder(
+            EmbedderFacadeJ.invokeEmbedder(
                 EmbedderFacadeJ.EmbedderFacadeRequest(true, null, originalFile, null, null)
             )
 
