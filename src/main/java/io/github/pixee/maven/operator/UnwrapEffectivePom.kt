@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator
 
 import io.github.pixee.maven.operator.java.AbstractVersionCommandJ
+import io.github.pixee.maven.operator.java.EmbedderFacadeJ
 import io.github.pixee.maven.operator.java.IgnorableJ
 import io.github.pixee.maven.operator.java.VersionDefinitionJ
 import org.apache.maven.model.building.ModelBuildingException
@@ -28,7 +29,7 @@ class UnwrapEffectivePom : AbstractVersionCommandJ() {
 
     fun executeInternal(pm: ProjectModel): Boolean {
         val embedderFacadeResponse = EmbedderFacade.invokeEmbedder(
-            EmbedderFacadeRequest(offline = pm.offline, pomFile = pm.pomFile.file)
+            EmbedderFacadeJ.EmbedderFacadeRequest(pm.offline, null,  pm.pomFile.file, null, null)
         )
 
         val definedVersions: MutableSet<VersionDefinitionJ> =

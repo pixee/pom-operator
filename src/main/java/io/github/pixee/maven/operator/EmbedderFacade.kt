@@ -1,5 +1,6 @@
 package io.github.pixee.maven.operator
 
+import io.github.pixee.maven.operator.java.EmbedderFacadeJ
 import org.apache.maven.model.building.*
 import org.apache.maven.project.ProjectModelResolver
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils
@@ -36,7 +37,7 @@ data class EmbedderFacadeResponse(
 object EmbedderFacade {
     // Embedder Impl
 
-    fun invokeEmbedder(req: EmbedderFacadeRequest): EmbedderFacadeResponse {
+    fun invokeEmbedder(req: EmbedderFacadeJ.EmbedderFacadeRequest): EmbedderFacadeResponse {
         val localRepoPath: File = when {
             req.localRepositoryPath != null -> req.localRepositoryPath
             System.getenv("M2_REPO") != null -> File(System.getenv("M2_REPO"))

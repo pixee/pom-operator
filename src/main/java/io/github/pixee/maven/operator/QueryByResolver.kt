@@ -1,5 +1,6 @@
 package io.github.pixee.maven.operator
 
+import io.github.pixee.maven.operator.java.EmbedderFacadeJ
 import io.github.pixee.maven.operator.java.IgnorableJ
 import org.apache.maven.model.building.ModelBuildingException
 import org.eclipse.aether.artifact.DefaultArtifact
@@ -26,12 +27,12 @@ class QueryByResolver : AbstractQueryCommand() {
     }
 
     override fun execute(pm: ProjectModel): Boolean {
-        val req = EmbedderFacadeRequest(
-            offline = pm.offline,
-            pomFile = pm.pomFile.file,
-            localRepositoryPath = pm.repositoryPath,
-            activeProfileIds = pm.activeProfiles.filterNot { it.startsWith("!") }.toList(),
-            inactiveProfileIds = pm.activeProfiles.filter { it.startsWith("!") }
+        val req = EmbedderFacadeJ.EmbedderFacadeRequest(
+            pm.offline,
+            pm.repositoryPath,
+            pm.pomFile.file,
+            pm.activeProfiles.filterNot { it.startsWith("!") }.toList(),
+            pm.activeProfiles.filter { it.startsWith("!") }
                 .map { it.substring(1) }.toList()
         )
 

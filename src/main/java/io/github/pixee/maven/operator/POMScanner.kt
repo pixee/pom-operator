@@ -1,5 +1,6 @@
 package io.github.pixee.maven.operator
 
+import io.github.pixee.maven.operator.java.EmbedderFacadeJ
 import io.github.pixee.maven.operator.java.IgnorableJ
 import org.apache.maven.model.building.ModelBuildingException
 import org.dom4j.Element
@@ -154,7 +155,7 @@ object POMScanner {
     private fun getParentPoms(originalFile: File): List<File> {
         val embedderFacadeResponse =
             EmbedderFacade.invokeEmbedder(
-                EmbedderFacadeRequest(offline = true, pomFile = originalFile)
+                EmbedderFacadeJ.EmbedderFacadeRequest(true, null, originalFile, null, null)
             )
 
         val res = embedderFacadeResponse.modelBuildingResult
