@@ -133,7 +133,7 @@ class Chain(vararg commands: CommandJ) {
          * List of Commands for Version Query
          */
         val AVAILABLE_QUERY_VERSION_COMMANDS = listOf<Pair<QueryType, String>>(
-            QueryType.NONE to "UnwrapEffectivePom",
+            QueryType.NONE to "UnwrapEffectivePomJ",
             QueryType.SAFE to "VersionByCompilerDefinitionJ",
             QueryType.SAFE to "VersionByPropertyJ",
         )
