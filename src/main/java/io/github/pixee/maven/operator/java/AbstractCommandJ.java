@@ -1,6 +1,5 @@
 package io.github.pixee.maven.operator.java;
 
-import io.github.pixee.maven.operator.ProjectModel;
 import io.github.pixee.maven.operator.java.CommandJ;
 import io.github.pixee.maven.operator.java.UtilJ;
 import org.dom4j.Element;
@@ -11,7 +10,7 @@ import java.util.List;
 
 public abstract class AbstractCommandJ implements CommandJ {
 
-    protected boolean handleDependency(ProjectModel pm, String lookupExpression) {
+    protected boolean handleDependency(ProjectModelJ pm, String lookupExpression) {
         List<Node> dependencyNodes = UtilJ.selectXPathNodes(pm.getPomFile().getResultPom(), lookupExpression);
 
         if (1 == dependencyNodes.size()) {
@@ -38,16 +37,16 @@ public abstract class AbstractCommandJ implements CommandJ {
     }
 
     @Override
-    public boolean execute(ProjectModel pm) {
+    public boolean execute(ProjectModelJ pm) {
         return false;
     }
 
     @Override
-    public boolean postProcess(ProjectModel c) {
+    public boolean postProcess(ProjectModelJ c) {
         return false;
     }
 
-    protected File getLocalRepositoryPath(ProjectModel pm) {
+    protected File getLocalRepositoryPath(ProjectModelJ pm) {
         File localRepositoryPath = null;
 
         if (pm.getRepositoryPath() != null) {

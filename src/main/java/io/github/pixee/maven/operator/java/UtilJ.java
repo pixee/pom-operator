@@ -3,7 +3,6 @@ package io.github.pixee.maven.operator.java;
 import com.github.zafarkhaja.semver.Version;
 import io.github.pixee.maven.operator.Dependency;
 import io.github.pixee.maven.operator.POMDocument;
-import io.github.pixee.maven.operator.ProjectModel;
 import io.github.pixee.maven.operator.Util;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -73,7 +72,7 @@ public class UtilJ {
     }
 
     public static void upgradeVersionNode(
-            ProjectModel c,
+            ProjectModelJ c,
             Element versionNode,
             POMDocument pomDocumentHoldingProperty
     ) {
@@ -97,7 +96,7 @@ public class UtilJ {
         }
     }
 
-    private static void upgradeProperty(ProjectModel c, POMDocument d, String propertyName) {
+    private static void upgradeProperty(ProjectModelJ c, POMDocument d, String propertyName) {
         if (d.getResultPom().getRootElement().element("properties") == null) {
             addIndentedElement(d.getResultPom().getRootElement(), d, "properties");
         }
@@ -138,7 +137,7 @@ public class UtilJ {
         return "${" + propertyName + "}";
     }
 
-    static String propertyName(ProjectModel c, Element versionNode) {
+    static String propertyName(ProjectModelJ c, Element versionNode) {
         String version = versionNode.getTextTrim();
 
         if (PROPERTY_REFERENCE_PATTERN.matcher(version).matches()) {
@@ -157,7 +156,7 @@ public class UtilJ {
         return "versions.default";
     }
 
-    public static boolean findOutIfUpgradeIsNeeded(ProjectModel c, Element versionNode) {
+    public static boolean findOutIfUpgradeIsNeeded(ProjectModelJ c, Element versionNode) {
         String currentVersionNodeText = resolveVersion(c, versionNode.getText());
 
         Version currentVersion = Version.valueOf(currentVersionNodeText);
@@ -168,9 +167,9 @@ public class UtilJ {
         return versionsAreIncreasing;
     }
 
-    private static String resolveVersion(ProjectModel c, String versionText) {
+    private static String resolveVersion(ProjectModelJ c, String versionText) {
         if (PROPERTY_REFERENCE_PATTERN.matcher(versionText).matches()) {
-            StrSubstitutor substitutor = new StrSubstitutor(c.getResolvedProperties());
+            StrSubstitutor substitutor = new StrSubstitutor(c.resolvedProperties());
             String resolvedVersion = substitutor.replace(versionText);
             return resolvedVersion;
         } else {

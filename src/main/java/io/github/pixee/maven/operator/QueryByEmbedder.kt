@@ -1,5 +1,6 @@
 package io.github.pixee.maven.operator
 
+import io.github.pixee.maven.operator.java.ProjectModelJ
 import org.apache.commons.io.output.NullOutputStream
 import org.apache.maven.cli.MavenCli
 import org.apache.maven.shared.invoker.InvocationRequest
@@ -17,7 +18,7 @@ class QueryByEmbedder : AbstractQueryCommand() {
     /**
      * Runs the "dependency:tree" mojo - but using Embedder instead.
      */
-    override fun extractDependencyTree(outputPath: File, pomFilePath: File, c: ProjectModel) {
+    override fun extractDependencyTree(outputPath: File, pomFilePath: File, c: ProjectModelJ) {
         val mavenCli = MavenCli()
 
         val cliBuilder = MavenCommandLineBuilder()

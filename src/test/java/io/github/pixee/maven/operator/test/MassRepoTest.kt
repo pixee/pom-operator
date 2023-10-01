@@ -218,7 +218,7 @@ class MassRepoIT {
 
         val result = POMOperator.modify(context)
 
-        context.allPomFiles.filter { it.dirty }.forEach {
+        context.allPomFiles().filter { it.dirty }.forEach {
             it.file.writeBytes(it.resultPomBytes)
         }
 

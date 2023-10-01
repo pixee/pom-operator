@@ -3,6 +3,7 @@
 package io.github.pixee.maven.operator
 
 import com.github.zafarkhaja.semver.Version
+import io.github.pixee.maven.operator.java.ProjectModelJ
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.SystemUtils
 import org.apache.commons.lang3.text.StrSubstitutor
@@ -86,7 +87,7 @@ object Util {
     /**
      * Upserts a given property
      */
-    private fun upgradeProperty(c: ProjectModel, d: POMDocument, propertyName: String) {
+    private fun upgradeProperty(c: ProjectModelJ, d: POMDocument, propertyName: String) {
         if (null == d.resultPom.rootElement.element("properties")) {
             d.resultPom.rootElement.addIndentedElement(d, "properties")
         }
@@ -120,7 +121,7 @@ object Util {
     /**
      * Creates a property Name
      */
-    internal fun propertyName(c: ProjectModel, versionNode: Element): String {
+    internal fun propertyName(c: ProjectModelJ, versionNode: Element): String {
         val version = versionNode.textTrim
 
         if (PROPERTY_REFERENCE_REGEX.matches(version)) {
@@ -137,7 +138,7 @@ object Util {
     /**
      * Identifies if an upgrade is needed
      */
-    internal fun findOutIfUpgradeIsNeeded(c: ProjectModel, versionNode: Element): Boolean {
+    internal fun findOutIfUpgradeIsNeeded(c: ProjectModelJ, versionNode: Element): Boolean {
         val currentVersionNodeText = resolveVersion(c, versionNode.text!!)
 
         val currentVersion = Version.valueOf(currentVersionNodeText)
@@ -149,10 +150,10 @@ object Util {
         return versionsAreIncreasing
     }
 
-    private fun resolveVersion(c: ProjectModel, versionText: String): String =
+    private fun resolveVersion(c: ProjectModelJ, versionText: String): String =
         if (PROPERTY_REFERENCE_REGEX.matches(versionText)) {
             @Suppress("DEPRECATION")
-            StrSubstitutor(c.resolvedProperties).replace(versionText)
+            StrSubstitutor(c.resolvedProperties()).replace(versionText)
         } else {
             versionText
         }
@@ -167,7 +168,7 @@ object Util {
      * Given a Version Node, upgrades a resulting POM
      */
     internal fun upgradeVersionNode(
-        c: ProjectModel,
+        c: ProjectModelJ,
         versionNode: Element,
         pomDocumentHoldingProperty: POMDocument
     ) {

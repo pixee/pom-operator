@@ -2,8 +2,8 @@ package io.github.pixee.maven.operator.test
 
 import `fun`.mike.dmp.DiffMatchPatch
 import io.github.pixee.maven.operator.POMOperator
-import io.github.pixee.maven.operator.ProjectModel
 import io.github.pixee.maven.operator.ProjectModelFactory
+import io.github.pixee.maven.operator.java.ProjectModelJ
 import org.dom4j.Document
 import org.dom4j.io.SAXReader
 import org.junit.Assert.assertFalse
@@ -26,9 +26,9 @@ open class AbstractTestBase {
      * Implements a Given-When-Then idiom
      *
      * @param g: Given - returns a context
-     * @param t: Then - validates given a context/ProjectModel
+     * @param t: Then - validates given a context/ProjectModelJ
      */
-    protected fun gwt(g: () -> ProjectModel, t: (p: ProjectModel) -> Unit) {
+    protected fun gwt(g: () -> ProjectModelJ, t: (p: ProjectModelJ) -> Unit) {
         val context = g()
 
         LOGGER.debug("context: {}", context)
@@ -40,10 +40,10 @@ open class AbstractTestBase {
         t(context)
     }
 
-    protected fun gwt(name: String, pmf: ProjectModelFactory): ProjectModel =
+    protected fun gwt(name: String, pmf: ProjectModelFactory): ProjectModelJ =
         gwt(name, pmf.build())
 
-    protected fun gwt(testName: String, context: ProjectModel): ProjectModel {
+    protected fun gwt(testName: String, context: ProjectModelJ): ProjectModelJ {
         val resultFile = "pom-$testName-result.xml"
         val resource = this.javaClass.javaClass.getResource(resultFile)
 

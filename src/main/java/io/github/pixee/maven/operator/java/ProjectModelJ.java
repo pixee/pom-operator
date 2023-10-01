@@ -3,7 +3,6 @@ package io.github.pixee.maven.operator.java;
 import io.github.pixee.maven.operator.Dependency;
 import io.github.pixee.maven.operator.POMDocument;
 import io.github.pixee.maven.operator.QueryType;
-import io.github.pixee.maven.operator.java.UtilJ;
 import org.apache.commons.collections4.CollectionUtils;
 import org.dom4j.Element;
 import org.dom4j.Node;
@@ -65,7 +64,7 @@ public class ProjectModelJ {
         return rootProperties;
     }
 
-    public static Map<String, String> getPropertiesFromProfile(String profileName, POMDocument pomFile) {
+    private Map<String, String> getPropertiesFromProfile(String profileName, POMDocument pomFile) {
         String expression = "/m:project/m:profiles/m:profile[./m:id[text()='" + profileName + "']]/m:properties";
         List<Node> propertiesElements =  UtilJ.selectXPathNodes(pomFile.getPomDocument(), expression);
 
@@ -82,9 +81,9 @@ public class ProjectModelJ {
         return newPropertiesToAppend;
     }
 
-    public static Map<String, List<Pair<String, POMDocument>>> propertiesDefinedByFile(POMDocument pomFileDoc, List<POMDocument> getParentPomFiles, Set<String> activeProfiles) {
+    public Map<String, List<Pair<String, POMDocument>>> propertiesDefinedByFile() {
         Map<String, List<Pair<String, POMDocument>>> result = new LinkedHashMap<>();
-        List<POMDocument> allPomFiles = ProjectModelJ.getAllPomFiles(pomFileDoc, getParentPomFiles);
+        List<POMDocument> allPomFiles = allPomFiles();
 
         for (POMDocument pomFile : allPomFiles) {
             Map<String, String> rootProperties = propertiesDefinedOnPomDocument(pomFile);
@@ -121,9 +120,9 @@ public class ProjectModelJ {
         return result;
     }
 
-    public static Map<String, String> resolvedProperties(POMDocument pomFileD, List<POMDocument> getParentPomFiles, Set<String> activeProfiles) {
+    public Map<String, String> resolvedProperties() {
         Map<String, String> result = new LinkedHashMap<>();
-        List<POMDocument> allPomFiles = getAllPomFiles(pomFileD, getParentPomFiles); // Implement this method
+        List<POMDocument> allPomFiles = allPomFiles(); // Implement this method
 
         for (POMDocument pomFile : allPomFiles) {
             Map<String, String> rootProperties = propertiesDefinedOnPomDocument(pomFile);
@@ -149,10 +148,10 @@ public class ProjectModelJ {
         return Collections.unmodifiableMap(result);
     }
 
-    public static List<POMDocument> getAllPomFiles(POMDocument pomFile, List<POMDocument> getParentPomFiles) {
+    public List<POMDocument> allPomFiles() {
         List<POMDocument> allFiles = new ArrayList<>();
         allFiles.add(pomFile);
-        allFiles.addAll(getParentPomFiles);
+        allFiles.addAll(parentPomFiles);
         return allFiles;
     }
 
@@ -180,7 +179,7 @@ public class ProjectModelJ {
         this.dependency = dependency;
     }
 
-    public boolean isSkipIfNewer() {
+    public boolean getSkipIfNewer() {
         return skipIfNewer;
     }
 
@@ -188,7 +187,7 @@ public class ProjectModelJ {
         this.skipIfNewer = skipIfNewer;
     }
 
-    public boolean isUseProperties() {
+    public boolean getUseProperties() {
         return useProperties;
     }
 
@@ -204,7 +203,7 @@ public class ProjectModelJ {
         this.activeProfiles = activeProfiles;
     }
 
-    public boolean isOverrideIfAlreadyExists() {
+    public boolean getOverrideIfAlreadyExists() {
         return overrideIfAlreadyExists;
     }
 
@@ -236,7 +235,7 @@ public class ProjectModelJ {
         this.finishedByClass = finishedByClass;
     }
 
-    public boolean isOffline() {
+    public boolean getOffline() {
         return offline;
     }
 
@@ -244,7 +243,7 @@ public class ProjectModelJ {
         this.offline = offline;
     }
 
-    public boolean isModifiedByCommand() {
+    public boolean getModifiedByCommand() {
         return modifiedByCommand;
     }
 

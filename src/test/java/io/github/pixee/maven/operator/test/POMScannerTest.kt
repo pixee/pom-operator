@@ -35,7 +35,7 @@ class POMScannerTest : AbstractTestBase() {
         assertTrue(pmf.parentPomFiles.size == 2, "There must be two parent pom files")
 
         val uniquePaths =
-            pmf.allPomFiles.map { it.pomPath!!.toURI().normalize().toString() }.toSet()
+            pmf.allPomFiles().map { it.pomPath!!.toURI().normalize().toString() }.toSet()
 
         val uniquePathsAsString = uniquePaths.joinToString(" ")
 
@@ -53,7 +53,7 @@ class POMScannerTest : AbstractTestBase() {
 
             assertTrue(pm.parentPomFiles.size == 2, "There must be two parent pom files")
 
-            val uniquePaths = pm.allPomFiles.map { it.pomPath!!.toURI().normalize().toString() }
+            val uniquePaths = pm.allPomFiles().map { it.pomPath!!.toURI().normalize().toString() }
 
             val uniquePathsAsString = uniquePaths.joinToString(" ")
 

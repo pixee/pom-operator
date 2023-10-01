@@ -1,6 +1,6 @@
 package io.github.pixee.maven.operator.test
 
-import io.github.pixee.maven.operator.ProjectModel
+import io.github.pixee.maven.operator.java.ProjectModelJ
 import io.github.pixee.maven.operator.java.UtilJ
 import org.apache.commons.lang3.SystemUtils
 import org.dom4j.Document
@@ -9,13 +9,13 @@ import java.io.File
 import java.io.FileInputStream
 
 
-internal fun ProjectModel.getRuntimeResolvedProperties(): Map<String, String> =
+internal fun ProjectModelJ.getRuntimeResolvedProperties(): Map<String, String> =
     this.getEffectivePom().rootElement.elements("properties").flatMap { it.elements() }
         .associate {
             it.name to it.text
         }
 
-internal fun ProjectModel.getEffectivePom(): Document {
+internal fun ProjectModelJ.getEffectivePom(): Document {
     val tmpInputFile = File.createTempFile("tmp-pom-orig", ".xml")
 
     tmpInputFile.writeBytes(this.pomFile.resultPomBytes)

@@ -2,6 +2,7 @@ package io.github.pixee.maven.operator
 
 import io.github.pixee.maven.operator.java.UtilJ.selectXPathNodes
 import io.github.pixee.maven.operator.java.CommandJ
+import io.github.pixee.maven.operator.java.ProjectModelJ
 import io.github.pixee.maven.operator.java.UtilJ
 import org.dom4j.Element
 import java.io.File
@@ -15,7 +16,7 @@ abstract class AbstractCommand : CommandJ {
      *
      * TODO review this
      */
-    protected fun handleDependency(pm: ProjectModel, lookupExpression: String): Boolean {
+    protected fun handleDependency(pm: ProjectModelJ, lookupExpression: String): Boolean {
         val dependencyNodes = selectXPathNodes(pm.pomFile.resultPom,lookupExpression)
 
         if (1 == dependencyNodes.size) {
@@ -41,11 +42,11 @@ abstract class AbstractCommand : CommandJ {
         return false
     }
 
-    override fun execute(pm: ProjectModel): Boolean = false
+    override fun execute(pm: ProjectModelJ): Boolean = false
 
-    override fun postProcess(c: ProjectModel): Boolean = false
+    override fun postProcess(c: ProjectModelJ): Boolean = false
 
-    protected fun getLocalRepositoryPath(pm: ProjectModel): File {
+    protected fun getLocalRepositoryPath(pm: ProjectModelJ): File {
         val localRepositoryPath: File = when {
             pm.repositoryPath != null -> pm.repositoryPath
             System.getenv("M2_REPO") != null -> File(System.getenv("M2_REPO"))

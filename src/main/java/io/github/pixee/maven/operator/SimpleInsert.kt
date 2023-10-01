@@ -3,13 +3,14 @@ package io.github.pixee.maven.operator
 import io.github.pixee.maven.operator.java.UtilJ
 import io.github.pixee.maven.operator.java.UtilJ.selectXPathNodes
 import io.github.pixee.maven.operator.java.CommandJ
+import io.github.pixee.maven.operator.java.ProjectModelJ
 import org.dom4j.Element
 
 /**
  * Represents a POM Upgrade Strategy by simply adding a dependency/ section (and optionally a dependencyManagement/ section as well)
  */
 val SimpleInsert = object : CommandJ {
-    override fun execute(pm: ProjectModel): Boolean {
+    override fun execute(pm: ProjectModelJ): Boolean {
         val dependencyManagementNodeList =
             selectXPathNodes(pm.pomFile.resultPom,"/m:project/m:dependencyManagement")
 
@@ -52,7 +53,7 @@ val SimpleInsert = object : CommandJ {
      */
     private fun appendCoordinates(
         dependenciesNode: Element,
-        c: ProjectModel
+        c: ProjectModelJ
     ): Element {
         val dependencyNode = UtilJ.addIndentedElement(dependenciesNode, c.pomFile, "dependency")
 
@@ -69,5 +70,5 @@ val SimpleInsert = object : CommandJ {
         return dependencyNode
     }
 
-    override fun postProcess(c: ProjectModel): Boolean = false
+    override fun postProcess(c: ProjectModelJ): Boolean = false
 }

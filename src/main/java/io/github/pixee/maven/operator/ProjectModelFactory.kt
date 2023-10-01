@@ -1,5 +1,6 @@
 package io.github.pixee.maven.operator
 
+import io.github.pixee.maven.operator.java.ProjectModelJ
 import java.io.File
 import java.io.InputStream
 import java.net.URL
@@ -105,18 +106,19 @@ class ProjectModelFactory private constructor(
     /**
      * Fluent Setter
      */
-    fun build(): ProjectModel {
-        return ProjectModel(
-            pomFile = pomFile,
-            parentPomFiles = parentPomFiles,
-            dependency = dependency,
-            skipIfNewer = skipIfNewer,
-            useProperties = useProperties,
-            activeProfiles = activeProfiles,
-            overrideIfAlreadyExists = overrideIfAlreadyExists,
-            queryType = queryType,
-            repositoryPath = repositoryPath,
-            offline = offline,
+    fun build(): ProjectModelJ {
+        return ProjectModelJ(
+            pomFile,
+            parentPomFiles,
+            dependency,
+            skipIfNewer,
+            useProperties,
+            activeProfiles,
+            overrideIfAlreadyExists,
+            queryType,
+            repositoryPath,
+            null,
+            offline,
         )
     }
 

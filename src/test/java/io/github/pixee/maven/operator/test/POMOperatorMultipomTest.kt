@@ -2,6 +2,7 @@ package io.github.pixee.maven.operator.test
 
 import com.google.common.io.Files
 import io.github.pixee.maven.operator.*
+import io.github.pixee.maven.operator.java.ProjectModelJ
 import io.github.pixee.maven.operator.java.WrongDependencyTypeExceptionJ
 import org.junit.Test
 import java.io.File
@@ -61,8 +62,8 @@ class POMOperatorMultipomTest : AbstractTestBase() {
 
         validateDepsFrom(result)
 
-        assertTrue(result.allPomFiles.size == 2, "There should be two files")
-        assertTrue(result.allPomFiles.all { it.dirty }, "All files were modified")
+        assertTrue(result.allPomFiles().size == 2, "There should be two files")
+        assertTrue(result.allPomFiles().all { it.dirty }, "All files were modified")
     }
 
     @Test
@@ -83,8 +84,8 @@ class POMOperatorMultipomTest : AbstractTestBase() {
 
         validateDepsFrom(result)
 
-        assertTrue(result.allPomFiles.size == 2, "There should be two files")
-        assertTrue(result.allPomFiles.all { it.dirty }, "All files were modified")
+        assertTrue(result.allPomFiles().size == 2, "There should be two files")
+        assertTrue(result.allPomFiles().all { it.dirty }, "All files were modified")
 
         val parentPomString = String(result.parentPomFiles.first().resultPomBytes, Charsets.UTF_8)
         val pomString = String(result.pomFile.resultPomBytes, Charsets.UTF_8)
@@ -98,7 +99,7 @@ class POMOperatorMultipomTest : AbstractTestBase() {
         assertFalse(pomString.contains(version), "Must not have reference to version on pom")
     }
 
-    fun validateDepsFrom(context: ProjectModel) {
+    fun validateDepsFrom(context: ProjectModelJ) {
         val resultFiles = copyFiles(context)
 
         resultFiles.entries.forEach {
@@ -121,7 +122,7 @@ class POMOperatorMultipomTest : AbstractTestBase() {
         )
     }
 
-    fun copyFiles(context: ProjectModel): Map<POMDocument, File> {
+    fun copyFiles(context: ProjectModelJ): Map<POMDocument, File> {
         var commonPath = File(context.pomFile.pomPath!!.toURI()).canonicalFile
 
         for (p in context.parentPomFiles) {
@@ -135,7 +136,7 @@ class POMOperatorMultipomTest : AbstractTestBase() {
 
         val tmpOutputDir = Files.createTempDir()
 
-        val result = context.allPomFiles.map { p ->
+        val result = context.allPomFiles().map { p ->
             val pAsFile = File(p.pomPath!!.toURI())
 
             val relPath = pAsFile.canonicalPath.substring(1 + commonPathLen)

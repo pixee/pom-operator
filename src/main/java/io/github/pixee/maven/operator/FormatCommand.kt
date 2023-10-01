@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator
 
 import io.github.pixee.maven.operator.java.AbstractCommandJ
+import io.github.pixee.maven.operator.java.ProjectModelJ
 import org.apache.commons.lang3.StringUtils
 import org.mozilla.universalchardet.UniversalDetector
 import java.io.StringWriter
@@ -38,8 +39,8 @@ class FormatCommand : AbstractCommandJ() {
      */
     private val outputFactory = XMLOutputFactory.newInstance()
 
-    override fun execute(pm: ProjectModel): Boolean {
-        for (pomFile in pm.allPomFiles) {
+    override fun execute(pm: ProjectModelJ): Boolean {
+        for (pomFile in pm.allPomFiles()) {
             parseXmlAndCharset(pomFile)
 
             pomFile.endl = parseLineEndings(pomFile)
@@ -244,8 +245,8 @@ class FormatCommand : AbstractCommandJ() {
      * When doing the opposite, render the XML using the optionally supplied encoding (defaults to UTF8 obviously)
      * but apply the original formatting as well
      */
-    override fun postProcess(pm: ProjectModel): Boolean {
-        for (pomFile in pm.allPomFiles) {
+    override fun postProcess(pm: ProjectModelJ): Boolean {
+        for (pomFile in pm.allPomFiles()) {
             /**
              * Serializes it back
              */

@@ -1,5 +1,7 @@
 package io.github.pixee.maven.operator
 
+import io.github.pixee.maven.operator.java.ProjectModelJ
+
 /**
  * Represents a Command in a Chain of Responsibility Pattern
  */
@@ -10,10 +12,10 @@ interface Command {
      * @param pm Context (Project Model) to use
      * @return true if the execution was successful *AND* the chain must end
      */
-    fun execute(pm: ProjectModel): Boolean
+    fun execute(pm: ProjectModelJ): Boolean
 
     /**
      * Post Processing, implementing a Filter Pattern
      */
-    fun postProcess(c: ProjectModel): Boolean
+    fun postProcess(c: ProjectModelJ): Boolean
 }

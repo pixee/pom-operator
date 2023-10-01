@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator;
 
 import io.github.pixee.maven.operator.java.AbstractVersionCommandJ;
+import io.github.pixee.maven.operator.java.ProjectModelJ;
 import io.github.pixee.maven.operator.java.VersionDefinitionJ;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.dom4j.Element;
@@ -11,7 +12,7 @@ import static io.github.pixee.maven.operator.java.UtilJ.selectXPathNodes;
 
 public class VersionByCompilerDefinitionJ extends AbstractVersionCommandJ {
     @Override
-    public boolean execute(ProjectModel pm) {
+    public boolean execute(ProjectModelJ pm) {
         Set<VersionDefinitionJ> definedSettings = new TreeSet<>(AbstractVersionCommandJ.VERSION_KIND_COMPARATOR);
 
         List<String> parents = Arrays.asList(
@@ -19,12 +20,12 @@ public class VersionByCompilerDefinitionJ extends AbstractVersionCommandJ {
                 "//m:project/m:build/m:plugins"
         );
 
-        Map<String, String> properties = pm.getResolvedProperties();
+        Map<String, String> properties = pm.resolvedProperties();
 
         StrSubstitutor sub = new StrSubstitutor(properties);
 
         for (String parent : parents) {
-            for (POMDocument doc : pm.getAllPomFiles()) {
+            for (POMDocument doc : pm.allPomFiles()) {
                 String pluginExpression = parent + "/m:plugin[./m:artifactId[text()='maven-compiler-plugin']]" +
                         "//m:configuration";
                 List<Node> compilerNodes = selectXPathNodes(doc.getResultPom(), pluginExpression);

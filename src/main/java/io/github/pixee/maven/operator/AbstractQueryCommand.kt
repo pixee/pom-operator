@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator
 
 import io.github.pixee.maven.operator.java.AbstractCommandJ
+import io.github.pixee.maven.operator.java.ProjectModelJ
 import io.github.pixee.maven.operator.java.UtilJ
 import org.apache.commons.lang3.SystemUtils
 import org.apache.maven.shared.invoker.DefaultInvocationRequest
@@ -46,7 +47,7 @@ abstract class AbstractQueryCommand : AbstractCommandJ() {
      * @param pomFilePath Input Pom Path
      * @param c Project Model
      */
-    abstract fun extractDependencyTree(outputPath: File, pomFilePath: File, c: ProjectModel)
+    abstract fun extractDependencyTree(outputPath: File, pomFilePath: File, c: ProjectModelJ)
 
     /**
      * Internal Holder Variable
@@ -59,7 +60,7 @@ abstract class AbstractQueryCommand : AbstractCommandJ() {
      * We declare the main logic here - details are made in the child classes for now
      */
 
-    override fun execute(pm: ProjectModel): Boolean {
+    override fun execute(pm: ProjectModelJ): Boolean {
         val pomFilePath = getPomFilePath(pm.pomFile)
 
         val outputPath = getOutputPath(pomFilePath)
@@ -112,7 +113,7 @@ abstract class AbstractQueryCommand : AbstractCommandJ() {
     protected fun buildInvocationRequest(
         outputPath: File,
         pomFilePath: File,
-        c: ProjectModel
+        c: ProjectModelJ
     ): InvocationRequest {
         val props = Properties(System.getProperties()).apply {
             setProperty("outputFile", outputPath.absolutePath)
@@ -203,5 +204,5 @@ abstract class AbstractQueryCommand : AbstractCommandJ() {
         val LOGGER: Logger = LoggerFactory.getLogger(AbstractQueryCommand::class.java)
     }
 
-    override fun postProcess(c: ProjectModel): Boolean = false
+    override fun postProcess(c: ProjectModelJ): Boolean = false
 }

@@ -1,7 +1,7 @@
 package io.github.pixee.maven.operator
 
-import io.github.pixee.maven.operator.java.ProjectModelJ
-import io.github.pixee.maven.operator.java.UtilJ.selectXPathNodes
+import io.github.pixee.maven.operator.Util.selectXPathNodes
+import io.github.pixee.maven.operator.java.UtilJ
 import org.dom4j.Element
 import java.io.File
 
@@ -33,26 +33,101 @@ class ProjectModel internal constructor(
     /**
      * Involved POM Files
      */
-    val allPomFiles: List<POMDocument>
-        get() = ProjectModelJ.getAllPomFiles(pomFile, parentPomFiles)
+    val allPomFiles: Collection<POMDocument>
+        get() = listOfNotNull(
+            pomFile,
+            *parentPomFiles.toTypedArray()
+        )
 
     val resolvedProperties =
-        ProjectModelJ.resolvedProperties(pomFile, allPomFiles, activeProfiles)
+        run {
+            val result: MutableMap<String, String> = LinkedHashMap()
 
-    val propertiesDefinedByFile =
-        ProjectModelJ.propertiesDefinedByFile(pomFile, allPomFiles, activeProfiles)
+            allPomFiles
+                .reversed() // parent first, children later - thats why its reversed
+                .forEach { pomFile ->
+                    val rootProperties =
+                        propertiesDefinedOnPomDocument(pomFile)
+
+                    result.putAll(rootProperties)
+
+                    val activatedProfiles = activeProfiles.filterNot { it.startsWith("!") }
+
+                    val newPropertiesFromProfiles = activatedProfiles.map { profileName ->
+                        getPropertiesFromProfile(profileName, pomFile)
+                    }
+
+                    newPropertiesFromProfiles.forEach { result.putAll(it) }
+                }
+
+            result.toMap()
+        }
+
+    val propertiesDefinedByFile: Map<String, List<Pair<String, POMDocument>>> =
+        run {
+            val result: MutableMap<String, List<Pair<String, POMDocument>>> = LinkedHashMap()
+
+            allPomFiles
+                .reversed()
+                .forEach { pomFile ->
+                    val rootProperties =
+                        propertiesDefinedOnPomDocument(pomFile)
+
+                    val tempProperties: MutableMap<String, String> = LinkedHashMap()
+
+                    tempProperties.putAll(rootProperties)
+
+                    val activatedProfiles = activeProfiles.filterNot { it.startsWith("!") }
+
+                    val newPropertiesFromProfiles = activatedProfiles.map { profileName ->
+                        getPropertiesFromProfile(profileName, pomFile)
+                    }
+
+                    newPropertiesFromProfiles.forEach { tempProperties.putAll(it) }
+
+                    tempProperties.entries.forEach { entry ->
+                        if (!result.containsKey(entry.key)) {
+                            result[entry.key] = ArrayList()
+                        }
+
+                        val definitionList =
+                            result[entry.key] as MutableList<Pair<String, POMDocument>>
+
+                        definitionList.add(entry.value to pomFile)
+                    }
+                }
+
+            result
+        }
 
     private fun getPropertiesFromProfile(
         profileName: String,
         pomFile: POMDocument
     ): Map<String, String> {
-        return ProjectModelJ.getPropertiesFromProfile(profileName, pomFile)
+        val expression =
+            "/m:project/m:profiles/m:profile[./m:id[text()='${profileName}']]/m:properties"
+        val propertiesElements =
+            UtilJ.selectXPathNodes(pomFile.pomDocument,expression)
+
+        val newPropertiesToAppend =
+            propertiesElements.filterIsInstance<Element>()
+                .flatMap { it.elements() }
+                .associate {
+                    it.name to it.text
+                }
+
+        return newPropertiesToAppend
     }
 
     companion object {
         fun propertiesDefinedOnPomDocument(pomFile: POMDocument): Map<String, String> {
-            return ProjectModelJ.propertiesDefinedOnPomDocument(pomFile)
+            val rootProperties =
+                pomFile.pomDocument.rootElement.elements("properties")
+                    .flatMap { it.elements() }
+                    .associate {
+                        it.name to it.text
+                    }
+            return rootProperties
         }
     }
 }
-

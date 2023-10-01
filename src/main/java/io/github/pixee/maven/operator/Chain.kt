@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator
 
 import io.github.pixee.maven.operator.java.CommandJ
+import io.github.pixee.maven.operator.java.ProjectModelJ
 import io.github.pixee.maven.operator.java.SupportCommandJ
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -22,7 +23,7 @@ class Chain(vararg commands: CommandJ) {
      * @param c ProjectModel (context)
      * @return Boolean if successful
      */
-    fun execute(c: ProjectModel): Boolean {
+    fun execute(c: ProjectModelJ): Boolean {
         var done = false
         val listIterator = commandList.listIterator()
 

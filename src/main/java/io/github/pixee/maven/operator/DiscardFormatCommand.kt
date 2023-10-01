@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator
 
 import io.github.pixee.maven.operator.java.AbstractCommandJ
+import io.github.pixee.maven.operator.java.ProjectModelJ
 import org.xmlunit.builder.DiffBuilder
 import org.xmlunit.builder.Input
 
@@ -8,10 +9,10 @@ import org.xmlunit.builder.Input
  * Command Class to Short-Circuit/Discard Processing when no pom changes were made
  */
 class DiscardFormatCommand : AbstractCommandJ() {
-    override fun postProcess(pm: ProjectModel): Boolean {
+    override fun postProcess(pm: ProjectModelJ): Boolean {
         var mustSkip = false
 
-        for (pomFile in pm.allPomFiles) {
+        for (pomFile in pm.allPomFiles()) {
             val originalDoc = Input.fromString(String(pomFile.originalPom)).build()
             val modifiedDoc = Input.fromString(pomFile.resultPom.asXML()).build()
 

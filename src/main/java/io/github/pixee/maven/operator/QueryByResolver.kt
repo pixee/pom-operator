@@ -2,6 +2,7 @@ package io.github.pixee.maven.operator
 
 import io.github.pixee.maven.operator.java.EmbedderFacadeJ
 import io.github.pixee.maven.operator.java.IgnorableJ
+import io.github.pixee.maven.operator.java.ProjectModelJ
 import org.apache.maven.model.building.ModelBuildingException
 import org.eclipse.aether.artifact.DefaultArtifact
 import org.eclipse.aether.collection.CollectRequest
@@ -22,11 +23,11 @@ class QueryByResolver : AbstractQueryCommand() {
         private val LOGGER: Logger = LoggerFactory.getLogger(QueryByResolver::class.java)
     }
 
-    override fun extractDependencyTree(outputPath: File, pomFilePath: File, c: ProjectModel) {
+    override fun extractDependencyTree(outputPath: File, pomFilePath: File, c: ProjectModelJ) {
         TODO("Not yet implemented")
     }
 
-    override fun execute(pm: ProjectModel): Boolean {
+    override fun execute(pm: ProjectModelJ): Boolean {
         val req = EmbedderFacadeJ.EmbedderFacadeRequest(
             pm.offline,
             pm.repositoryPath,

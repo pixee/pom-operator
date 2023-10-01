@@ -3,6 +3,7 @@ package io.github.pixee.maven.operator
 import com.github.zafarkhaja.semver.Version
 import io.github.pixee.maven.operator.java.AbstractVersionCommandJ
 import io.github.pixee.maven.operator.java.CommandJ
+import io.github.pixee.maven.operator.java.ProjectModelJ
 import io.github.pixee.maven.operator.java.VersionDefinitionJ
 import io.github.pixee.maven.operator.java.VersionQueryResponseJ
 import java.util.*
@@ -18,7 +19,7 @@ object POMOperator {
      * @param projectModel Project Model (Context) class
      */
     @JvmStatic
-    fun modify(projectModel: ProjectModel) = Chain.createForModify().execute(projectModel)
+    fun modify(projectModel: ProjectModelJ) = Chain.createForModify().execute(projectModel)
 
     /**
      * Public API - Query for all the artifacts referenced inside a POM File
@@ -27,7 +28,7 @@ object POMOperator {
      */
     @JvmStatic
     fun queryDependency(
-        projectModel: ProjectModel
+        projectModel: ProjectModelJ
     ) = queryDependency(projectModel, emptyList())
 
     /**
@@ -38,7 +39,7 @@ object POMOperator {
      */
     @JvmStatic
     fun queryVersions(
-        projectModel: ProjectModel
+        projectModel: ProjectModelJ
     ): Optional<VersionQueryResponseJ> {
         val queryVersionResult = queryVersions(projectModel, emptyList())
 
@@ -105,7 +106,7 @@ object POMOperator {
      */
     @JvmStatic
     internal fun queryDependency(
-        projectModel: ProjectModel,
+        projectModel: ProjectModelJ,
         commandList: List<CommandJ>
     ): Collection<Dependency> {
         val chain = Chain.createForDependencyQuery(projectModel.queryType)
@@ -127,7 +128,7 @@ object POMOperator {
      */
     @JvmStatic
     internal fun queryVersions(
-        projectModel: ProjectModel,
+        projectModel: ProjectModelJ,
         commandList: List<CommandJ>
     ): Set<VersionDefinitionJ> {
         val chain = Chain.createForVersionQuery(projectModel.queryType)
@@ -144,7 +145,7 @@ object POMOperator {
     private fun executeChain(
         commandList: List<CommandJ>,
         chain: Chain,
-        projectModel: ProjectModel
+        projectModel: ProjectModelJ
     ) {
         if (commandList.isNotEmpty()) {
             chain.commandList.clear()

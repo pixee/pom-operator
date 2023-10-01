@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator
 
 import io.github.pixee.maven.operator.java.AbstractVersionCommandJ
+import io.github.pixee.maven.operator.java.ProjectModelJ
 import io.github.pixee.maven.operator.java.UtilJ.selectXPathNodes
 import io.github.pixee.maven.operator.java.VersionDefinitionJ
 import org.apache.commons.lang3.text.StrSubstitutor
@@ -8,7 +9,7 @@ import org.dom4j.Element
 import java.util.*
 
 class VersionByCompilerDefinition : AbstractVersionCommandJ() {
-    override fun execute(pm: ProjectModel): Boolean {
+    override fun execute(pm: ProjectModelJ): Boolean {
         val definedSettings: MutableSet<VersionDefinitionJ> =
             TreeSet<VersionDefinitionJ>(AbstractVersionCommandJ.VERSION_KIND_COMPARATOR)
 
@@ -17,12 +18,12 @@ class VersionByCompilerDefinition : AbstractVersionCommandJ() {
             "//m:project/m:build/m:plugins"
         )
 
-        val properties = pm.resolvedProperties
+        val properties = pm.resolvedProperties()
 
         val sub = StrSubstitutor(properties)
 
         parents.forEach { parent ->
-            pm.allPomFiles.forEach { doc ->
+            pm.allPomFiles().forEach { doc ->
                 val pluginExpression =
                     "$parent/m:plugin[./m:artifactId[text()='maven-compiler-plugin']]//m:configuration"
                 val compilerNode = selectXPathNodes(doc.resultPom,pluginExpression).firstOrNull()

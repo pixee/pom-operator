@@ -2,6 +2,7 @@
 
 package io.github.pixee.maven.operator
 
+import io.github.pixee.maven.operator.java.ProjectModelJ
 import org.apache.commons.lang3.builder.CompareToBuilder
 import org.apache.commons.lang3.text.StrSubstitutor
 import org.slf4j.Logger
@@ -14,7 +15,7 @@ import java.util.*
  * focusing only on dependency right now,  * without relying to any maven infrastructure at all
  */
 class QueryByParsing : AbstractQueryCommand() {
-    override fun extractDependencyTree(outputPath: File, pomFilePath: File, c: ProjectModel) {
+    override fun extractDependencyTree(outputPath: File, pomFilePath: File, c: ProjectModelJ) {
         TODO("Not yet implemented")
     }
 
@@ -41,11 +42,11 @@ class QueryByParsing : AbstractQueryCommand() {
 
     private val strSubstitutor = StrSubstitutor(properties)
 
-    override fun execute(pm: ProjectModel): Boolean {
+    override fun execute(pm: ProjectModelJ): Boolean {
         /**
          * Enlist all pom files given an hierarchy
          */
-        val pomFilesByHierarchy = pm.allPomFiles.reversed()
+        val pomFilesByHierarchy = pm.allPomFiles().reversed()
 
         for (pomDocument in pomFilesByHierarchy) {
             updateProperties(pomDocument)
@@ -136,7 +137,7 @@ class QueryByParsing : AbstractQueryCommand() {
      * Updates the Properties member variable based on whats on the POMDocument
      */
     private fun updateProperties(pomDocument: POMDocument) {
-        val propsDefined = ProjectModel.propertiesDefinedOnPomDocument(pomDocument)
+        val propsDefined = ProjectModelJ.propertiesDefinedOnPomDocument(pomDocument)
 
         propsDefined.entries.filterNot { it.value.matches(RE_INTERPOLATION) }
             .forEach {

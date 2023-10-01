@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator
 
 import io.github.pixee.maven.operator.java.AbstractCommandJ
+import io.github.pixee.maven.operator.java.ProjectModelJ
 import io.github.pixee.maven.operator.java.UtilJ.selectXPathNodes
 import io.github.pixee.maven.operator.java.WrongDependencyTypeExceptionJ
 import org.dom4j.Element
@@ -22,7 +23,7 @@ val CheckParentPackaging = object : AbstractCommandJ() {
         return false
     }
 
-    override fun execute(pm: ProjectModel): Boolean {
+    override fun execute(pm: ProjectModelJ): Boolean {
         val wrongParentPoms = pm.parentPomFiles.filterNot { packagingTypePredicate(it, "pom") }
 
         if (wrongParentPoms.isNotEmpty()) {
