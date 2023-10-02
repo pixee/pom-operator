@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator
 
 import io.github.pixee.maven.operator.java.AbstractCommandJ
+import io.github.pixee.maven.operator.java.AbstractQueryCommandJ
 import io.github.pixee.maven.operator.java.ProjectModelJ
 import io.github.pixee.maven.operator.java.UtilJ
 import org.apache.commons.lang3.SystemUtils
@@ -24,13 +25,7 @@ abstract class AbstractQueryCommand : AbstractCommandJ() {
      * @param pomFilePath POM Original File Path
      */
     private fun getOutputPath(pomFilePath: File): File {
-        val basePath = pomFilePath.parentFile
-
-        val outputBasename = "output-%08X.txt".format(pomFilePath.hashCode())
-
-        val outputPath = File(basePath, outputBasename)
-
-        return outputPath
+        return AbstractQueryCommandJ.getOutputPath(pomFilePath)
     }
 
     /**
@@ -38,7 +33,7 @@ abstract class AbstractQueryCommand : AbstractCommandJ() {
      *
      * @param d POMDocument
      */
-    protected fun getPomFilePath(d: POMDocument): File = Paths.get(d.pomPath!!.toURI()).toFile()
+    protected fun getPomFilePath(d: POMDocument): File = AbstractQueryCommandJ.getPomFilePath(d)
 
     /**
      * Abstract Method to extract dependencies
@@ -94,56 +89,14 @@ abstract class AbstractQueryCommand : AbstractCommandJ() {
      *
      * @param outputPath file to read
      */
-    protected fun extractDependencies(outputPath: File) = outputPath.readLines().drop(1).map {
-        it.trim(*"+-|\\ ".toCharArray())
-    }.map {
-        it to it.split(':')
-    }.associate { (line, elements) ->
-        val (groupId, artifactId, packaging, version, scope) = elements
-
-        line to Dependency(
-            groupId = groupId,
-            artifactId = artifactId,
-            version = version,
-            packaging = packaging,
-            scope = scope
-        )
-    }
+    protected fun extractDependencies(outputPath: File) = AbstractQueryCommandJ.extractDependencies(outputPath)
 
     protected fun buildInvocationRequest(
         outputPath: File,
         pomFilePath: File,
         c: ProjectModelJ
     ): InvocationRequest {
-        val props = Properties(System.getProperties()).apply {
-            setProperty("outputFile", outputPath.absolutePath)
-
-            val localRepositoryPath = getLocalRepositoryPath(c).absolutePath
-
-            setProperty("maven.repo.local", localRepositoryPath)
-        }
-
-        val request: InvocationRequest = DefaultInvocationRequest().apply {
-            findMaven(this)
-
-            pomFile = pomFilePath
-
-            isShellEnvironmentInherited = true
-
-            isNoTransferProgress = true
-            isBatchMode = true
-            isRecursive = false
-            profiles = c.activeProfiles.toList()
-            isDebug = true
-
-            isOffline = c.offline
-
-            properties = props
-
-            goals = listOf(DEPENDENCY_TREE_MOJO_REFERENCE)
-        }
-
-        return request
+        return AbstractQueryCommandJ.buildInvocationRequest(outputPath, pomFilePath, c)
     }
 
     /**
@@ -152,46 +105,7 @@ abstract class AbstractQueryCommand : AbstractCommandJ() {
      * @param invocationRequest InvocationRequest to be filled up
      */
     private fun findMaven(invocationRequest: InvocationRequest) {
-        /*
-         * Step 1: Locate Maven Home
-         */
-        val m2homeEnvVar = System.getenv("M2_HOME")
-
-        if (null != m2homeEnvVar) {
-            val m2HomeDir = File(m2homeEnvVar)
-
-            if (m2HomeDir.isDirectory)
-                invocationRequest.mavenHome = m2HomeDir
-        }
-
-        /**
-         * Step 1.1: Try to guess if thats the case
-         */
-        if (invocationRequest.mavenHome == null) {
-            val inferredHome = File(SystemUtils.getUserHome(), ".m2")
-
-            if (!(inferredHome.exists() && inferredHome.isDirectory)) {
-                LOGGER.warn(
-                    "Inferred User Home - which does not exist or not a directory: {}",
-                    inferredHome
-                )
-            }
-
-            invocationRequest.mavenHome = inferredHome
-        }
-
-        /**
-         * Step 2: Find Maven Executable given the operating system and PATH variable contents
-         */
-        val foundExecutable = listOf("mvn", "mvnw").map { UtilJ.which(it) }.firstOrNull()
-
-        if (null != foundExecutable) {
-            invocationRequest.mavenExecutable = foundExecutable
-
-            return
-        }
-
-        throw IllegalStateException("Missing Maven Home / Executable")
+        AbstractQueryCommandJ.findMaven(invocationRequest)
     }
 
     companion object {

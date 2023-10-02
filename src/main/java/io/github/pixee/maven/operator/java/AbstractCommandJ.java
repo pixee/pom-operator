@@ -46,7 +46,8 @@ public abstract class AbstractCommandJ implements CommandJ {
         return false;
     }
 
-    protected File getLocalRepositoryPath(ProjectModelJ pm) {
+    // TODO-CARLOS remove static
+    protected static File getLocalRepositoryPath(ProjectModelJ pm) {
         File localRepositoryPath = null;
 
         if (pm.getRepositoryPath() != null) {
