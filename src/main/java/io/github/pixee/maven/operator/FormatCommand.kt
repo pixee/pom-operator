@@ -2,15 +2,15 @@ package io.github.pixee.maven.operator
 
 import org.apache.commons.lang3.StringUtils
 import org.mozilla.universalchardet.UniversalDetector
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import java.io.StringWriter
 import java.nio.charset.Charset
 import java.util.*
+import java.util.regex.Pattern
 import javax.xml.stream.XMLInputFactory
 import javax.xml.stream.XMLOutputFactory
-import javax.xml.stream.events.Characters
-import javax.xml.stream.events.EndElement
-import javax.xml.stream.events.StartDocument
-import javax.xml.stream.events.StartElement
+import javax.xml.stream.events.*
 
 /**
  * Data Class used to keep track of matches (ranges, content, referring tag name)
@@ -18,7 +18,9 @@ import javax.xml.stream.events.StartElement
 data class MatchData(
     val range: IntRange,
     val content: String,
-    val elementName: String
+    val elementName: String,
+    val hasAttributes: Boolean,
+    val modifiedContent: Regex? = null
 )
 
 /**
@@ -36,6 +38,8 @@ class FormatCommand : AbstractCommand() {
      * StAX OutputFactory
      */
     private val outputFactory = XMLOutputFactory.newInstance()
+
+    private val singleElementsWithAttributes: MutableList<MatchData> = arrayListOf()
 
     override fun execute(pm: ProjectModel): Boolean {
         for (pomFile in pm.allPomFiles) {
@@ -58,7 +62,7 @@ class FormatCommand : AbstractCommand() {
      * when serializing we pick backwards and rewrite tags accordingly
      *
      * @param doc Raw Document Bytes
-     * @see RE_EMPTY_ELEMENT
+     * @see RE_EMPTY_ELEMENT_NO_ATTRIBUTES
      * @return bitSet of
      *
      */
@@ -97,14 +101,24 @@ class FormatCommand : AbstractCommand() {
      * @param xmlDocumentString Rendered POM Document Contents (string-formatted)
      * @return map of (index, matchData object) reverse ordered
      */
-    private fun findSingleElementMatchesFrom(xmlDocumentString: String) =
-        RE_EMPTY_ELEMENT.findAll(xmlDocumentString).map {
-            it.range.first to MatchData(
-                range = it.range,
-                content = it.value,
-                elementName = ((it.groups[1]?.value ?: it.groups[2]?.value)!!)
-            )
-        }.sortedByDescending { it.first }.toMap(LinkedHashMap())
+    private fun findSingleElementMatchesFrom(xmlDocumentString: String): LinkedHashMap<Int, MatchData> {
+        val allFoundMatches = RE_EMPTY_ELEMENT_NO_ATTRIBUTES.findAll(xmlDocumentString).toList()
+
+        val emptyMappedTags: List<MatchData> =
+            allFoundMatches.map {
+                MatchData(
+                    range = it.range,
+                    content = it.value,
+                    elementName = ((it.groups[1]?.value ?: it.groups[2]?.value)!!),
+                    hasAttributes = false
+                )
+            }.toList()
+
+        val allTags = listOf(emptyMappedTags).flatMap { it }
+            .map { it.range.first to it }
+
+        return allTags.sortedByDescending { it.first }.toMap(LinkedHashMap())
+    }
 
     /**
      * Guesses the indent character (spaces / tabs) and length from the original document
@@ -197,7 +211,17 @@ class FormatCommand : AbstractCommand() {
         /**
          * Parse, while grabbing its preamble and encoding
          */
-        while (true) {
+        var elementIndex: Int = 0
+        var mustTrack: Boolean = false
+
+        var hasPreamble = false
+
+        var elementStart: Int = 0
+        var elementEnd: Int = 0
+
+        var prevEvents: MutableList<XMLEvent> = arrayListOf()
+
+        while (eventReader.hasNext()) {
             val event = eventReader.nextEvent()
 
             if (event.isStartDocument && (event as StartDocument).encodingSet()) {
@@ -205,22 +229,94 @@ class FormatCommand : AbstractCommand() {
                  * Processing Instruction Found - Store its Character Encoding
                  */
                 charset = Charset.forName(event.characterEncodingScheme)
+            } else if (event.isStartElement) {
+                val asStartElement = event.asStartElement()
+
+                val name = asStartElement.name.localPart
+
+                val attributes = asStartElement.attributes.asSequence().toList()
+
+                if (elementIndex > 0 && attributes.isNotEmpty()) {
+                    // record this guy
+                    mustTrack = true
+
+                    val lastCharacterEvent =
+                        prevEvents.filter { it.isCharacters }.last().asCharacters()
+
+                    elementStart =
+                        lastCharacterEvent.location.characterOffset - lastCharacterEvent.data.length
+                } else if (mustTrack) { // turn it off
+                    mustTrack = false
+                }
+
+                elementIndex++
             } else if (event.isEndElement) {
                 /**
                  * First End of Element ("Tag") found - store its offset
                  */
-                val endElementEvent = (event as EndElement)
+                val endElementEvent = event.asEndElement()
 
-                val offset = endElementEvent.location.characterOffset
+                val location = endElementEvent.location
 
-                pomFile.preamble =
-                    pomFile.originalPom.toString(pomFile.charset).substring(0, offset)
+                val offset = location.characterOffset
 
-                break
+                if (mustTrack) {
+                    mustTrack = false
+
+                    val localPart = event.asEndElement().name.localPart
+
+                    val untrimmedOriginalContent = pomFile.originalPom.toString(pomFile.charset)
+                        .substring(elementStart, offset)
+
+                    val trimmedOriginalContent = untrimmedOriginalContent.trim()
+
+                    val realElementStart = pomFile.originalPom.toString(pomFile.charset)
+                        .indexOf(trimmedOriginalContent, elementStart)
+
+                    val contentRange = IntRange(
+                        realElementStart,
+                        realElementStart + 1 + trimmedOriginalContent.length
+                    )
+
+                    val contentRe = writeAsRegex(prevEvents.filter { it.isStartElement }.last()
+                        .asStartElement()
+                    )
+
+                    val modifiedContentRE =
+                        Regex(contentRe)
+
+                    singleElementsWithAttributes.add(
+                        MatchData(
+                            contentRange,
+                            trimmedOriginalContent,
+                            localPart,
+                            hasAttributes = true,
+                            modifiedContentRE,
+                        )
+                    )
+                }
+
+                mustTrack = false
+
+                /**
+                 * Sets Preamble - keeps parsing anyway
+                 */
+                if (!hasPreamble) {
+                    pomFile.preamble =
+                        pomFile.originalPom.toString(pomFile.charset).substring(0, offset)
+
+                    hasPreamble = true
+                }
             }
 
+            prevEvents.add(event)
+
+            while (prevEvents.size > 4)
+                prevEvents.removeAt(0)
+
             if (!eventReader.hasNext())
-                throw IllegalStateException("Couldn't find document start")
+                if (!hasPreamble)
+                    throw IllegalStateException("Couldn't find document start")
         }
 
         if (null == charset) {
@@ -237,6 +333,33 @@ class FormatCommand : AbstractCommand() {
         val lastLineTrimmed = lastLine.trimEnd()
 
         pomFile.suffix = lastLine.substring(lastLineTrimmed.length)
+    }
+
+    /**
+     * A Slight variation on writeAsUnicode from stax which writes as a regex
+     * string so we could rewrite its output
+     */
+    private fun writeAsRegex(element: StartElement): String {
+        val writer = StringWriter()
+
+        writer.write("<")
+        writer.write(Pattern.quote(element.name.localPart))
+
+        val attrIter: Iterator<*> = element.getAttributes()
+        while (attrIter.hasNext()) {
+            val attr = attrIter.next() as Attribute
+
+            writer.write("\\s+")
+
+            writer.write(Pattern.quote(attr.name.localPart))
+            writer.write("=[\\\"\']")
+            writer.write(Pattern.quote(attr.value))
+            writer.write("[\\\"']")
+
+        }
+        writer.write("\\s*\\/\\>")
+
+        return writer.toString()
     }
 
     /**
@@ -275,7 +398,8 @@ class FormatCommand : AbstractCommand() {
             val matches =
                 findSingleElementMatchesFrom(pom.originalPom.toString(pom.charset)).values
 
-            val filteredMatches = matches.filter { originalElementMap[it.range.first] }
+            val filteredMatches =
+                matches.filter { it.hasAttributes == false && originalElementMap[it.range.first] }
 
             this.addAll(filteredMatches)
         }
@@ -288,6 +412,22 @@ class FormatCommand : AbstractCommand() {
             val nextMatch = elementsToReplace.removeFirst()
 
             xmlRepresentation = xmlRepresentation.replaceRange(match.range, nextMatch.content)
+        }
+
+        var lastIndex = 0
+
+        singleElementsWithAttributes.sortedBy { it.range.first }.forEach { match ->
+            //val index = xmlRepresentation.indexOf(match.modifiedContent!!, lastIndex)
+            val representationMatch = match.modifiedContent!!.find(xmlRepresentation, lastIndex)
+
+            if (null == representationMatch) {
+                LOGGER.warn("Failure on quoting: {}", match)
+            } else {
+                xmlRepresentation =
+                    xmlRepresentation.replaceRange(representationMatch.range, match.content)
+
+                lastIndex = representationMatch.range.first + match.content.length
+            }
         }
 
         /**
@@ -336,6 +476,9 @@ class FormatCommand : AbstractCommand() {
     companion object {
         val LINE_ENDINGS = setOf("\r\n", "\n", "\r")
 
-        val RE_EMPTY_ELEMENT = Regex("""<(\p{Alnum}+)></\1>|<(\p{Alnum}+)\s*/>""")
+        val RE_EMPTY_ELEMENT_NO_ATTRIBUTES =
+            Regex("""<([\p{Alnum}_\-.]+)>\s*</\1>|<([\p{Alnum}_\-.]+)\s*/>""")
+
+        val LOGGER: Logger = LoggerFactory.getLogger(FormatCommand::class.java)
     }
 }
