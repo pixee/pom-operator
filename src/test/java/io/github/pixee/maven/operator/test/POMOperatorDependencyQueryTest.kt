@@ -399,7 +399,7 @@ class POMOperatorDependencyQueryTest {
                 .build()
 
         val dependencies =
-            POMOperator.queryDependency(context, commandList = getCommandListFor("QueryByParsing"))
+            POMOperator.queryDependency(context, commandList = getCommandListFor("QueryByParsingJ"))
 
         LOGGER.debug("Dependencies found: {}", dependencies)
 

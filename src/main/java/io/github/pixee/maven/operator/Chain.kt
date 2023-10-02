@@ -116,7 +116,7 @@ class Chain(vararg commands: CommandJ) {
          */
         val AVAILABLE_DEPENDENCY_QUERY_COMMANDS = listOf<Pair<QueryType, String>>(
             QueryType.SAFE to "QueryByResolver",
-            QueryType.SAFE to "QueryByParsing",
+            QueryType.SAFE to "QueryByParsingJ",
             QueryType.UNSAFE to "QueryByEmbedder",
             QueryType.UNSAFE to "QueryByInvokerJ",
         )

@@ -44,7 +44,7 @@ public abstract class AbstractQueryCommandJ extends AbstractCommandJ {
     protected abstract void extractDependencyTree(File outputPath, File pomFilePath, ProjectModelJ c);
 
 
-    Collection<Dependency> result = null;
+    protected Collection<Dependency> result = null;
 
     public Collection<Dependency> getResult(){
         return result;
