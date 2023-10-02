@@ -467,11 +467,14 @@ class POMOperatorTest : AbstractTestBase() {
             "There must be an untouched empty element"
         )
 
-        /*
         assertTrue(
             resultPomAsString.contains("<mkdir dir=\"\${project.build.directory}/dependency\"></mkdir>"),
             "There must be an untouched element with attributes"
         )
-        */
+
+        assertTrue(
+            resultPomAsString.contains("                <DependencyConvergence></DependencyConvergence>"),
+            "The <DependencyConvergence> tag must be untouched by test."
+        )
     }
 }
