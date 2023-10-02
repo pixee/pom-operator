@@ -1,7 +1,6 @@
 package io.github.pixee.maven.operator.java;
 
 import io.github.pixee.maven.operator.Dependency;
-import io.github.pixee.maven.operator.InvalidContextException;
 import io.github.pixee.maven.operator.POMDocument;
 import io.github.pixee.maven.operator.java.AbstractCommandJ;
 import io.github.pixee.maven.operator.java.ProjectModelJ;
@@ -65,7 +64,7 @@ public abstract class AbstractQueryCommandJ extends AbstractCommandJ {
 
         try {
             extractDependencyTree(outputPath, pomFilePath, pm);
-        } catch (InvalidContextException e) {
+        } catch (InvalidContextExceptionJ e) {
             return false;
         }
 

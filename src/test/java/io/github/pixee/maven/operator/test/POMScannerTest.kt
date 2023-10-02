@@ -1,9 +1,9 @@
 package io.github.pixee.maven.operator.test
 
-import io.github.pixee.maven.operator.InvalidPathException
 import io.github.pixee.maven.operator.POMDocumentFactory
 import io.github.pixee.maven.operator.POMScanner
 import io.github.pixee.maven.operator.ProjectModelFactory
+import io.github.pixee.maven.operator.java.InvalidPathExceptionJ
 import org.junit.Test
 import java.io.File
 import kotlin.test.assertTrue
@@ -19,7 +19,7 @@ class POMScannerTest : AbstractTestBase() {
         val pmf = POMScanner.scanFrom(pomFile, currentDirectory)
     }
 
-    @Test(expected = InvalidPathException::class)
+    @Test(expected = InvalidPathExceptionJ::class)
     fun testTwoLevelsWithLoop() {
         val pomFile = getResourceAsFile("sample-child-with-relativepath-and-two-levels.xml")
 
@@ -76,7 +76,7 @@ class POMScannerTest : AbstractTestBase() {
             } catch (e: Exception) {
                 LOGGER.info("Exception thrown: ", e)
 
-                if (e is InvalidPathException) {
+                if (e is InvalidPathExceptionJ) {
                     continue
                 }
 
@@ -94,10 +94,10 @@ class POMScannerTest : AbstractTestBase() {
                 val pmf = POMScanner.scanFrom(pomFile, currentDirectory)
 
                 assertTrue(pmf.build().parentPomFiles.isNotEmpty())
-            } catch (e: InvalidPathException) {
+            } catch (e: InvalidPathExceptionJ) {
                 LOGGER.info("Exception thrown: ", e)
 
-                if (e is InvalidPathException) {
+                if (e is InvalidPathExceptionJ) {
                     continue
                 }
 

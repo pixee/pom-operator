@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator
 
 import io.github.pixee.maven.operator.java.AbstractQueryCommandJ
+import io.github.pixee.maven.operator.java.InvalidContextExceptionJ
 import io.github.pixee.maven.operator.java.ProjectModelJ
 import org.apache.commons.io.output.NullOutputStream
 import org.apache.maven.cli.MavenCli
@@ -64,7 +65,7 @@ class QueryByEmbedder : AbstractQueryCommandJ() {
              * @see Chain#execute
              */
             if (1 == result && (!outputPath.exists()))
-                throw InvalidContextException()
+                throw InvalidContextExceptionJ()
 
             if (0 != result)
                 throw IllegalStateException("Unexpected status code: %02d".format(result))

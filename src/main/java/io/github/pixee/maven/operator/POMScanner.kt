@@ -2,6 +2,7 @@ package io.github.pixee.maven.operator
 
 import io.github.pixee.maven.operator.java.EmbedderFacadeJ
 import io.github.pixee.maven.operator.java.IgnorableJ
+import io.github.pixee.maven.operator.java.InvalidPathExceptionJ
 import org.apache.maven.model.building.ModelBuildingException
 import org.dom4j.Element
 import org.dom4j.tree.DefaultElement
@@ -90,10 +91,10 @@ object POMScanner {
             val relativePath = fixPomRelativePath(relativePathElement.text)
 
             if (!isRelative(relativePath))
-                throw InvalidPathException(pomFile.file, relativePath)
+                throw InvalidPathExceptionJ(pomFile.file, relativePath)
 
             if (prevPaths.contains(relativePath)) {
-                throw InvalidPathException(pomFile.file, relativePath, loop = true)
+                throw InvalidPathExceptionJ(pomFile.file, relativePath, true)
             } else {
                 prevPaths.add(relativePath)
             }
@@ -101,10 +102,10 @@ object POMScanner {
             val newPath = resolvePath(lastFile, relativePath)
 
             if (newPath.notExists())
-                throw InvalidPathException(pomFile.file, relativePath)
+                throw InvalidPathExceptionJ(pomFile.file, relativePath)
 
             if (!newPath.startsWith(topLevelDirectory.absolutePath))
-                throw InvalidPathException(pomFile.file, relativePath)
+                throw InvalidPathExceptionJ(pomFile.file, relativePath)
 
             val newPomFile = POMDocumentFactory.load(newPath.toFile())
 

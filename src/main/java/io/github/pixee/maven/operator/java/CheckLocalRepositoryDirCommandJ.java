@@ -1,6 +1,5 @@
 package io.github.pixee.maven.operator.java;
 
-import io.github.pixee.maven.operator.InvalidContextException;
 import io.github.pixee.maven.operator.java.AbstractQueryCommandJ;
 import io.github.pixee.maven.operator.java.ProjectModelJ;
 
@@ -23,7 +22,7 @@ public class CheckLocalRepositoryDirCommandJ {
 
         @Override
         protected void extractDependencyTree(File outputPath, File pomFilePath, ProjectModelJ c) {
-            throw new InvalidContextException();
+            throw new InvalidContextExceptionJ();
         }
 
         @Override
