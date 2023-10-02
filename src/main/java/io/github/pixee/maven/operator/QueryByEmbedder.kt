@@ -1,5 +1,6 @@
 package io.github.pixee.maven.operator
 
+import io.github.pixee.maven.operator.java.AbstractQueryCommandJ
 import io.github.pixee.maven.operator.java.ProjectModelJ
 import org.apache.commons.io.output.NullOutputStream
 import org.apache.maven.cli.MavenCli
@@ -14,7 +15,7 @@ import java.io.PrintStream
 /**
  * Uses Maven Embedder to Implement
  */
-class QueryByEmbedder : AbstractQueryCommand() {
+class QueryByEmbedder : AbstractQueryCommandJ() {
     /**
      * Runs the "dependency:tree" mojo - but using Embedder instead.
      */

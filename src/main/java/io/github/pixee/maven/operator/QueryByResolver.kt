@@ -1,5 +1,6 @@
 package io.github.pixee.maven.operator
 
+import io.github.pixee.maven.operator.java.AbstractQueryCommandJ
 import io.github.pixee.maven.operator.java.EmbedderFacadeJ
 import io.github.pixee.maven.operator.java.IgnorableJ
 import io.github.pixee.maven.operator.java.ProjectModelJ
@@ -18,7 +19,7 @@ import java.io.File
  *
  * Futurely TODO Support Third Party / User-Supplied Repositories (right now it only supports central)
  */
-class QueryByResolver : AbstractQueryCommand() {
+class QueryByResolver : AbstractQueryCommandJ() {
     companion object {
         private val LOGGER: Logger = LoggerFactory.getLogger(QueryByResolver::class.java)
     }

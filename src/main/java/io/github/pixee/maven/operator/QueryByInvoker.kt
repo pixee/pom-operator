@@ -1,11 +1,12 @@
 package io.github.pixee.maven.operator
 
+import io.github.pixee.maven.operator.java.AbstractQueryCommandJ
 import io.github.pixee.maven.operator.java.ProjectModelJ
 import org.apache.maven.shared.invoker.DefaultInvoker
 import org.apache.maven.shared.invoker.InvocationRequest
 import java.io.File
 
-class QueryByInvoker : AbstractQueryCommand() {
+class QueryByInvoker : AbstractQueryCommandJ() {
 
     override fun extractDependencyTree(
         outputPath: File,

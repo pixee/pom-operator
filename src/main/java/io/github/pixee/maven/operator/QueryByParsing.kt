@@ -2,6 +2,7 @@
 
 package io.github.pixee.maven.operator
 
+import io.github.pixee.maven.operator.java.AbstractQueryCommandJ
 import io.github.pixee.maven.operator.java.ProjectModelJ
 import org.apache.commons.lang3.builder.CompareToBuilder
 import org.apache.commons.lang3.text.StrSubstitutor
@@ -14,7 +15,7 @@ import java.util.*
  * this one is a bit more complex, as it intents to to a "best effort" attempt at parsing a pom
  * focusing only on dependency right now,  * without relying to any maven infrastructure at all
  */
-class QueryByParsing : AbstractQueryCommand() {
+class QueryByParsing : AbstractQueryCommandJ() {
     override fun extractDependencyTree(outputPath: File, pomFilePath: File, c: ProjectModelJ) {
         TODO("Not yet implemented")
     }

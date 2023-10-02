@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator.java;
 
 import io.github.pixee.maven.operator.Dependency;
+import io.github.pixee.maven.operator.InvalidContextException;
 import io.github.pixee.maven.operator.POMDocument;
 import io.github.pixee.maven.operator.java.AbstractCommandJ;
 import io.github.pixee.maven.operator.java.ProjectModelJ;
@@ -19,16 +20,61 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-public class AbstractQueryCommandJ extends AbstractCommandJ {
+public abstract class AbstractQueryCommandJ extends AbstractCommandJ {
 
-    /**
-     * Mojo Reference
-     */
     public static final String DEPENDENCY_TREE_MOJO_REFERENCE = "org.apache.maven.plugins:maven-dependency-plugin:3.3.0:tree";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractQueryCommandJ.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractQueryCommandJ.class);
 
-    public static Map<String, Dependency> extractDependencies(File outputPath) throws IOException {
+    private File getOutputPath(File pomFilePath) {
+        File basePath = pomFilePath.getParentFile();
+
+        String outputBasename = String.format("output-%08X.txt", pomFilePath.hashCode());
+
+        File outputPath = new File(basePath, outputBasename);
+
+        return outputPath;
+    }
+
+    protected File getPomFilePath(POMDocument d) throws URISyntaxException {
+        Path pomPath = Paths.get(d.getPomPath().toURI());
+        return pomPath.toFile();
+    }
+
+    protected abstract void extractDependencyTree(File outputPath, File pomFilePath, ProjectModelJ c);
+
+
+    Collection<Dependency> result = null;
+
+    public Collection<Dependency> getResult(){
+        return result;
+    }
+
+    public void setResult(Collection<Dependency> result){
+        this.result = result;
+    }
+
+    @Override
+    public boolean execute(ProjectModelJ pm) throws URISyntaxException, IOException {
+        File pomFilePath = getPomFilePath(pm.getPomFile());
+        File outputPath = getOutputPath(pomFilePath);
+
+        if (outputPath.exists()) {
+            outputPath.delete();
+        }
+
+        try {
+            extractDependencyTree(outputPath, pomFilePath, pm);
+        } catch (InvalidContextException e) {
+            return false;
+        }
+
+        result = extractDependencies(outputPath).values();
+
+        return true;
+    }
+
+    protected Map<String, Dependency> extractDependencies(File outputPath) throws IOException {
         Map<String, Dependency> dependencyMap = new HashMap<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(outputPath))) {
             String line;
@@ -56,7 +102,7 @@ public class AbstractQueryCommandJ extends AbstractCommandJ {
         return dependencyMap;
     }
 
-    private static String trimSpecialChars(String input) {
+    private String trimSpecialChars(String input) {
         char[] specialChars = "+-|\\ ".toCharArray();
         int start = 0;
         int end = input.length();
@@ -76,7 +122,7 @@ public class AbstractQueryCommandJ extends AbstractCommandJ {
         return input;
     }
 
-    private static boolean isSpecialChar(char c) {
+    private boolean isSpecialChar(char c) {
         char[] specialChars = "+-|\\ ".toCharArray();
         for (char specialChar : specialChars) {
             if (c == specialChar) {
@@ -86,7 +132,7 @@ public class AbstractQueryCommandJ extends AbstractCommandJ {
         return false;
     }
 
-    public static InvocationRequest buildInvocationRequest(
+    protected InvocationRequest buildInvocationRequest(
             File outputPath,
             File pomFilePath,
             ProjectModelJ c
@@ -94,7 +140,7 @@ public class AbstractQueryCommandJ extends AbstractCommandJ {
         Properties props = new Properties(System.getProperties());
         props.setProperty("outputFile", outputPath.getAbsolutePath());
 
-        String localRepositoryPath = AbstractCommandJ.getLocalRepositoryPath(c).getAbsolutePath();
+        String localRepositoryPath = getLocalRepositoryPath(c).getAbsolutePath();
         props.setProperty("maven.repo.local", localRepositoryPath);
 
         InvocationRequest request = new DefaultInvocationRequest();
@@ -117,22 +163,9 @@ public class AbstractQueryCommandJ extends AbstractCommandJ {
         return request;
     }
 
-    public static File getOutputPath(File pomFilePath) {
-        File basePath = pomFilePath.getParentFile();
 
-        String outputBasename = String.format("output-%08X.txt", pomFilePath.hashCode());
 
-        File outputPath = new File(basePath, outputBasename);
-
-        return outputPath;
-    }
-
-    public static File getPomFilePath(POMDocument d) throws URISyntaxException {
-        Path pomPath = Paths.get(d.getPomPath().toURI());
-        return pomPath.toFile();
-    }
-
-    public static void findMaven(InvocationRequest invocationRequest) {
+    private void findMaven(InvocationRequest invocationRequest) {
         /*
          * Step 1: Locate Maven Home
          */
@@ -181,4 +214,8 @@ public class AbstractQueryCommandJ extends AbstractCommandJ {
         }
     }
 
+    @Override
+    public boolean postProcess(ProjectModelJ c) {
+        return false;
+    }
 }

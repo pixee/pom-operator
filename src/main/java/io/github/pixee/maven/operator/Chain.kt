@@ -1,5 +1,6 @@
 package io.github.pixee.maven.operator
 
+import io.github.pixee.maven.operator.java.AbstractQueryCommandJ
 import io.github.pixee.maven.operator.java.CommandJ
 import io.github.pixee.maven.operator.java.ProjectModelJ
 import io.github.pixee.maven.operator.java.SupportCommandJ
@@ -83,7 +84,7 @@ class Chain(vararg commands: CommandJ) {
         private fun filterByQueryType(
             commandList: List<Pair<QueryType, String>>,
             queryType: QueryType,
-            initialCommands: List<AbstractQueryCommand> = emptyList(),
+            initialCommands: List<AbstractQueryCommandJ> = emptyList(),
             queryTypeFilter: ((queryType: QueryType) -> Boolean)
         ): Chain {
             val filteredCommands: List<CommandJ> = commandList

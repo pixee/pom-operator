@@ -1,9 +1,8 @@
 package io.github.pixee.maven.operator
 
+import io.github.pixee.maven.operator.Util.which
 import io.github.pixee.maven.operator.java.AbstractCommandJ
-import io.github.pixee.maven.operator.java.AbstractQueryCommandJ
 import io.github.pixee.maven.operator.java.ProjectModelJ
-import io.github.pixee.maven.operator.java.UtilJ
 import org.apache.commons.lang3.SystemUtils
 import org.apache.maven.shared.invoker.DefaultInvocationRequest
 import org.apache.maven.shared.invoker.InvocationRequest
@@ -25,7 +24,13 @@ abstract class AbstractQueryCommand : AbstractCommandJ() {
      * @param pomFilePath POM Original File Path
      */
     private fun getOutputPath(pomFilePath: File): File {
-        return AbstractQueryCommandJ.getOutputPath(pomFilePath)
+        val basePath = pomFilePath.parentFile
+
+        val outputBasename = "output-%08X.txt".format(pomFilePath.hashCode())
+
+        val outputPath = File(basePath, outputBasename)
+
+        return outputPath
     }
 
     /**
@@ -33,7 +38,7 @@ abstract class AbstractQueryCommand : AbstractCommandJ() {
      *
      * @param d POMDocument
      */
-    protected fun getPomFilePath(d: POMDocument): File = AbstractQueryCommandJ.getPomFilePath(d)
+    protected fun getPomFilePath(d: POMDocument): File = Paths.get(d.pomPath!!.toURI()).toFile()
 
     /**
      * Abstract Method to extract dependencies
@@ -42,7 +47,7 @@ abstract class AbstractQueryCommand : AbstractCommandJ() {
      * @param pomFilePath Input Pom Path
      * @param c Project Model
      */
-    abstract fun extractDependencyTree(outputPath: File, pomFilePath: File, c: ProjectModelJ)
+    abstract fun extractDependencyTree(outputPath: File, pomFilePath: File, c: ProjectModel)
 
     /**
      * Internal Holder Variable
@@ -55,7 +60,8 @@ abstract class AbstractQueryCommand : AbstractCommandJ() {
      * We declare the main logic here - details are made in the child classes for now
      */
 
-    override fun execute(pm: ProjectModelJ): Boolean {
+    // TODO-CARLOS: uncomment this
+    /*override fun execute(pm: ProjectModel): Boolean {
         val pomFilePath = getPomFilePath(pm.pomFile)
 
         val outputPath = getOutputPath(pomFilePath)
@@ -73,7 +79,7 @@ abstract class AbstractQueryCommand : AbstractCommandJ() {
         this.result = extractDependencies(outputPath).values
 
         return true
-    }
+    }*/
 
     /**
      * Given a File containing the output of the dependency:tree mojo, read its contents and parse, creating an array of dependencies
@@ -89,14 +95,56 @@ abstract class AbstractQueryCommand : AbstractCommandJ() {
      *
      * @param outputPath file to read
      */
-    protected fun extractDependencies(outputPath: File) = AbstractQueryCommandJ.extractDependencies(outputPath)
+    protected fun extractDependencies(outputPath: File) = outputPath.readLines().drop(1).map {
+        it.trim(*"+-|\\ ".toCharArray())
+    }.map {
+        it to it.split(':')
+    }.associate { (line, elements) ->
+        val (groupId, artifactId, packaging, version, scope) = elements
+
+        line to Dependency(
+            groupId = groupId,
+            artifactId = artifactId,
+            version = version,
+            packaging = packaging,
+            scope = scope
+        )
+    }
 
     protected fun buildInvocationRequest(
         outputPath: File,
         pomFilePath: File,
         c: ProjectModelJ
     ): InvocationRequest {
-        return AbstractQueryCommandJ.buildInvocationRequest(outputPath, pomFilePath, c)
+        val props = Properties(System.getProperties()).apply {
+            setProperty("outputFile", outputPath.absolutePath)
+
+            val localRepositoryPath = getLocalRepositoryPath(c).absolutePath
+
+            setProperty("maven.repo.local", localRepositoryPath)
+        }
+
+        val request: InvocationRequest = DefaultInvocationRequest().apply {
+            findMaven(this)
+
+            pomFile = pomFilePath
+
+            isShellEnvironmentInherited = true
+
+            isNoTransferProgress = true
+            isBatchMode = true
+            isRecursive = false
+            profiles = c.activeProfiles.toList()
+            isDebug = true
+
+            isOffline = c.offline
+
+            properties = props
+
+            goals = listOf(DEPENDENCY_TREE_MOJO_REFERENCE)
+        }
+
+        return request
     }
 
     /**
@@ -105,7 +153,46 @@ abstract class AbstractQueryCommand : AbstractCommandJ() {
      * @param invocationRequest InvocationRequest to be filled up
      */
     private fun findMaven(invocationRequest: InvocationRequest) {
-        AbstractQueryCommandJ.findMaven(invocationRequest)
+        /*
+         * Step 1: Locate Maven Home
+         */
+        val m2homeEnvVar = System.getenv("M2_HOME")
+
+        if (null != m2homeEnvVar) {
+            val m2HomeDir = File(m2homeEnvVar)
+
+            if (m2HomeDir.isDirectory)
+                invocationRequest.mavenHome = m2HomeDir
+        }
+
+        /**
+         * Step 1.1: Try to guess if thats the case
+         */
+        if (invocationRequest.mavenHome == null) {
+            val inferredHome = File(SystemUtils.getUserHome(), ".m2")
+
+            if (!(inferredHome.exists() && inferredHome.isDirectory)) {
+                LOGGER.warn(
+                    "Inferred User Home - which does not exist or not a directory: {}",
+                    inferredHome
+                )
+            }
+
+            invocationRequest.mavenHome = inferredHome
+        }
+
+        /**
+         * Step 2: Find Maven Executable given the operating system and PATH variable contents
+         */
+        val foundExecutable = listOf("mvn", "mvnw").map { which(it) }.firstOrNull()
+
+        if (null != foundExecutable) {
+            invocationRequest.mavenExecutable = foundExecutable
+
+            return
+        }
+
+        throw IllegalStateException("Missing Maven Home / Executable")
     }
 
     companion object {
@@ -118,5 +205,6 @@ abstract class AbstractQueryCommand : AbstractCommandJ() {
         val LOGGER: Logger = LoggerFactory.getLogger(AbstractQueryCommand::class.java)
     }
 
-    override fun postProcess(c: ProjectModelJ): Boolean = false
+    // TODO-CARLOS: uncomment this
+    //override fun postProcess(c: ProjectModel): Boolean = false
 }

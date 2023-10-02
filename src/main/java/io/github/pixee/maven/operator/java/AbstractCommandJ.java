@@ -6,6 +6,8 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
 
 public abstract class AbstractCommandJ implements CommandJ {
@@ -37,7 +39,7 @@ public abstract class AbstractCommandJ implements CommandJ {
     }
 
     @Override
-    public boolean execute(ProjectModelJ pm) {
+    public boolean execute(ProjectModelJ pm) throws URISyntaxException, IOException {
         return false;
     }
 
@@ -46,8 +48,7 @@ public abstract class AbstractCommandJ implements CommandJ {
         return false;
     }
 
-    // TODO-CARLOS remove static
-    protected static File getLocalRepositoryPath(ProjectModelJ pm) {
+    protected File getLocalRepositoryPath(ProjectModelJ pm) {
         File localRepositoryPath = null;
 
         if (pm.getRepositoryPath() != null) {
