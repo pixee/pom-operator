@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator
 
 import io.github.pixee.maven.operator.java.AbstractQueryCommandJ
+import io.github.pixee.maven.operator.java.CheckLocalRepositoryDirCommandJ
 import io.github.pixee.maven.operator.java.CommandJ
 import io.github.pixee.maven.operator.java.ProjectModelJ
 import io.github.pixee.maven.operator.java.SupportCommandJ
@@ -127,7 +128,7 @@ class Chain(vararg commands: CommandJ) {
             filterByQueryType(
                 AVAILABLE_DEPENDENCY_QUERY_COMMANDS,
                 queryType,
-                listOf(CHECK_PARENT_DIR_COMMAND),
+                listOf(CheckLocalRepositoryDirCommandJ.CheckParentDirCommand.getInstance()),
                 { it == queryType }
             )
 
