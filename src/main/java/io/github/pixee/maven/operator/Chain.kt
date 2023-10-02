@@ -117,7 +117,7 @@ class Chain(vararg commands: CommandJ) {
             QueryType.SAFE to "QueryByResolver",
             QueryType.SAFE to "QueryByParsing",
             QueryType.UNSAFE to "QueryByEmbedder",
-            QueryType.UNSAFE to "QueryByInvoker",
+            QueryType.UNSAFE to "QueryByInvokerJ",
         )
 
         /**
