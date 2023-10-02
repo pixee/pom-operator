@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator
 
 import io.github.pixee.maven.operator.java.AbstractQueryCommandJ
+import io.github.pixee.maven.operator.java.CheckDependencyPresentJ
 import io.github.pixee.maven.operator.java.CheckLocalRepositoryDirCommandJ
 import io.github.pixee.maven.operator.java.CommandJ
 import io.github.pixee.maven.operator.java.ProjectModelJ
@@ -72,7 +73,7 @@ class Chain(vararg commands: CommandJ) {
          */
         fun createForModify() =
             Chain(
-                CheckDependencyPresent,
+                CheckDependencyPresentJ.getInstance(),
                 CheckParentPackaging,
                 FormatCommand(),
                 DiscardFormatCommand(),
