@@ -72,7 +72,7 @@ class Chain(vararg commands: CommandJ) {
                 CheckDependencyPresentJ.getInstance(),
                 CheckParentPackagingJ.getInstance(),
                 FormatCommand(),
-                DiscardFormatCommand(),
+                DiscardFormatCommandJ.getInstance(),
                 CompositeDependencyManagement(),
                 SimpleUpgradeJ.getInstance(),
                 SimpleDependencyManagementJ.getInstance(),
