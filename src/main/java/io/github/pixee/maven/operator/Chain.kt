@@ -1,13 +1,9 @@
 package io.github.pixee.maven.operator
 
-import io.github.pixee.maven.operator.java.AbstractQueryCommandJ
-import io.github.pixee.maven.operator.java.CheckDependencyPresentJ
-import io.github.pixee.maven.operator.java.CheckLocalRepositoryDirCommandJ
-import io.github.pixee.maven.operator.java.CommandJ
-import io.github.pixee.maven.operator.java.ProjectModelJ
-import io.github.pixee.maven.operator.java.SupportCommandJ
+import io.github.pixee.maven.operator.java.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import kotlin.Pair
 
 /**
  * Implements a Chain of Responsibility Pattern
@@ -74,7 +70,7 @@ class Chain(vararg commands: CommandJ) {
         fun createForModify() =
             Chain(
                 CheckDependencyPresentJ.getInstance(),
-                CheckParentPackaging,
+                CheckParentPackagingJ.getInstance(),
                 FormatCommand(),
                 DiscardFormatCommand(),
                 CompositeDependencyManagement(),
