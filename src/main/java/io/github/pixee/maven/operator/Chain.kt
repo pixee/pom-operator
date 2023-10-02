@@ -75,7 +75,7 @@ class Chain(vararg commands: CommandJ) {
                 DiscardFormatCommand(),
                 CompositeDependencyManagement(),
                 SimpleUpgradeJ.getInstance(),
-                SimpleDependencyManagement,
+                SimpleDependencyManagementJ.getInstance(),
                 SimpleInsert
             )
 
