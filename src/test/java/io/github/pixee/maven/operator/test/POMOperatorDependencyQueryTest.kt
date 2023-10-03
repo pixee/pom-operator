@@ -329,7 +329,7 @@ class POMOperatorDependencyQueryTest {
 
         val dependencies = POMOperator.queryDependency(
             context,
-            commandList = getCommandListFor("QueryByEmbedder", "QueryByResolverJ")
+            commandList = getCommandListFor("QueryByEmbedderJ", "QueryByResolverJ")
         )
 
         LOGGER.debug("Dependencies found: {}", dependencies)
