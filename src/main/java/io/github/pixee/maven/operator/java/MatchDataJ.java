@@ -2,14 +2,19 @@ package io.github.pixee.maven.operator.java;
 
 import java.util.regex.Pattern;
 
-public class MatchData {
+public class MatchDataJ {
     private final Range range;
     private final String content;
     private final String elementName;
     private final boolean hasAttributes;
     private final Pattern modifiedContent;
 
-    public MatchData(Range range, String content, String elementName, boolean hasAttributes, Pattern modifiedContent) {
+    public MatchDataJ(
+            Range range,
+            String content,
+            String elementName,
+            boolean hasAttributes,
+            Pattern modifiedContent) {
         assert range != null : "Range must not be null";
         assert content != null : "Content must not be null";
         assert elementName != null : "ElementName must not be null";
@@ -33,7 +38,7 @@ public class MatchData {
         return elementName;
     }
 
-    public boolean hasAttributes() {
+    public boolean getHasAttributes() {
         return hasAttributes;
     }
 
@@ -42,20 +47,20 @@ public class MatchData {
     }
 
     public static class Range {
-        private final int start;
-        private final int end;
+        private final int first;
+        private final int last;
 
-        public Range(int start, int end) {
-            this.start = start;
-            this.end = end;
+        public Range(int first, int last) {
+            this.first = first;
+            this.last = last;
         }
 
-        public int getStart() {
-            return start;
+        public int getFirst() {
+            return first;
         }
 
-        public int getEnd() {
-            return end;
+        public int getLast() {
+            return last;
         }
     }
 }
