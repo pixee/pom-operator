@@ -76,7 +76,7 @@ class Chain(vararg commands: CommandJ) {
                 CompositeDependencyManagement(),
                 SimpleUpgradeJ.getInstance(),
                 SimpleDependencyManagementJ.getInstance(),
-                SimpleInsert
+                SimpleInsertJ()
             )
 
         private fun filterByQueryType(
