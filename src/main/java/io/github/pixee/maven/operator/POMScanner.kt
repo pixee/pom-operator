@@ -3,6 +3,7 @@ package io.github.pixee.maven.operator
 import io.github.pixee.maven.operator.java.EmbedderFacadeJ
 import io.github.pixee.maven.operator.java.IgnorableJ
 import io.github.pixee.maven.operator.java.InvalidPathExceptionJ
+import io.github.pixee.maven.operator.java.POMDocumentFactoryJ
 import org.apache.maven.model.building.ModelBuildingException
 import org.dom4j.Element
 import org.dom4j.tree.DefaultElement
@@ -36,12 +37,12 @@ object POMScanner {
         }
 
         return originalDocument
-            .withParentPomFiles(parentPoms.map { POMDocumentFactory.load(it) })
+            .withParentPomFiles(parentPoms.map { POMDocumentFactoryJ.load(it) })
     }
 
     @JvmStatic
     fun legacyScanFrom(originalFile: File, topLevelDirectory: File): ProjectModelFactory {
-        val pomFile: POMDocument = POMDocumentFactory.load(originalFile)
+        val pomFile: POMDocument = POMDocumentFactoryJ.load(originalFile)
         val parentPomFiles: MutableList<POMDocument> = arrayListOf()
 
         val pomFileQueue: Queue<Element> = LinkedList()
@@ -107,7 +108,7 @@ object POMScanner {
             if (!newPath.startsWith(topLevelDirectory.absolutePath))
                 throw InvalidPathExceptionJ(pomFile.file, relativePath)
 
-            val newPomFile = POMDocumentFactory.load(newPath.toFile())
+            val newPomFile = POMDocumentFactoryJ.load(newPath.toFile())
 
             val hasParent = newPomFile.pomDocument.rootElement.element("parent") != null
             val hasRelativePath = newPomFile.pomDocument.rootElement.element("parent")?.element("relativePath") != null

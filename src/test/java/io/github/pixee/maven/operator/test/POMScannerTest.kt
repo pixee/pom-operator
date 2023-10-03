@@ -1,8 +1,7 @@
 package io.github.pixee.maven.operator.test
 
-import io.github.pixee.maven.operator.POMDocumentFactory
+import io.github.pixee.maven.operator.java.POMDocumentFactoryJ
 import io.github.pixee.maven.operator.POMScanner
-import io.github.pixee.maven.operator.ProjectModelFactory
 import io.github.pixee.maven.operator.java.InvalidPathExceptionJ
 import org.junit.Test
 import java.io.File

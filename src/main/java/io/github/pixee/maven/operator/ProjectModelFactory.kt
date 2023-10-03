@@ -1,5 +1,6 @@
 package io.github.pixee.maven.operator
 
+import io.github.pixee.maven.operator.java.POMDocumentFactoryJ
 import io.github.pixee.maven.operator.java.ProjectModelJ
 import io.github.pixee.maven.operator.java.QueryTypeJ
 import java.io.File
@@ -124,12 +125,12 @@ class ProjectModelFactory private constructor(
     }
 
     /**
-     * Mostly Delegates to POMDocumentFactory
+     * Mostly Delegates to POMDocumentFactoryJ
      */
     companion object {
         @JvmStatic
         fun load(`is`: InputStream): ProjectModelFactory {
-            val pomDocument = POMDocumentFactory.load(`is`)
+            val pomDocument = POMDocumentFactoryJ.load(`is`)
 
             return ProjectModelFactory(pomFile = pomDocument)
         }
@@ -140,7 +141,7 @@ class ProjectModelFactory private constructor(
 
         @JvmStatic
         fun load(url: URL): ProjectModelFactory {
-            val pomFile = POMDocumentFactory.load(url)
+            val pomFile = POMDocumentFactoryJ.load(url)
 
             return ProjectModelFactory(pomFile = pomFile)
         }

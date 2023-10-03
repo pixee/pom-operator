@@ -2,6 +2,7 @@ package io.github.pixee.maven.operator.test
 
 import com.google.common.io.Files
 import io.github.pixee.maven.operator.*
+import io.github.pixee.maven.operator.java.POMDocumentFactoryJ
 import io.github.pixee.maven.operator.java.ProjectModelJ
 import io.github.pixee.maven.operator.java.QueryTypeJ
 import io.github.pixee.maven.operator.java.WrongDependencyTypeExceptionJ
@@ -15,7 +16,7 @@ class POMOperatorMultipomTest : AbstractTestBase() {
     fun testWithParentAndChildMissingPackaging() {
         val parentResource = getResource("parent-and-child-parent-broken.xml")
 
-        val parentPomFiles = listOf(POMDocumentFactory.load(parentResource))
+        val parentPomFiles = listOf(POMDocumentFactoryJ.load(parentResource))
 
         val parentPom = ProjectModelFactory.load(
             parentResource,
@@ -31,7 +32,7 @@ class POMOperatorMultipomTest : AbstractTestBase() {
     fun testWithParentAndChildWrongType() {
         val parentResource = getResource("parent-and-child-child-broken.xml")
 
-        val parentPomFile = POMDocumentFactory.load(getResource("parent-and-child-parent.xml"))
+        val parentPomFile = POMDocumentFactoryJ.load(getResource("parent-and-child-parent.xml"))
 
         val parentPomFiles = listOf(parentPomFile)
 
@@ -53,7 +54,7 @@ class POMOperatorMultipomTest : AbstractTestBase() {
             .load(
                 getResource("sample-child-with-relativepath.xml")
             )
-            .withParentPomFiles(listOf(POMDocumentFactory.load(parentPomFile)))
+            .withParentPomFiles(listOf(POMDocumentFactoryJ.load(parentPomFile)))
             .withUseProperties(false)
 
         val result = gwt(
@@ -75,7 +76,7 @@ class POMOperatorMultipomTest : AbstractTestBase() {
 
         val parentPom = ProjectModelFactory.load(
             sampleChild
-        ).withParentPomFiles(listOf(POMDocumentFactory.load(parentPomFile)))
+        ).withParentPomFiles(listOf(POMDocumentFactoryJ.load(parentPomFile)))
             .withUseProperties(true)
 
         val result = gwt(
