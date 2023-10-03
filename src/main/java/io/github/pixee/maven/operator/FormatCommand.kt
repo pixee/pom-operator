@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator
 
 import io.github.pixee.maven.operator.java.AbstractCommandJ
+import io.github.pixee.maven.operator.java.FormatCommandJ
 import io.github.pixee.maven.operator.java.ProjectModelJ
 import org.apache.commons.lang3.StringUtils
 import org.mozilla.universalchardet.UniversalDetector
@@ -69,29 +70,7 @@ class FormatCommand : AbstractCommandJ() {
      *
      */
     private fun elementBitSet(doc: ByteArray): BitSet {
-        val result = BitSet()
-        val eventReader = inputFactory.createXMLEventReader(doc.inputStream())
-        val eventContent = StringWriter()
-        val xmlEventWriter = outputFactory.createXMLEventWriter(eventContent)
-
-        while (eventReader.hasNext()) {
-            val next = eventReader.nextEvent()
-
-            if (next is StartElement || next is EndElement) {
-                val startIndex = next.location.characterOffset
-
-                eventContent.buffer.setLength(0)
-
-                xmlEventWriter.add(next)
-                xmlEventWriter.flush()
-
-                val endIndex = startIndex + eventContent.buffer.length
-
-                result.set(startIndex, startIndex + endIndex)
-            }
-        }
-
-        return result
+        return FormatCommandJ.elementBitSet(inputFactory, outputFactory, doc)
     }
 
     /**
