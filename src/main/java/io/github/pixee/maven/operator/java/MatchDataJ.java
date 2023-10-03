@@ -1,20 +1,25 @@
 package io.github.pixee.maven.operator.java;
 
+import kotlin.ranges.IntRange;
+import kotlin.text.Regex;
+
 import java.util.regex.Pattern;
 
 public class MatchDataJ {
-    private final Range range;
+    // TODO-CARLOS replace kotlin package
+    private final IntRange range;
     private final String content;
     private final String elementName;
     private final boolean hasAttributes;
-    private final Pattern modifiedContent;
+    // TODO-CARLOS replace kotlin package
+    private final Regex modifiedContent;
 
     public MatchDataJ(
-            Range range,
+            IntRange range,
             String content,
             String elementName,
             boolean hasAttributes,
-            Pattern modifiedContent) {
+            Regex modifiedContent) {
         assert range != null : "Range must not be null";
         assert content != null : "Content must not be null";
         assert elementName != null : "ElementName must not be null";
@@ -26,7 +31,7 @@ public class MatchDataJ {
         this.modifiedContent = modifiedContent;
     }
 
-    public Range getRange() {
+    public IntRange getRange() {
         return range;
     }
 
@@ -42,10 +47,12 @@ public class MatchDataJ {
         return hasAttributes;
     }
 
-    public Pattern getModifiedContent() {
+    public Regex getModifiedContent() {
         return modifiedContent;
     }
 
+    /*
+    TODO-CARLOS
     public static class Range {
         private final int first;
         private final int last;
@@ -62,6 +69,6 @@ public class MatchDataJ {
         public int getLast() {
             return last;
         }
-    }
+    }*/
 }
 

@@ -2,6 +2,7 @@ package io.github.pixee.maven.operator
 
 import io.github.pixee.maven.operator.java.AbstractCommandJ
 import io.github.pixee.maven.operator.java.FormatCommandJ
+import io.github.pixee.maven.operator.java.MatchDataJ
 import io.github.pixee.maven.operator.java.ProjectModelJ
 import org.apache.commons.lang3.StringUtils
 import org.mozilla.universalchardet.UniversalDetector
@@ -42,7 +43,7 @@ class FormatCommand : AbstractCommandJ() {
      */
     private val outputFactory = XMLOutputFactory.newInstance()
 
-    private val singleElementsWithAttributes: MutableList<MatchData> = arrayListOf()
+    private val singleElementsWithAttributes: MutableList<MatchDataJ> = arrayListOf()
 
     override fun execute(pm: ProjectModelJ): Boolean {
         for (pomFile in pm.allPomFiles()) {
@@ -82,16 +83,17 @@ class FormatCommand : AbstractCommandJ() {
      * @param xmlDocumentString Rendered POM Document Contents (string-formatted)
      * @return map of (index, matchData object) reverse ordered
      */
-    private fun findSingleElementMatchesFrom(xmlDocumentString: String): LinkedHashMap<Int, MatchData> {
+    private fun findSingleElementMatchesFrom(xmlDocumentString: String): LinkedHashMap<Int, MatchDataJ> {
         val allFoundMatches = RE_EMPTY_ELEMENT_NO_ATTRIBUTES.findAll(xmlDocumentString).toList()
 
-        val emptyMappedTags: List<MatchData> =
+        val emptyMappedTags: List<MatchDataJ> =
             allFoundMatches.map {
-                MatchData(
-                    range = it.range,
-                    content = it.value,
-                    elementName = ((it.groups[1]?.value ?: it.groups[2]?.value)!!),
-                    hasAttributes = false
+                MatchDataJ(
+                    it.range,
+                    it.value,
+                    ((it.groups[1]?.value ?: it.groups[2]?.value)!!),
+                    false,
+                    null
                 )
             }.toList()
 
@@ -267,11 +269,11 @@ class FormatCommand : AbstractCommandJ() {
                         Regex(contentRe)
 
                     singleElementsWithAttributes.add(
-                        MatchData(
+                        MatchDataJ(
                             contentRange,
                             trimmedOriginalContent,
                             localPart,
-                            hasAttributes = true,
+                            true,
                             modifiedContentRE,
                         )
                     )
@@ -375,7 +377,7 @@ class FormatCommand : AbstractCommandJ() {
         val targetElementMap = elementBitSet(xmlRepresentation.toByteArray())
 
         // Let's find out the original empty elements from the original pom and store into a stack
-        val elementsToReplace: MutableList<MatchData> = ArrayList<MatchData>().apply {
+        val elementsToReplace: MutableList<MatchDataJ> = ArrayList<MatchDataJ>().apply {
             val matches =
                 findSingleElementMatchesFrom(pom.originalPom.toString(pom.charset)).values
 
