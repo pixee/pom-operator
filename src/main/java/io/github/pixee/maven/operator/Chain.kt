@@ -32,7 +32,7 @@ class Chain(vararg commands: CommandJ) {
             done = nextCommand.execute(c)
 
             if (done) {
-                if (c.queryType == QueryType.NONE && (nextCommand !is SupportCommandJ)) {
+                if (c.queryType == QueryTypeJ.NONE && (nextCommand !is SupportCommandJ)) {
                     c.modifiedByCommand = true
                 }
 
@@ -80,10 +80,10 @@ class Chain(vararg commands: CommandJ) {
             )
 
         private fun filterByQueryType(
-            commandList: List<Pair<QueryType, String>>,
-            queryType: QueryType,
+            commandList: List<Pair<QueryTypeJ, String>>,
+            queryType: QueryTypeJ,
             initialCommands: List<AbstractQueryCommandJ> = emptyList(),
-            queryTypeFilter: ((queryType: QueryType) -> Boolean)
+            queryTypeFilter: ((queryType: QueryTypeJ) -> Boolean)
         ): Chain {
             val filteredCommands: List<CommandJ> = commandList
                 .filter { queryTypeFilter(it.first) }.mapNotNull {
@@ -111,17 +111,17 @@ class Chain(vararg commands: CommandJ) {
          * Some classes won't have all available dependencies on the classpath during runtime
          * for this reason we'll use <pre>Class.forName</pre> and report issues creating
          */
-        val AVAILABLE_DEPENDENCY_QUERY_COMMANDS = listOf<Pair<QueryType, String>>(
-            QueryType.SAFE to "QueryByResolverJ",
-            QueryType.SAFE to "QueryByParsingJ",
-            QueryType.UNSAFE to "QueryByEmbedder",
-            QueryType.UNSAFE to "QueryByInvokerJ",
+        val AVAILABLE_DEPENDENCY_QUERY_COMMANDS = listOf<Pair<QueryTypeJ, String>>(
+            QueryTypeJ.SAFE to "QueryByResolverJ",
+            QueryTypeJ.SAFE to "QueryByParsingJ",
+            QueryTypeJ.UNSAFE to "QueryByEmbedder",
+            QueryTypeJ.UNSAFE to "QueryByInvokerJ",
         )
 
         /**
          * returns a pre-configured chain with the defaults for Dependency Querying
          */
-        fun createForDependencyQuery(queryType: QueryType = QueryType.SAFE): Chain =
+        fun createForDependencyQuery(queryType: QueryTypeJ = QueryTypeJ.SAFE): Chain =
             filterByQueryType(
                 AVAILABLE_DEPENDENCY_QUERY_COMMANDS,
                 queryType,
@@ -132,16 +132,16 @@ class Chain(vararg commands: CommandJ) {
         /**
          * List of Commands for Version Query
          */
-        val AVAILABLE_QUERY_VERSION_COMMANDS = listOf<Pair<QueryType, String>>(
-            QueryType.NONE to "UnwrapEffectivePomJ",
-            QueryType.SAFE to "VersionByCompilerDefinitionJ",
-            QueryType.SAFE to "VersionByPropertyJ",
+        val AVAILABLE_QUERY_VERSION_COMMANDS = listOf<Pair<QueryTypeJ, String>>(
+            QueryTypeJ.NONE to "UnwrapEffectivePomJ",
+            QueryTypeJ.SAFE to "VersionByCompilerDefinitionJ",
+            QueryTypeJ.SAFE to "VersionByPropertyJ",
         )
 
         /**
          * returns a pre-configured chain for Version Query
          */
-        fun createForVersionQuery(queryType: QueryType = QueryType.SAFE): Chain =
+        fun createForVersionQuery(queryType: QueryTypeJ = QueryTypeJ.SAFE): Chain =
             filterByQueryType(
                 AVAILABLE_QUERY_VERSION_COMMANDS,
                 queryType,

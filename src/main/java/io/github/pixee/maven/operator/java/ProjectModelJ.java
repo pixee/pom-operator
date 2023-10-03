@@ -2,7 +2,7 @@ package io.github.pixee.maven.operator.java;
 
 import io.github.pixee.maven.operator.Dependency;
 import io.github.pixee.maven.operator.POMDocument;
-import io.github.pixee.maven.operator.QueryType;
+import io.github.pixee.maven.operator.java.QueryTypeJ;
 import org.apache.commons.collections4.CollectionUtils;
 import org.dom4j.Element;
 import org.dom4j.Node;
@@ -18,7 +18,7 @@ public class ProjectModelJ {
     private boolean useProperties;
     private Set<String> activeProfiles;
     private boolean overrideIfAlreadyExists;
-    private QueryType queryType;
+    private QueryTypeJ queryType;
     private File repositoryPath;
     private String finishedByClass;
     private boolean offline;
@@ -33,7 +33,7 @@ public class ProjectModelJ {
             boolean useProperties,
             Set<String> activeProfiles,
             boolean overrideIfAlreadyExists,
-            QueryType queryType,
+            QueryTypeJ queryType,
             File repositoryPath,
             String finishedByClass,
             boolean offline
@@ -45,7 +45,7 @@ public class ProjectModelJ {
         this.useProperties = useProperties;
         this.activeProfiles = activeProfiles;
         this.overrideIfAlreadyExists = overrideIfAlreadyExists;
-        this.queryType = queryType != null ? queryType : QueryType.NONE;
+        this.queryType = queryType != null ? queryType : QueryTypeJ.NONE;
         this.repositoryPath = repositoryPath;
         this.finishedByClass = finishedByClass;
         this.offline = offline;
@@ -211,11 +211,11 @@ public class ProjectModelJ {
         this.overrideIfAlreadyExists = overrideIfAlreadyExists;
     }
 
-    public QueryType getQueryType() {
+    public QueryTypeJ getQueryType() {
         return queryType;
     }
 
-    public void setQueryType(QueryType queryType) {
+    public void setQueryType(QueryTypeJ queryType) {
         this.queryType = queryType;
     }
 

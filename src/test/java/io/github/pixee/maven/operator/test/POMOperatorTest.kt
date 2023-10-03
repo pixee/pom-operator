@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator.test
 
 import io.github.pixee.maven.operator.*
+import io.github.pixee.maven.operator.java.QueryTypeJ
 import io.github.pixee.maven.operator.java.UtilJ.selectXPathNodes
 import io.github.pixee.maven.operator.java.UtilJ
 import org.apache.commons.lang3.SystemUtils
@@ -62,7 +63,7 @@ class POMOperatorTest : AbstractTestBase() {
         }
 
         val resolvedDeps = POMOperator.queryDependency(
-            ProjectModelFactory.load(testPom).withQueryType(QueryType.SAFE).build()
+            ProjectModelFactory.load(testPom).withQueryType(QueryTypeJ.SAFE).build()
         )
 
         val testPomContents = testPom.readText()

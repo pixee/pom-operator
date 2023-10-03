@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator
 
 import io.github.pixee.maven.operator.java.ProjectModelJ
+import io.github.pixee.maven.operator.java.QueryTypeJ
 import java.io.File
 import java.io.InputStream
 import java.net.URL
@@ -16,7 +17,7 @@ class ProjectModelFactory private constructor(
     private var useProperties: Boolean = false,
     private var activeProfiles: Set<String> = emptySet(),
     private var overrideIfAlreadyExists: Boolean = false,
-    private var queryType: QueryType = QueryType.NONE,
+    private var queryType: QueryTypeJ = QueryTypeJ.NONE,
     private var repositoryPath: File? = null,
     private var offline: Boolean = false,
 ) {
@@ -81,7 +82,7 @@ class ProjectModelFactory private constructor(
      *
      * @param queryType query type
      */
-    fun withQueryType(queryType: QueryType) = this.apply {
+    fun withQueryType(queryType: QueryTypeJ) = this.apply {
         this.queryType = queryType
     }
 
