@@ -61,7 +61,7 @@ public class UnwrapEffectivePomJ extends AbstractVersionCommandJ{
         }
 
         for (Xpp3Dom config : pluginConfigurations) {
-            for (Map.Entry<String, Kind> entry : AbstractVersionCommandJ.TYPE_TO_KIND.entrySet()) {
+            for (Map.Entry<String, KindJ> entry : AbstractVersionCommandJ.TYPE_TO_KIND.entrySet()) {
                 Xpp3Dom child = config.getChild(entry.getKey());
 
                 if (child != null) {
@@ -74,7 +74,7 @@ public class UnwrapEffectivePomJ extends AbstractVersionCommandJ{
 
         for (Map.Entry<Object, Object> entry : res.getEffectiveModel().getProperties().entrySet()) {
             if (AbstractVersionCommandJ.PROPERTY_TO_KIND.containsKey(entry.getKey())) {
-                Kind kind = AbstractVersionCommandJ.PROPERTY_TO_KIND.get(entry.getKey());
+                KindJ kind = AbstractVersionCommandJ.PROPERTY_TO_KIND.get(entry.getKey());
 
                 definedProperties.add(new VersionDefinitionJ(kind, (String) entry.getValue()));
             }

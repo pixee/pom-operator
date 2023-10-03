@@ -1,12 +1,7 @@
 package io.github.pixee.maven.operator
 
 import com.github.zafarkhaja.semver.Version
-import io.github.pixee.maven.operator.java.AbstractQueryCommandJ
-import io.github.pixee.maven.operator.java.AbstractVersionCommandJ
-import io.github.pixee.maven.operator.java.CommandJ
-import io.github.pixee.maven.operator.java.ProjectModelJ
-import io.github.pixee.maven.operator.java.VersionDefinitionJ
-import io.github.pixee.maven.operator.java.VersionQueryResponseJ
+import io.github.pixee.maven.operator.java.*
 import java.util.*
 
 
@@ -51,11 +46,11 @@ object POMOperator {
             /*
              * but if there's `release` we`ll throw an exception
              */
-            if (queryVersionResult.any { it.kind == Kind.RELEASE })
+            if (queryVersionResult.any { it.kind == KindJ.RELEASE })
                 throw IllegalStateException("Unexpected queryVersionResult Combination: ${queryVersionResult}")
 
-            val queryVersionSource = queryVersionResult.first { it.kind == Kind.SOURCE }!!
-            val queryVersionTarget = queryVersionResult.first { it.kind == Kind.TARGET }!!
+            val queryVersionSource = queryVersionResult.first { it.kind == KindJ.SOURCE }!!
+            val queryVersionTarget = queryVersionResult.first { it.kind == KindJ.TARGET }!!
 
             val mappedSourceVersion = mapVersion(queryVersionSource.value)
             val mappedTargetVersion = mapVersion(queryVersionTarget.value)

@@ -1,5 +1,6 @@
 package io.github.pixee.maven.operator
 
+import io.github.pixee.maven.operator.java.KindJ
 import org.apache.commons.lang3.builder.CompareToBuilder
 import java.util.*
 
@@ -24,9 +25,9 @@ open class AbstractVersionCommand : AbstractCommand() {
         }
 
         internal val TYPE_TO_KIND = mapOf(
-            "source" to Kind.SOURCE,
-            "target" to Kind.TARGET,
-            "release" to Kind.RELEASE,
+            "source" to KindJ.SOURCE,
+            "target" to KindJ.TARGET,
+            "release" to KindJ.RELEASE,
         )
 
         internal val PROPERTY_TO_KIND = TYPE_TO_KIND.entries.map {

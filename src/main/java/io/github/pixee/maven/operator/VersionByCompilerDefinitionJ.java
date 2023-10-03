@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator;
 
 import io.github.pixee.maven.operator.java.AbstractVersionCommandJ;
+import io.github.pixee.maven.operator.java.KindJ;
 import io.github.pixee.maven.operator.java.ProjectModelJ;
 import io.github.pixee.maven.operator.java.VersionDefinitionJ;
 import org.apache.commons.lang3.text.StrSubstitutor;
@@ -31,9 +32,9 @@ public class VersionByCompilerDefinitionJ extends AbstractVersionCommandJ {
                 List<Node> compilerNodes = selectXPathNodes(doc.getResultPom(), pluginExpression);
 
                 if (!compilerNodes.isEmpty()) {
-                    for (Map.Entry<String, Kind> entry : AbstractVersionCommandJ.TYPE_TO_KIND.entrySet()) {
+                    for (Map.Entry<String, KindJ> entry : AbstractVersionCommandJ.TYPE_TO_KIND.entrySet()) {
                         String key = entry.getKey();
-                        Kind value = entry.getValue();
+                        KindJ value = entry.getValue();
 
                         for (Node compilerNode : compilerNodes) {
                             Element childElement = ((Element) compilerNode).element(key);

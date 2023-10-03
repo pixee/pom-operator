@@ -1,6 +1,5 @@
 package io.github.pixee.maven.operator.java;
 
-import io.github.pixee.maven.operator.Kind;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import java.util.*;
 
@@ -18,15 +17,15 @@ public class AbstractVersionCommandJ extends AbstractCommandJ {
         }
     };
 
-    public static final Map<String, Kind> TYPE_TO_KIND = new HashMap<>();
-    public static final Map<String, Kind> PROPERTY_TO_KIND = new HashMap<>();
+    public static final Map<String, KindJ> TYPE_TO_KIND = new HashMap<>();
+    public static final Map<String, KindJ> PROPERTY_TO_KIND = new HashMap<>();
 
     static {
-        TYPE_TO_KIND.put("source", Kind.SOURCE);
-        TYPE_TO_KIND.put("target", Kind.TARGET);
-        TYPE_TO_KIND.put("release", Kind.RELEASE);
+        TYPE_TO_KIND.put("source", KindJ.SOURCE);
+        TYPE_TO_KIND.put("target", KindJ.TARGET);
+        TYPE_TO_KIND.put("release", KindJ.RELEASE);
 
-        for (Map.Entry<String, Kind> entry : TYPE_TO_KIND.entrySet()) {
+        for (Map.Entry<String, KindJ> entry : TYPE_TO_KIND.entrySet()) {
             PROPERTY_TO_KIND.put("maven.compiler." + entry.getKey(), entry.getValue());
         }
     }
