@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator.test
 
 import io.github.pixee.maven.operator.*
+import io.github.pixee.maven.operator.java.MissingDependencyExceptionJ
 import io.github.pixee.maven.operator.java.QueryTypeJ
 import io.github.pixee.maven.operator.java.UtilJ.selectXPathNodes
 import io.github.pixee.maven.operator.java.UtilJ
@@ -76,7 +77,7 @@ class POMOperatorTest : AbstractTestBase() {
         )
     }
 
-    @Test(expected = MissingDependencyException::class)
+    @Test(expected = MissingDependencyExceptionJ::class)
     fun testWithDependencyMissing() {
         gwt(
             "case-dependency-missing",
