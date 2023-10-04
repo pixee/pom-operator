@@ -2,6 +2,7 @@ package io.github.pixee.maven.operator.java;
 
 import java.util.Objects;
 
+// TODO-CARLOS equals
 public class DependencyJ {
     private String groupId;
     private String artifactId;
