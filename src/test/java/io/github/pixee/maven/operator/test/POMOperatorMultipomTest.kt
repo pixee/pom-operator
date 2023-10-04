@@ -3,6 +3,7 @@ package io.github.pixee.maven.operator.test
 import com.google.common.io.Files
 import io.github.pixee.maven.operator.*
 import io.github.pixee.maven.operator.java.POMDocumentFactoryJ
+import io.github.pixee.maven.operator.java.POMOperatorJ
 import io.github.pixee.maven.operator.java.ProjectModelFactoryJ
 import io.github.pixee.maven.operator.java.ProjectModelJ
 import io.github.pixee.maven.operator.java.QueryTypeJ
@@ -111,7 +112,7 @@ class POMOperatorMultipomTest : AbstractTestBase() {
 
         val pomFile = resultFiles.entries.first().value
 
-        val dependencies = POMOperator.queryDependency(
+        val dependencies = POMOperatorJ.queryDependency(
             ProjectModelFactoryJ.load(pomFile)
                 .withQueryType(QueryTypeJ.UNSAFE)
                 .build()

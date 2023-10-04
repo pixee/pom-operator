@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator.test
 
 import io.github.pixee.maven.operator.*
+import io.github.pixee.maven.operator.java.POMOperatorJ
 import io.github.pixee.maven.operator.java.ProjectModelFactoryJ
 import io.github.pixee.maven.operator.java.QueryTypeJ
 import io.github.pixee.maven.operator.java.VersionQueryResponseJ
@@ -169,6 +170,6 @@ class POMOperatorVersionQueryTest {
                 .withOffline(offline)
                 .build()
 
-        return POMOperator.queryVersions(context)
+        return POMOperatorJ.queryVersions(context)
     }
 }

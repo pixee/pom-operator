@@ -2,6 +2,7 @@ package io.github.pixee.maven.operator.test
 
 import io.github.pixee.maven.operator.*
 import io.github.pixee.maven.operator.java.CommandJ
+import io.github.pixee.maven.operator.java.POMOperatorJ
 import io.github.pixee.maven.operator.java.ProjectModelFactoryJ
 import io.github.pixee.maven.operator.java.QueryTypeJ
 import junit.framework.TestCase.*
@@ -25,7 +26,7 @@ class POMOperatorDependencyQueryTest {
                     .withQueryType(queryType)
                     .build()
 
-            val dependencies = POMOperator.queryDependency(context)
+            val dependencies = POMOperatorJ.queryDependency(context)
 
             LOGGER.debug("Dependencies found: {}", dependencies)
 
@@ -41,7 +42,7 @@ class POMOperatorDependencyQueryTest {
                 .withQueryType(QueryTypeJ.SAFE)
                 .build()
 
-        val dependencies = POMOperator.queryDependency(context)
+        val dependencies = POMOperatorJ.queryDependency(context)
 
         assertTrue("Dependencies are empty", dependencies.isEmpty())
     }
@@ -54,7 +55,7 @@ class POMOperatorDependencyQueryTest {
                 .withQueryType(QueryTypeJ.UNSAFE)
                 .build()
 
-        val dependencies = POMOperator.queryDependency(context)
+        val dependencies = POMOperatorJ.queryDependency(context)
 
         assertTrue("Dependencies are empty", dependencies.isEmpty())
     }
@@ -75,7 +76,7 @@ class POMOperatorDependencyQueryTest {
                         .build()
 
                 val dependencies =
-                    POMOperator.queryDependency(context, commandList = commandListOverride)
+                    POMOperatorJ.queryDependency(context, commandListOverride)
 
                 assertTrue("Dependencies are not empty", dependencies.isNotEmpty())
             }
@@ -104,7 +105,7 @@ class POMOperatorDependencyQueryTest {
                     .withRepositoryPath(tempDirectory)
                     .build()
 
-            val dependencies = POMOperator.queryDependency(context)
+            val dependencies = POMOperatorJ.queryDependency(context)
 
             LOGGER.debug("Dependencies found: {}", dependencies)
 
@@ -129,7 +130,7 @@ class POMOperatorDependencyQueryTest {
                         .withOffline(true)
                         .build()
 
-                val dependencies = POMOperator.queryDependency(context)
+                val dependencies = POMOperatorJ.queryDependency(context)
 
                 LOGGER.debug("Dependencies found: {}", dependencies)
 
@@ -178,7 +179,7 @@ class POMOperatorDependencyQueryTest {
                 .withOffline(true)
                 .build()
 
-        val dependencies = POMOperator.queryDependency(context)
+        val dependencies = POMOperatorJ.queryDependency(context)
 
         LOGGER.debug("Dependencies found: {}", dependencies)
 
@@ -267,7 +268,7 @@ class POMOperatorDependencyQueryTest {
                 .withOffline(true)
                 .build()
 
-        val dependencies = POMOperator.queryDependency(context)
+        val dependencies = POMOperatorJ.queryDependency(context)
 
         LOGGER.debug("Dependencies found: {}", dependencies)
 
@@ -328,9 +329,9 @@ class POMOperatorDependencyQueryTest {
                 .withOffline(true)
                 .build()
 
-        val dependencies = POMOperator.queryDependency(
+        val dependencies = POMOperatorJ.queryDependency(
             context,
-            commandList = getCommandListFor("QueryByEmbedderJ", "QueryByResolverJ")
+            getCommandListFor("QueryByEmbedderJ", "QueryByResolverJ")
         )
 
         LOGGER.debug("Dependencies found: {}", dependencies)
@@ -401,7 +402,7 @@ class POMOperatorDependencyQueryTest {
                 .build()
 
         val dependencies =
-            POMOperator.queryDependency(context, commandList = getCommandListFor("QueryByParsingJ"))
+            POMOperatorJ.queryDependency(context, getCommandListFor("QueryByParsingJ"))
 
         LOGGER.debug("Dependencies found: {}", dependencies)
 
@@ -435,7 +436,7 @@ class POMOperatorDependencyQueryTest {
                 .withOffline(true)
                 .build()
 
-        val dependencies = POMOperator.queryDependency(context)
+        val dependencies = POMOperatorJ.queryDependency(context)
 
         LOGGER.debug("Dependencies found: {}", dependencies)
 

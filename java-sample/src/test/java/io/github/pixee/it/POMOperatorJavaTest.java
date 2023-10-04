@@ -1,12 +1,12 @@
 package io.github.pixee.it;
 
+import io.github.pixee.maven.operator.java.POMOperatorJ;
 import io.github.pixee.maven.operator.java.ProjectModelFactoryJ;
 import io.github.pixee.maven.operator.java.ProjectModelJ;
 import org.dom4j.DocumentException;
 import org.junit.Test;
 
 import io.github.pixee.maven.operator.Dependency;
-import io.github.pixee.maven.operator.POMOperator;
 
 import java.io.IOException;
 
@@ -17,6 +17,6 @@ public class POMOperatorJavaTest {
         .withDependency(new Dependency("org.dom4j", "dom4j", "0.0.0", null, "jar", null))
         .build();
 
-    POMOperator.modify(projectModel);
+    POMOperatorJ.modify(projectModel);
   }
 }

@@ -2,6 +2,7 @@ package io.github.pixee.maven.operator.test
 
 import io.github.pixee.maven.operator.*
 import io.github.pixee.maven.operator.java.MissingDependencyExceptionJ
+import io.github.pixee.maven.operator.java.POMOperatorJ
 import io.github.pixee.maven.operator.java.ProjectModelFactoryJ
 import io.github.pixee.maven.operator.java.QueryTypeJ
 import io.github.pixee.maven.operator.java.UtilJ.selectXPathNodes
@@ -51,7 +52,7 @@ class POMOperatorTest : AbstractTestBase() {
                 .withOverrideIfAlreadyExists(true)
                 .build()
 
-            if (POMOperator.modify(projectModel)) {
+            if (POMOperatorJ.modify(projectModel)) {
                 assertTrue(projectModel.pomFile.dirty, "Original POM File is Dirty")
 
                 val resultPomAsXml = String(projectModel.pomFile.resultPomBytes)
@@ -64,7 +65,7 @@ class POMOperatorTest : AbstractTestBase() {
             }
         }
 
-        val resolvedDeps = POMOperator.queryDependency(
+        val resolvedDeps = POMOperatorJ.queryDependency(
             ProjectModelFactoryJ.load(testPom).withQueryType(QueryTypeJ.SAFE).build()
         )
 
@@ -368,7 +369,7 @@ class POMOperatorTest : AbstractTestBase() {
                 .withOverrideIfAlreadyExists(false)
                 .build()
 
-        POMOperator.modify(context)
+        POMOperatorJ.modify(context)
     }
 
     @Test
@@ -403,7 +404,7 @@ class POMOperatorTest : AbstractTestBase() {
             ).withDependency(dependencyToUpgrade).withUseProperties(true).withSkipIfNewer(true)
                 .build()
 
-        POMOperator.modify(context)
+        POMOperatorJ.modify(context)
 
         assertTrue(context.pomFile.dirty, "Original POM File is Dirty")
 
@@ -433,7 +434,7 @@ class POMOperatorTest : AbstractTestBase() {
             ).withDependency(dependencyToUpgrade).withUseProperties(true).withSkipIfNewer(true)
                 .build()
 
-        POMOperator.modify(context)
+        POMOperatorJ.modify(context)
 
         val resultPom = context.pomFile.resultPomBytes.toString(Charset.defaultCharset())
 

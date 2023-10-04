@@ -14,7 +14,7 @@ class Chain(vararg commands: CommandJ) {
     /**
      * Internal ArrayList of the Commands
      */
-    internal val commandList: MutableList<CommandJ> = ArrayList(commands.toList())
+    public val commandList: MutableList<CommandJ> = ArrayList(commands.toList())
 
     /**
      * Executes the Commands in the Chain of Responsibility

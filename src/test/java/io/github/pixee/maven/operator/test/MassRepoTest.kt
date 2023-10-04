@@ -1,8 +1,8 @@
 package io.github.pixee.maven.operator.test
 
 import io.github.pixee.maven.operator.Dependency
-import io.github.pixee.maven.operator.POMOperator
 import io.github.pixee.maven.operator.POMScanner
+import io.github.pixee.maven.operator.java.POMOperatorJ
 import io.github.pixee.maven.operator.java.ProjectModelFactoryJ
 import io.github.pixee.maven.operator.java.UtilJ
 import org.apache.commons.lang3.SystemUtils
@@ -216,7 +216,7 @@ class MassRepoIT {
             .withOffline(sampleRepo.offline)
             .build()
 
-        val result = POMOperator.modify(context)
+        val result = POMOperatorJ.modify(context)
 
         context.allPomFiles().filter { it.dirty }.forEach {
             it.file.writeBytes(it.resultPomBytes)
@@ -253,7 +253,7 @@ class MassRepoIT {
         val pomFile = File(repo.cacheDir(), repo.pomPath)
 
         val dependencies =
-            POMOperator.queryDependency(
+            POMOperatorJ.queryDependency(
                 POMScanner.scanFrom(pomFile, repo.cacheDir())
                     .withRepositoryPath(repo.cacheDir())
                     .withOffline(false)
