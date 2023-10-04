@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator.test
 
 import io.github.pixee.maven.operator.*
+import io.github.pixee.maven.operator.java.ChainJ
 import io.github.pixee.maven.operator.java.CommandJ
 import io.github.pixee.maven.operator.java.POMOperatorJ
 import io.github.pixee.maven.operator.java.ProjectModelFactoryJ
@@ -63,7 +64,7 @@ class POMOperatorDependencyQueryTest {
     @Test
     fun testAllQueryTypes() {
         listOf("pom-1.xml", "pom-3.xml").forEach { pomFile ->
-            Chain.AVAILABLE_DEPENDENCY_QUERY_COMMANDS.forEach {
+            ChainJ.AVAILABLE_DEPENDENCY_QUERY_COMMANDS.forEach {
                 val commandClassName = "io.github.pixee.maven.operator.${it.second}"
 
                 val commandListOverride =
