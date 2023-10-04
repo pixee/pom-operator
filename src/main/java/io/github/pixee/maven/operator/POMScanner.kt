@@ -51,9 +51,12 @@ object POMScanner {
         if (relativePathElement != null && relativePathElement.textTrim.isNotEmpty()) {
             pomFileQueue.add(relativePathElement)
         } else if (relativePathElement == null && parentElement != null) {
-            pomFileQueue.add(DefaultElement("relativePath").apply {
-                this.text = "../pom.xml"
-            })
+            // skip trying to find for a parent if we are at the root
+            if (!originalFile.parent.equals(topLevelDirectory)) {
+                pomFileQueue.add(DefaultElement("relativePath").apply {
+                    this.text = "../pom.xml"
+                })
+            }
         }
 
         var lastFile: File = originalFile
@@ -78,6 +81,8 @@ object POMScanner {
 
         val prevPaths: MutableSet<String> = linkedSetOf()
 
+        var prevPOMDocument = pomFile
+
         while (pomFileQueue.isNotEmpty()) {
             val relativePathElement = pomFileQueue.poll()
 
@@ -87,32 +92,72 @@ object POMScanner {
 
             val relativePath = fixPomRelativePath(relativePathElement.text)
 
-            if (!isRelative(relativePath))
-                throw InvalidPathException(pomFile.file, relativePath)
+            if (!isRelative(relativePath)) {
+                LOGGER.warn("not relative: $relativePath")
+
+                break
+            }
 
             if (prevPaths.contains(relativePath)) {
-                throw InvalidPathException(pomFile.file, relativePath, loop = true)
+                LOGGER.warn("loop: ${pomFile.file}, relativePath: $relativePath")
+
+                break
             } else {
                 prevPaths.add(relativePath)
             }
 
             val newPath = resolvePath(lastFile, relativePath)
 
-            if (newPath.notExists())
-                throw InvalidPathException(pomFile.file, relativePath)
+            if (newPath.notExists()) {
+                LOGGER.warn("new path does not exist: $newPath")
 
-            if (!newPath.startsWith(topLevelDirectory.absolutePath))
-                throw InvalidPathException(pomFile.file, relativePath)
+                break
+            }
+
+            if (0L == newPath.toFile().length()) {
+                LOGGER.warn("File has zero length: $newPath")
+
+                break
+            }
+
+            if (!newPath.startsWith(topLevelDirectory.absolutePath)) {
+                LOGGER.warn("Not a children: $newPath (absolute: ${topLevelDirectory.absolutePath}")
+
+                break
+            }
 
             val newPomFile = POMDocumentFactory.load(newPath.toFile())
 
             val hasParent = newPomFile.pomDocument.rootElement.element("parent") != null
-            val hasRelativePath = newPomFile.pomDocument.rootElement.element("parent")?.element("relativePath") != null
+            val hasRelativePath = newPomFile.pomDocument.rootElement.element("parent")
+                ?.element("relativePath") != null
 
-            if (! hasRelativePath && hasParent)
-                newPomFile.pomDocument.rootElement.element("parent").element("relativePath").text = "../pom.xml"
+            if (!hasRelativePath && hasParent)
+                newPomFile.pomDocument.rootElement.element("parent").element("relativePath").text =
+                    "../pom.xml"
+
+            // One Last Test - Does the previous mention at least ArtifactId equals to parent declared at previous?
+            // If not break and warn
+
+            val myArtifactId = newPomFile.pomDocument.rootElement.element("artifactId")?.text
+            val prevParentArtifactId = prevPOMDocument.pomDocument.rootElement.element("parent")
+                .element("artifactId")?.text
+
+            if (null == myArtifactId || null == prevParentArtifactId) {
+                LOGGER.warn("Missing previous mine or parent: $myArtifactId / $prevParentArtifactId")
+
+                break
+            }
+
+            if (!myArtifactId.equals(prevParentArtifactId)) {
+                LOGGER.warn("Previous doesn't match: $myArtifactId / $prevParentArtifactId")
+
+                break
+            }
 
             parentPomFiles.add(newPomFile)
+
+            prevPOMDocument = newPomFile
 
             val newRelativePathElement =
                 newPomFile.pomDocument.rootElement.element("parent")?.element("relativePath")
