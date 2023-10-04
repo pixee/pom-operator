@@ -1,12 +1,12 @@
 package io.github.pixee.it;
 
-import io.github.pixee.maven.operator.java.POMOperatorJ;
-import io.github.pixee.maven.operator.java.ProjectModelFactoryJ;
-import io.github.pixee.maven.operator.java.ProjectModelJ;
+import io.github.pixee.maven.operator.POMOperatorJ;
+import io.github.pixee.maven.operator.ProjectModelFactoryJ;
+import io.github.pixee.maven.operator.ProjectModelJ;
 import org.dom4j.DocumentException;
 import org.junit.Test;
 
-import io.github.pixee.maven.operator.Dependency;
+import io.github.pixee.maven.operator.kotlin.Dependency;
 
 import java.io.IOException;
 import java.net.URISyntaxException;

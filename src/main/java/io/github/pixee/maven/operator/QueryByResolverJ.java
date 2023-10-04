@@ -1,9 +1,6 @@
 package io.github.pixee.maven.operator;
 
-import io.github.pixee.maven.operator.java.AbstractQueryCommandJ;
-import io.github.pixee.maven.operator.java.EmbedderFacadeJ;
-import io.github.pixee.maven.operator.java.IgnorableJ;
-import io.github.pixee.maven.operator.java.ProjectModelJ;
+import io.github.pixee.maven.operator.kotlin.Dependency;
 import org.apache.maven.model.building.ModelBuildingException;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.collection.CollectRequest;

@@ -1,6 +1,6 @@
 package io.github.pixee.maven.operator;
 
-import io.github.pixee.maven.operator.java.*;
+import io.github.pixee.maven.operator.kotlin.POMDocument;
 
 import java.util.*;
 

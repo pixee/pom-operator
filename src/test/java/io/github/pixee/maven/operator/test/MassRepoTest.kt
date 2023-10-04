@@ -1,10 +1,10 @@
 package io.github.pixee.maven.operator.test
 
-import io.github.pixee.maven.operator.Dependency
-import io.github.pixee.maven.operator.POMScanner
-import io.github.pixee.maven.operator.java.POMOperatorJ
-import io.github.pixee.maven.operator.java.ProjectModelFactoryJ
-import io.github.pixee.maven.operator.java.UtilJ
+import io.github.pixee.maven.operator.kotlin.Dependency
+import io.github.pixee.maven.operator.kotlin.POMScanner
+import io.github.pixee.maven.operator.POMOperatorJ
+import io.github.pixee.maven.operator.ProjectModelFactoryJ
+import io.github.pixee.maven.operator.UtilJ
 import org.apache.commons.lang3.SystemUtils
 import org.junit.Assert.*
 import org.junit.Test

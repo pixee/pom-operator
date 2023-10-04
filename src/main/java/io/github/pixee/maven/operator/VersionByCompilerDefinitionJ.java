@@ -1,15 +1,12 @@
 package io.github.pixee.maven.operator;
 
-import io.github.pixee.maven.operator.java.AbstractVersionCommandJ;
-import io.github.pixee.maven.operator.java.KindJ;
-import io.github.pixee.maven.operator.java.ProjectModelJ;
-import io.github.pixee.maven.operator.java.VersionDefinitionJ;
+import io.github.pixee.maven.operator.kotlin.POMDocument;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.dom4j.Element;
 import org.dom4j.Node;
 import java.util.*;
 
-import static io.github.pixee.maven.operator.java.UtilJ.selectXPathNodes;
+import static io.github.pixee.maven.operator.UtilJ.selectXPathNodes;
 
 public class VersionByCompilerDefinitionJ extends AbstractVersionCommandJ {
     @Override

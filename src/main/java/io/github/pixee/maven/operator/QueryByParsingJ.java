@@ -1,7 +1,7 @@
 package io.github.pixee.maven.operator;
 
-import io.github.pixee.maven.operator.java.AbstractQueryCommandJ;
-import io.github.pixee.maven.operator.java.ProjectModelJ;
+import io.github.pixee.maven.operator.kotlin.Dependency;
+import io.github.pixee.maven.operator.kotlin.POMDocument;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.dom4j.Element;

@@ -1,12 +1,12 @@
 package io.github.pixee.maven.operator.test
 
-import io.github.pixee.maven.operator.*
-import io.github.pixee.maven.operator.java.MissingDependencyExceptionJ
-import io.github.pixee.maven.operator.java.POMOperatorJ
-import io.github.pixee.maven.operator.java.ProjectModelFactoryJ
-import io.github.pixee.maven.operator.java.QueryTypeJ
-import io.github.pixee.maven.operator.java.UtilJ.selectXPathNodes
-import io.github.pixee.maven.operator.java.UtilJ
+import io.github.pixee.maven.operator.MissingDependencyExceptionJ
+import io.github.pixee.maven.operator.POMOperatorJ
+import io.github.pixee.maven.operator.ProjectModelFactoryJ
+import io.github.pixee.maven.operator.QueryTypeJ
+import io.github.pixee.maven.operator.UtilJ.selectXPathNodes
+import io.github.pixee.maven.operator.UtilJ
+import io.github.pixee.maven.operator.kotlin.Dependency
 import org.apache.commons.lang3.SystemUtils
 import org.dom4j.DocumentException
 import org.hamcrest.MatcherAssert.assertThat
@@ -66,7 +66,8 @@ class POMOperatorTest : AbstractTestBase() {
         }
 
         val resolvedDeps = POMOperatorJ.queryDependency(
-            ProjectModelFactoryJ.load(testPom).withQueryType(QueryTypeJ.SAFE).build()
+            ProjectModelFactoryJ.load(testPom).withQueryType(
+                QueryTypeJ.SAFE).build()
         )
 
         val testPomContents = testPom.readText()
@@ -211,7 +212,7 @@ class POMOperatorTest : AbstractTestBase() {
 
         assertThat(
             "Dependencies Section did change",
-            selectXPathNodes(effectivePom,UtilJ.buildLookupExpressionForDependency(dependencyToUpgrade))
+            selectXPathNodes(effectivePom, UtilJ.buildLookupExpressionForDependency(dependencyToUpgrade))
                 .isNotEmpty()
         )
     }

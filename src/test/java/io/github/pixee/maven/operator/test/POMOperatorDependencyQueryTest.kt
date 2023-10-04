@@ -1,11 +1,10 @@
 package io.github.pixee.maven.operator.test
 
-import io.github.pixee.maven.operator.*
-import io.github.pixee.maven.operator.java.ChainJ
-import io.github.pixee.maven.operator.java.CommandJ
-import io.github.pixee.maven.operator.java.POMOperatorJ
-import io.github.pixee.maven.operator.java.ProjectModelFactoryJ
-import io.github.pixee.maven.operator.java.QueryTypeJ
+import io.github.pixee.maven.operator.ChainJ
+import io.github.pixee.maven.operator.CommandJ
+import io.github.pixee.maven.operator.POMOperatorJ
+import io.github.pixee.maven.operator.ProjectModelFactoryJ
+import io.github.pixee.maven.operator.QueryTypeJ
 import junit.framework.TestCase.*
 import org.junit.Test
 import org.slf4j.Logger
