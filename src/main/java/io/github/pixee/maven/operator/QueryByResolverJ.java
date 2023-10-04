@@ -1,6 +1,6 @@
 package io.github.pixee.maven.operator;
 
-import io.github.pixee.maven.operator.java.*;
+import io.github.pixee.maven.operator.DependencyJ;
 import org.apache.maven.model.building.ModelBuildingException;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.collection.CollectRequest;

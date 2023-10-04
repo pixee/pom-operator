@@ -1,13 +1,11 @@
 package io.github.pixee.maven.operator.test;
 
-import io.github.pixee.maven.operator.java.UtilJ;
+import io.github.pixee.maven.operator.UtilJ;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
-
-import io.github.pixee.maven.operator.Util;
 
 import static org.junit.Assert.assertEquals;
 

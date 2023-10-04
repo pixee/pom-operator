@@ -1,6 +1,6 @@
 package io.github.pixee.maven.operator.test
 
-import io.github.pixee.maven.operator.java.HelloWorld
+import io.github.pixee.maven.operator.HelloWorld
 import org.junit.Test
 import kotlin.test.assertTrue
 

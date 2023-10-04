@@ -1,7 +1,5 @@
 package io.github.pixee.maven.operator;
 
-import io.github.pixee.maven.operator.java.AbstractQueryCommandJ;
-import io.github.pixee.maven.operator.java.ProjectModelJ;
 import org.apache.maven.shared.invoker.DefaultInvoker;
 import org.apache.maven.shared.invoker.InvocationRequest;
 import org.apache.maven.shared.invoker.InvocationResult;

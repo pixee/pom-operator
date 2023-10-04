@@ -1,9 +1,9 @@
 package io.github.pixee.maven.operator.test
 
 import `fun`.mike.dmp.DiffMatchPatch
-import io.github.pixee.maven.operator.java.POMOperatorJ
-import io.github.pixee.maven.operator.java.ProjectModelFactoryJ
-import io.github.pixee.maven.operator.java.ProjectModelJ
+import io.github.pixee.maven.operator.POMOperatorJ
+import io.github.pixee.maven.operator.ProjectModelFactoryJ
+import io.github.pixee.maven.operator.ProjectModelJ
 import org.dom4j.Document
 import org.dom4j.io.SAXReader
 import org.junit.Assert.assertFalse

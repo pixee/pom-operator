@@ -1,8 +1,5 @@
 package io.github.pixee.maven.operator;
 
-import io.github.pixee.maven.operator.java.AbstractQueryCommandJ;
-import io.github.pixee.maven.operator.java.InvalidContextExceptionJ;
-import io.github.pixee.maven.operator.java.ProjectModelJ;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.maven.cli.MavenCli;
 import org.apache.maven.shared.invoker.CommandLineConfigurationException;

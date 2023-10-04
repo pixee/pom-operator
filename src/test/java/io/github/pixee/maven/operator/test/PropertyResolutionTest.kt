@@ -1,7 +1,7 @@
 package io.github.pixee.maven.operator.test
 
-import io.github.pixee.maven.operator.java.DependencyJ
-import io.github.pixee.maven.operator.java.ProjectModelFactoryJ
+import io.github.pixee.maven.operator.DependencyJ
+import io.github.pixee.maven.operator.ProjectModelFactoryJ
 import junit.framework.TestCase.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue

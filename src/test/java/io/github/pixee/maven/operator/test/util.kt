@@ -1,7 +1,7 @@
 package io.github.pixee.maven.operator.test
 
-import io.github.pixee.maven.operator.java.ProjectModelJ
-import io.github.pixee.maven.operator.java.UtilJ
+import io.github.pixee.maven.operator.ProjectModelJ
+import io.github.pixee.maven.operator.UtilJ
 import org.apache.commons.lang3.SystemUtils
 import org.dom4j.Document
 import org.dom4j.io.SAXReader

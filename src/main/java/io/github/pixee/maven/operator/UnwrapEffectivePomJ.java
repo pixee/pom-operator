@@ -1,6 +1,5 @@
 package io.github.pixee.maven.operator;
 
-import io.github.pixee.maven.operator.java.*;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.building.ModelBuildingException;
 import org.apache.maven.model.building.ModelBuildingResult;

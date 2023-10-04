@@ -1,14 +1,11 @@
 package io.github.pixee.maven.operator.test
 
-import io.github.pixee.maven.operator.java.POMDocumentFactoryJ
-import io.github.pixee.maven.operator.POMScanner
-import io.github.pixee.maven.operator.java.InvalidPathExceptionJ
-import org.junit.Assert.assertEquals
+import io.github.pixee.maven.operator.kotlin.POMScanner
+import io.github.pixee.maven.operator.InvalidPathExceptionJ
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
 import kotlin.test.assertTrue
-import kotlin.test.fail
 
 class POMScannerTest : AbstractTestBase() {
     val currentDirectory = File(System.getProperty("user.dir"))

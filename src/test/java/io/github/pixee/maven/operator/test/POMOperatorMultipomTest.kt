@@ -1,14 +1,14 @@
 package io.github.pixee.maven.operator.test
 
 import com.google.common.io.Files
-import io.github.pixee.maven.operator.*
-import io.github.pixee.maven.operator.java.DependencyJ
-import io.github.pixee.maven.operator.java.POMDocumentFactoryJ
-import io.github.pixee.maven.operator.java.POMOperatorJ
-import io.github.pixee.maven.operator.java.ProjectModelFactoryJ
-import io.github.pixee.maven.operator.java.ProjectModelJ
-import io.github.pixee.maven.operator.java.QueryTypeJ
-import io.github.pixee.maven.operator.java.WrongDependencyTypeExceptionJ
+import io.github.pixee.maven.operator.POMDocumentFactoryJ
+import io.github.pixee.maven.operator.POMOperatorJ
+import io.github.pixee.maven.operator.ProjectModelFactoryJ
+import io.github.pixee.maven.operator.ProjectModelJ
+import io.github.pixee.maven.operator.QueryTypeJ
+import io.github.pixee.maven.operator.WrongDependencyTypeExceptionJ
+import io.github.pixee.maven.operator.DependencyJ
+import io.github.pixee.maven.operator.kotlin.POMDocument
 import org.junit.Test
 import java.io.File
 import kotlin.test.assertFalse
