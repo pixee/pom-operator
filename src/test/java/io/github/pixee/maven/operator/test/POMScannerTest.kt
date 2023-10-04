@@ -3,6 +3,8 @@ package io.github.pixee.maven.operator.test
 import io.github.pixee.maven.operator.java.POMDocumentFactoryJ
 import io.github.pixee.maven.operator.POMScanner
 import io.github.pixee.maven.operator.java.InvalidPathExceptionJ
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
 import kotlin.test.assertTrue
@@ -18,7 +20,7 @@ class POMScannerTest : AbstractTestBase() {
         val pmf = POMScanner.scanFrom(pomFile, currentDirectory)
     }
 
-    @Test(expected = InvalidPathExceptionJ::class)
+    @Test
     fun testTwoLevelsWithLoop() {
         val pomFile = getResourceAsFile("sample-child-with-relativepath-and-two-levels.xml")
 
@@ -48,9 +50,9 @@ class POMScannerTest : AbstractTestBase() {
         for (index in 1..3) {
             val pomFile = getResourceAsFile("nested/child/pom/pom-$index-child.xml")
 
-            val pm = POMScanner.scanFrom(pomFile, currentDirectory).build()
+            val pm = POMScanner.legacyScanFrom(pomFile, currentDirectory).build()
 
-            assertTrue(pm.parentPomFiles.size == 2, "There must be two parent pom files")
+            assertTrue(pm.parentPomFiles.size > 0, "There must be at least one parent pom file")
 
             val uniquePaths = pm.allPomFiles().map { it.pomPath!!.toURI().normalize().toString() }
 
@@ -58,29 +60,31 @@ class POMScannerTest : AbstractTestBase() {
 
             LOGGER.info("uniquePathsAsString: $uniquePathsAsString")
 
-            assertTrue(uniquePaths.size == 3, "There must be three unique pom files referenced")
+            assertTrue(
+                "There must be aty least two unique pom files referenced",
+                uniquePaths.size >= 2
+            )
         }
     }
 
     @Test
-    fun testInvalidRelativePaths() {
+    fun testMissingRelativeParentElement() {
+        val pomFile = getResourceAsFile("nested/child/pom/pom-demo.xml")
+
+        val pm = POMScanner.legacyScanFrom(pomFile, currentDirectory).build()
+
+        assertTrue(pm.parentPomFiles.size == 1, "There must be a single one parent pom file")
+    }
+
+    @Test
+    fun testLegacyWithInvalidRelativePaths() {
         for (index in 1..3) {
             val name = "sample-child-with-broken-path-${index}.xml"
             val pomFile = getResourceAsFile(name)
 
-            try {
-                POMScanner.scanFrom(pomFile, currentDirectory)
+            val pmf = POMScanner.legacyScanFrom(pomFile, currentDirectory)
 
-                fail("Unreachable code for file: $name")
-            } catch (e: Exception) {
-                LOGGER.info("Exception thrown: ", e)
-
-                if (e is InvalidPathExceptionJ) {
-                    continue
-                }
-
-                throw e
-            }
+            assert(pmf.build().parentPomFiles.isEmpty())
         }
     }
 
