@@ -8,8 +8,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
 
-import kotlin.Pair;
-
 public class ChainJ {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChainJ.class);
 
@@ -78,12 +76,12 @@ public class ChainJ {
     }
 
     public static ChainJ filterByQueryType(
-            List<kotlin.Pair<QueryTypeJ, String>> commandList,
+            List<Pair<QueryTypeJ, String>> commandList,
             QueryTypeJ queryType,
             List<AbstractQueryCommandJ> initialCommands,
             QueryTypeFilter queryTypeFilter) {
         List<CommandJ> filteredCommands = new ArrayList<>();
-        for (kotlin.Pair<QueryTypeJ, String> pair : commandList) {
+        for (Pair<QueryTypeJ, String> pair : commandList) {
             if (queryTypeFilter.filter(pair.getFirst())) {
                 String commandClassName = "io.github.pixee.maven.operator." + pair.getSecond();
 
