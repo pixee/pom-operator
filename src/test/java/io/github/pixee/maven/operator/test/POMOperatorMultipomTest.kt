@@ -3,6 +3,11 @@ package io.github.pixee.maven.operator.test
 import com.google.common.io.Files
 import io.github.pixee.maven.operator.*
 import io.github.pixee.maven.operator.java.DependencyJ
+import io.github.pixee.maven.operator.java.POMDocumentFactoryJ
+import io.github.pixee.maven.operator.java.POMOperatorJ
+import io.github.pixee.maven.operator.java.ProjectModelFactoryJ
+import io.github.pixee.maven.operator.java.ProjectModelJ
+import io.github.pixee.maven.operator.java.QueryTypeJ
 import io.github.pixee.maven.operator.java.WrongDependencyTypeExceptionJ
 import org.junit.Test
 import java.io.File
@@ -14,9 +19,9 @@ class POMOperatorMultipomTest : AbstractTestBase() {
     fun testWithParentAndChildMissingPackaging() {
         val parentResource = getResource("parent-and-child-parent-broken.xml")
 
-        val parentPomFiles = listOf(POMDocumentFactory.load(parentResource))
+        val parentPomFiles = listOf(POMDocumentFactoryJ.load(parentResource))
 
-        val parentPom = ProjectModelFactory.load(
+        val parentPom = ProjectModelFactoryJ.load(
             parentResource,
         ).withParentPomFiles(parentPomFiles)
 
@@ -30,11 +35,11 @@ class POMOperatorMultipomTest : AbstractTestBase() {
     fun testWithParentAndChildWrongType() {
         val parentResource = getResource("parent-and-child-child-broken.xml")
 
-        val parentPomFile = POMDocumentFactory.load(getResource("parent-and-child-parent.xml"))
+        val parentPomFile = POMDocumentFactoryJ.load(getResource("parent-and-child-parent.xml"))
 
         val parentPomFiles = listOf(parentPomFile)
 
-        val parentPom = ProjectModelFactory.load(
+        val parentPom = ProjectModelFactoryJ.load(
             parentResource,
         ).withParentPomFiles(parentPomFiles)
 
@@ -48,12 +53,14 @@ class POMOperatorMultipomTest : AbstractTestBase() {
     fun testWithMultiplePomsBasicNoVersionProperty() {
         val parentPomFile = getResource("sample-parent/pom.xml")
 
-        val projectModelFactory = ProjectModelFactory
+        val projectModelFactory = ProjectModelFactoryJ
             .load(
                 getResource("sample-child-with-relativepath.xml")
             )
-            .withParentPomFiles(listOf(POMDocumentFactory.load(parentPomFile)))
+            .withParentPomFiles(listOf(POMDocumentFactoryJ.load(parentPomFile)))
             .withUseProperties(false)
+
+        System.out.println(DependencyJ.fromString("org.dom4j:dom4j:2.0.3"))
 
         val result = gwt(
             "multiple-pom-basic-no-version-property",
@@ -62,8 +69,8 @@ class POMOperatorMultipomTest : AbstractTestBase() {
 
         validateDepsFrom(result)
 
-        assertTrue(result.allPomFiles.size == 2, "There should be two files")
-        assertTrue(result.allPomFiles.all { it.dirty }, "All files were modified")
+        assertTrue(result.allPomFiles().size == 2, "There should be two files")
+        assertTrue(result.allPomFiles().all { it.dirty }, "All files were modified")
     }
 
     @Test
@@ -72,9 +79,9 @@ class POMOperatorMultipomTest : AbstractTestBase() {
 
         val sampleChild = getResource("sample-child-with-relativepath.xml")
 
-        val parentPom = ProjectModelFactory.load(
+        val parentPom = ProjectModelFactoryJ.load(
             sampleChild
-        ).withParentPomFiles(listOf(POMDocumentFactory.load(parentPomFile)))
+        ).withParentPomFiles(listOf(POMDocumentFactoryJ.load(parentPomFile)))
             .withUseProperties(true)
 
         val result = gwt(
@@ -84,8 +91,8 @@ class POMOperatorMultipomTest : AbstractTestBase() {
 
         validateDepsFrom(result)
 
-        assertTrue(result.allPomFiles.size == 2, "There should be two files")
-        assertTrue(result.allPomFiles.all { it.dirty }, "All files were modified")
+        assertTrue(result.allPomFiles().size == 2, "There should be two files")
+        assertTrue(result.allPomFiles().all { it.dirty }, "All files were modified")
 
         val parentPomString = String(result.parentPomFiles.first().resultPomBytes, Charsets.UTF_8)
         val pomString = String(result.pomFile.resultPomBytes, Charsets.UTF_8)
@@ -99,7 +106,7 @@ class POMOperatorMultipomTest : AbstractTestBase() {
         assertFalse(pomString.contains(version), "Must not have reference to version on pom")
     }
 
-    fun validateDepsFrom(context: ProjectModel) {
+    fun validateDepsFrom(context: ProjectModelJ) {
         val resultFiles = copyFiles(context)
 
         resultFiles.entries.forEach {
@@ -108,9 +115,9 @@ class POMOperatorMultipomTest : AbstractTestBase() {
 
         val pomFile = resultFiles.entries.first().value
 
-        val dependencies = POMOperator.queryDependency(
-            ProjectModelFactory.load(pomFile)
-                .withQueryType(QueryType.UNSAFE)
+        val dependencies = POMOperatorJ.queryDependency(
+            ProjectModelFactoryJ.load(pomFile)
+                .withQueryType(QueryTypeJ.UNSAFE)
                 .build()
         )
 
@@ -122,7 +129,7 @@ class POMOperatorMultipomTest : AbstractTestBase() {
         )
     }
 
-    fun copyFiles(context: ProjectModel): Map<POMDocument, File> {
+    fun copyFiles(context: ProjectModelJ): Map<POMDocument, File> {
         var commonPath = File(context.pomFile.pomPath!!.toURI()).canonicalFile
 
         for (p in context.parentPomFiles) {
@@ -136,7 +143,7 @@ class POMOperatorMultipomTest : AbstractTestBase() {
 
         val tmpOutputDir = Files.createTempDir()
 
-        val result = context.allPomFiles.map { p ->
+        val result = context.allPomFiles().map { p ->
             val pAsFile = File(p.pomPath!!.toURI())
 
             val relPath = pAsFile.canonicalPath.substring(1 + commonPathLen)

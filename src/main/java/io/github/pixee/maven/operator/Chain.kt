@@ -1,9 +1,9 @@
 package io.github.pixee.maven.operator
 
-import io.github.pixee.maven.operator.java.CommandJ
-import io.github.pixee.maven.operator.java.SupportCommandJ
+import io.github.pixee.maven.operator.java.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import kotlin.Pair
 
 /**
  * Implements a Chain of Responsibility Pattern
@@ -14,7 +14,7 @@ class Chain(vararg commands: CommandJ) {
     /**
      * Internal ArrayList of the Commands
      */
-    internal val commandList: MutableList<CommandJ> = ArrayList(commands.toList())
+    public val commandList: MutableList<CommandJ> = ArrayList(commands.toList())
 
     /**
      * Executes the Commands in the Chain of Responsibility
@@ -22,7 +22,7 @@ class Chain(vararg commands: CommandJ) {
      * @param c ProjectModel (context)
      * @return Boolean if successful
      */
-    fun execute(c: ProjectModel): Boolean {
+    fun execute(c: ProjectModelJ): Boolean {
         var done = false
         val listIterator = commandList.listIterator()
 
@@ -32,7 +32,7 @@ class Chain(vararg commands: CommandJ) {
             done = nextCommand.execute(c)
 
             if (done) {
-                if (c.queryType == QueryType.NONE && (nextCommand !is SupportCommandJ)) {
+                if (c.queryType == QueryTypeJ.NONE && (nextCommand !is SupportCommandJ)) {
                     c.modifiedByCommand = true
                 }
 
@@ -69,21 +69,21 @@ class Chain(vararg commands: CommandJ) {
          */
         fun createForModify() =
             Chain(
-                CheckDependencyPresent,
-                CheckParentPackaging,
+                CheckDependencyPresentJ.getInstance(),
+                CheckParentPackagingJ.getInstance(),
                 FormatCommand(),
-                DiscardFormatCommand(),
-                CompositeDependencyManagement(),
-                SimpleUpgrade,
-                SimpleDependencyManagement,
-                SimpleInsert
+                DiscardFormatCommandJ.getInstance(),
+                CompositeDependencyManagementJ(),
+                SimpleUpgradeJ.getInstance(),
+                SimpleDependencyManagementJ.getInstance(),
+                SimpleInsertJ()
             )
 
         private fun filterByQueryType(
-            commandList: List<Pair<QueryType, String>>,
-            queryType: QueryType,
-            initialCommands: List<AbstractQueryCommand> = emptyList(),
-            queryTypeFilter: ((queryType: QueryType) -> Boolean)
+            commandList: List<Pair<QueryTypeJ, String>>,
+            queryType: QueryTypeJ,
+            initialCommands: List<AbstractQueryCommandJ> = emptyList(),
+            queryTypeFilter: ((queryType: QueryTypeJ) -> Boolean)
         ): Chain {
             val filteredCommands: List<CommandJ> = commandList
                 .filter { queryTypeFilter(it.first) }.mapNotNull {
@@ -111,37 +111,37 @@ class Chain(vararg commands: CommandJ) {
          * Some classes won't have all available dependencies on the classpath during runtime
          * for this reason we'll use <pre>Class.forName</pre> and report issues creating
          */
-        val AVAILABLE_DEPENDENCY_QUERY_COMMANDS = listOf<Pair<QueryType, String>>(
-            QueryType.SAFE to "QueryByResolver",
-            QueryType.SAFE to "QueryByParsing",
-            QueryType.UNSAFE to "QueryByEmbedder",
-            QueryType.UNSAFE to "QueryByInvoker",
+        val AVAILABLE_DEPENDENCY_QUERY_COMMANDS = listOf<Pair<QueryTypeJ, String>>(
+            QueryTypeJ.SAFE to "QueryByResolverJ",
+            QueryTypeJ.SAFE to "QueryByParsingJ",
+            QueryTypeJ.UNSAFE to "QueryByEmbedderJ",
+            QueryTypeJ.UNSAFE to "QueryByInvokerJ",
         )
 
         /**
          * returns a pre-configured chain with the defaults for Dependency Querying
          */
-        fun createForDependencyQuery(queryType: QueryType = QueryType.SAFE): Chain =
+        fun createForDependencyQuery(queryType: QueryTypeJ = QueryTypeJ.SAFE): Chain =
             filterByQueryType(
                 AVAILABLE_DEPENDENCY_QUERY_COMMANDS,
                 queryType,
-                listOf(CHECK_PARENT_DIR_COMMAND),
+                listOf(CheckLocalRepositoryDirCommandJ.CheckParentDirCommand.getInstance()),
                 { it == queryType }
             )
 
         /**
          * List of Commands for Version Query
          */
-        val AVAILABLE_QUERY_VERSION_COMMANDS = listOf<Pair<QueryType, String>>(
-            QueryType.NONE to "UnwrapEffectivePomJ",
-            QueryType.SAFE to "VersionByCompilerDefinitionJ",
-            QueryType.SAFE to "VersionByPropertyJ",
+        val AVAILABLE_QUERY_VERSION_COMMANDS = listOf<Pair<QueryTypeJ, String>>(
+            QueryTypeJ.NONE to "UnwrapEffectivePomJ",
+            QueryTypeJ.SAFE to "VersionByCompilerDefinitionJ",
+            QueryTypeJ.SAFE to "VersionByPropertyJ",
         )
 
         /**
          * returns a pre-configured chain for Version Query
          */
-        fun createForVersionQuery(queryType: QueryType = QueryType.SAFE): Chain =
+        fun createForVersionQuery(queryType: QueryTypeJ = QueryTypeJ.SAFE): Chain =
             filterByQueryType(
                 AVAILABLE_QUERY_VERSION_COMMANDS,
                 queryType,

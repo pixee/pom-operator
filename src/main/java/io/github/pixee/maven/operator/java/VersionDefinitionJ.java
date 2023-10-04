@@ -1,16 +1,14 @@
 package io.github.pixee.maven.operator.java;
 
-import io.github.pixee.maven.operator.Kind;
-
 public class VersionDefinitionJ {
-    private Kind kind;
+    private KindJ kind;
     private String value;
 
-    public VersionDefinitionJ(Kind kind, String value) {
+    public VersionDefinitionJ(KindJ kind, String value) {
         this.kind = kind;
         this.value = value;
     }
-    public Kind getKind() {
+    public KindJ getKind() {
         return kind;
     }
 
@@ -18,7 +16,7 @@ public class VersionDefinitionJ {
         return value;
     }
 
-    public void setKind(Kind kind) {
+    public void setKind(KindJ kind) {
         this.kind = kind;
     }
 

@@ -19,6 +19,14 @@ public class DependencyJ {
         this.scope = scope != null ? scope : "compile";
     }
 
+    public DependencyJ(String groupId, String artifactId, String version) {
+        this(groupId, artifactId, version, null, null, null);
+    }
+
+    public DependencyJ(String groupId, String artifactId) {
+        this(groupId, artifactId, null, null, null, null);
+    }
+
     @Override
     public String toString() {
         return String.join(":", groupId, artifactId, packaging, version);

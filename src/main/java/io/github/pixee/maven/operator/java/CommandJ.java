@@ -1,6 +1,8 @@
 package io.github.pixee.maven.operator.java;
 
-import io.github.pixee.maven.operator.ProjectModel;
+
+import java.io.IOException;
+import java.net.URISyntaxException;
 
 /**
  * Interface representing a command.
@@ -12,7 +14,7 @@ public interface CommandJ {
      * @param pm Context (Project Model) to use.
      * @return true if the execution was successful AND the chain must end.
      */
-    boolean execute(ProjectModel pm);
+    boolean execute(ProjectModelJ pm) throws URISyntaxException, IOException;
 
     /**
      * Post Processing, implementing a Filter Pattern.
@@ -20,5 +22,5 @@ public interface CommandJ {
      * @param c ProjectModel for post-processing.
      * @return true if post-processing was successful.
      */
-    boolean postProcess(ProjectModel c);
+    boolean postProcess(ProjectModelJ c);
 }

@@ -1,9 +1,6 @@
 package io.github.pixee.maven.operator;
 
-import io.github.pixee.maven.operator.java.AbstractVersionCommandJ;
-import io.github.pixee.maven.operator.java.EmbedderFacadeJ;
-import io.github.pixee.maven.operator.java.IgnorableJ;
-import io.github.pixee.maven.operator.java.VersionDefinitionJ;
+import io.github.pixee.maven.operator.java.*;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.model.building.ModelBuildingException;
 import org.apache.maven.model.building.ModelBuildingResult;
@@ -15,7 +12,7 @@ public class UnwrapEffectivePomJ extends AbstractVersionCommandJ{
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UnwrapEffectivePomJ.class);
 
-    public boolean execute(ProjectModel pm) {
+    public boolean execute(ProjectModelJ pm) {
         try {
             return executeInternal(pm);
         } catch (Exception e) {
@@ -28,7 +25,7 @@ public class UnwrapEffectivePomJ extends AbstractVersionCommandJ{
         }
     }
 
-    private boolean executeInternal(ProjectModel pm) throws ModelBuildingException {
+    private boolean executeInternal(ProjectModelJ pm) throws ModelBuildingException {
         EmbedderFacadeJ.EmbedderFacadeRequest request = new EmbedderFacadeJ.EmbedderFacadeRequest(
                 pm.getOffline(),
                 null,
@@ -64,7 +61,7 @@ public class UnwrapEffectivePomJ extends AbstractVersionCommandJ{
         }
 
         for (Xpp3Dom config : pluginConfigurations) {
-            for (Map.Entry<String, Kind> entry : AbstractVersionCommandJ.TYPE_TO_KIND.entrySet()) {
+            for (Map.Entry<String, KindJ> entry : AbstractVersionCommandJ.TYPE_TO_KIND.entrySet()) {
                 Xpp3Dom child = config.getChild(entry.getKey());
 
                 if (child != null) {
@@ -77,7 +74,7 @@ public class UnwrapEffectivePomJ extends AbstractVersionCommandJ{
 
         for (Map.Entry<Object, Object> entry : res.getEffectiveModel().getProperties().entrySet()) {
             if (AbstractVersionCommandJ.PROPERTY_TO_KIND.containsKey(entry.getKey())) {
-                Kind kind = AbstractVersionCommandJ.PROPERTY_TO_KIND.get(entry.getKey());
+                KindJ kind = AbstractVersionCommandJ.PROPERTY_TO_KIND.get(entry.getKey());
 
                 definedProperties.add(new VersionDefinitionJ(kind, (String) entry.getValue()));
             }
