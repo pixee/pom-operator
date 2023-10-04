@@ -3,7 +3,7 @@ package io.github.pixee.maven.operator.test
 import io.github.pixee.maven.operator.Dependency
 import io.github.pixee.maven.operator.POMOperator
 import io.github.pixee.maven.operator.POMScanner
-import io.github.pixee.maven.operator.ProjectModelFactory
+import io.github.pixee.maven.operator.java.ProjectModelFactoryJ
 import io.github.pixee.maven.operator.java.UtilJ
 import org.apache.commons.lang3.SystemUtils
 import org.junit.Assert.*
@@ -206,7 +206,7 @@ class MassRepoIT {
                 sampleRepo.cacheDir()
             )
         } else {
-            ProjectModelFactory.Companion.load(File(sampleRepo.cacheDir(), sampleRepo.pomPath))
+            ProjectModelFactoryJ.load(File(sampleRepo.cacheDir(), sampleRepo.pomPath))
         }
 
         val context = projectModelFactory

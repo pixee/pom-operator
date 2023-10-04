@@ -2,6 +2,7 @@ package io.github.pixee.maven.operator.test
 
 import io.github.pixee.maven.operator.*
 import io.github.pixee.maven.operator.java.CommandJ
+import io.github.pixee.maven.operator.java.ProjectModelFactoryJ
 import io.github.pixee.maven.operator.java.QueryTypeJ
 import junit.framework.TestCase.*
 import org.junit.Test
@@ -19,7 +20,7 @@ class POMOperatorDependencyQueryTest {
     fun testBasicQuery() {
         QueryTypeJ.values().filterNot { it == QueryTypeJ.NONE }.forEach { queryType ->
             val context =
-                ProjectModelFactory
+                ProjectModelFactoryJ
                     .load(this.javaClass.getResource("pom-1.xml")!!)
                     .withQueryType(queryType)
                     .build()
@@ -35,7 +36,7 @@ class POMOperatorDependencyQueryTest {
     @Test
     fun testFailedSafeQuery() {
         val context =
-            ProjectModelFactory
+            ProjectModelFactoryJ
                 .load(this.javaClass.getResource("pom-broken.xml")!!)
                 .withQueryType(QueryTypeJ.SAFE)
                 .build()
@@ -48,7 +49,7 @@ class POMOperatorDependencyQueryTest {
     @Test(expected = IllegalStateException::class)
     fun testFailedUnsafeQuery() {
         val context =
-            ProjectModelFactory
+            ProjectModelFactoryJ
                 .load(this.javaClass.getResource("pom-broken.xml")!!)
                 .withQueryType(QueryTypeJ.UNSAFE)
                 .build()
@@ -68,7 +69,7 @@ class POMOperatorDependencyQueryTest {
                     listOf(Class.forName(commandClassName).newInstance() as CommandJ)
 
                 val context =
-                    ProjectModelFactory
+                    ProjectModelFactoryJ
                         .load(this.javaClass.getResource(pomFile)!!)
                         .withQueryType(QueryTypeJ.UNSAFE)
                         .build()
@@ -97,7 +98,7 @@ class POMOperatorDependencyQueryTest {
             )
 
             val context =
-                ProjectModelFactory
+                ProjectModelFactoryJ
                     .load(this.javaClass.getResource("pom-1.xml")!!)
                     .withQueryType(queryType)
                     .withRepositoryPath(tempDirectory)
@@ -121,7 +122,7 @@ class POMOperatorDependencyQueryTest {
                 val tempDirectory = Files.createTempDirectory("mvn-repo").toFile()
 
                 val context =
-                    ProjectModelFactory
+                    ProjectModelFactoryJ
                         .load(this.javaClass.getResource("pom-1.xml")!!)
                         .withQueryType(queryType)
                         .withRepositoryPath(tempDirectory)
@@ -170,7 +171,7 @@ class POMOperatorDependencyQueryTest {
         )
 
         val context =
-            ProjectModelFactory
+            ProjectModelFactoryJ
                 .load(tempPom.toFile())
                 .withQueryType(QueryTypeJ.SAFE)
                 .withRepositoryPath(tempDirectory)
@@ -259,7 +260,7 @@ class POMOperatorDependencyQueryTest {
         )
 
         val context =
-            ProjectModelFactory
+            ProjectModelFactoryJ
                 .load(tempPom.toFile())
                 .withQueryType(QueryTypeJ.SAFE)
                 .withRepositoryPath(tempDirectory)
@@ -320,7 +321,7 @@ class POMOperatorDependencyQueryTest {
         )
 
         val context =
-            ProjectModelFactory
+            ProjectModelFactoryJ
                 .load(tempPom.toFile())
                 .withQueryType(QueryTypeJ.SAFE)
                 .withRepositoryPath(tempDirectory)
@@ -392,7 +393,7 @@ class POMOperatorDependencyQueryTest {
         )
 
         val context =
-            ProjectModelFactory
+            ProjectModelFactoryJ
                 .load(tempPom.toFile())
                 .withQueryType(QueryTypeJ.SAFE)
                 .withRepositoryPath(tempDirectory)
@@ -427,7 +428,7 @@ class POMOperatorDependencyQueryTest {
         val tempDirectory = Files.createTempDirectory("mvn-repo").toFile()
 
         val context =
-            ProjectModelFactory
+            ProjectModelFactoryJ
                 .load(javaClass.getResource("nested/child/pom/pom-3-child.xml"))
                 .withQueryType(QueryTypeJ.SAFE)
                 .withRepositoryPath(tempDirectory)

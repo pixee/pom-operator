@@ -2,7 +2,7 @@ package io.github.pixee.maven.operator.test
 
 import `fun`.mike.dmp.DiffMatchPatch
 import io.github.pixee.maven.operator.POMOperator
-import io.github.pixee.maven.operator.ProjectModelFactory
+import io.github.pixee.maven.operator.java.ProjectModelFactoryJ
 import io.github.pixee.maven.operator.java.ProjectModelJ
 import org.dom4j.Document
 import org.dom4j.io.SAXReader
@@ -40,7 +40,7 @@ open class AbstractTestBase {
         t(context)
     }
 
-    protected fun gwt(name: String, pmf: ProjectModelFactory): ProjectModelJ =
+    protected fun gwt(name: String, pmf: ProjectModelFactoryJ): ProjectModelJ =
         gwt(name, pmf.build())
 
     protected fun gwt(testName: String, context: ProjectModelJ): ProjectModelJ {

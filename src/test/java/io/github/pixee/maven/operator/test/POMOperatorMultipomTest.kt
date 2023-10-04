@@ -3,6 +3,7 @@ package io.github.pixee.maven.operator.test
 import com.google.common.io.Files
 import io.github.pixee.maven.operator.*
 import io.github.pixee.maven.operator.java.POMDocumentFactoryJ
+import io.github.pixee.maven.operator.java.ProjectModelFactoryJ
 import io.github.pixee.maven.operator.java.ProjectModelJ
 import io.github.pixee.maven.operator.java.QueryTypeJ
 import io.github.pixee.maven.operator.java.WrongDependencyTypeExceptionJ
@@ -18,7 +19,7 @@ class POMOperatorMultipomTest : AbstractTestBase() {
 
         val parentPomFiles = listOf(POMDocumentFactoryJ.load(parentResource))
 
-        val parentPom = ProjectModelFactory.load(
+        val parentPom = ProjectModelFactoryJ.load(
             parentResource,
         ).withParentPomFiles(parentPomFiles)
 
@@ -36,7 +37,7 @@ class POMOperatorMultipomTest : AbstractTestBase() {
 
         val parentPomFiles = listOf(parentPomFile)
 
-        val parentPom = ProjectModelFactory.load(
+        val parentPom = ProjectModelFactoryJ.load(
             parentResource,
         ).withParentPomFiles(parentPomFiles)
 
@@ -50,7 +51,7 @@ class POMOperatorMultipomTest : AbstractTestBase() {
     fun testWithMultiplePomsBasicNoVersionProperty() {
         val parentPomFile = getResource("sample-parent/pom.xml")
 
-        val projectModelFactory = ProjectModelFactory
+        val projectModelFactory = ProjectModelFactoryJ
             .load(
                 getResource("sample-child-with-relativepath.xml")
             )
@@ -74,7 +75,7 @@ class POMOperatorMultipomTest : AbstractTestBase() {
 
         val sampleChild = getResource("sample-child-with-relativepath.xml")
 
-        val parentPom = ProjectModelFactory.load(
+        val parentPom = ProjectModelFactoryJ.load(
             sampleChild
         ).withParentPomFiles(listOf(POMDocumentFactoryJ.load(parentPomFile)))
             .withUseProperties(true)
@@ -111,7 +112,7 @@ class POMOperatorMultipomTest : AbstractTestBase() {
         val pomFile = resultFiles.entries.first().value
 
         val dependencies = POMOperator.queryDependency(
-            ProjectModelFactory.load(pomFile)
+            ProjectModelFactoryJ.load(pomFile)
                 .withQueryType(QueryTypeJ.UNSAFE)
                 .build()
         )

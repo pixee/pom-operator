@@ -1,7 +1,7 @@
 package io.github.pixee.maven.operator.test
 
 import io.github.pixee.maven.operator.Dependency
-import io.github.pixee.maven.operator.ProjectModelFactory
+import io.github.pixee.maven.operator.java.ProjectModelFactoryJ
 import junit.framework.TestCase.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -37,7 +37,7 @@ class PropertyResolutionTest {
 
         val dependencyToUpgrade = Dependency("org.dom4j", "dom4j", version = "2.0.2")
         val context =
-            ProjectModelFactory.load(
+            ProjectModelFactoryJ.load(
                 POMOperatorTest::class.java.getResource("pom-1.xml")!!,
             ).withDependency(dependencyToUpgrade).withActiveProfiles(*profilesToUse).build()
 

@@ -2,6 +2,7 @@ package io.github.pixee.maven.operator.test
 
 import io.github.pixee.maven.operator.*
 import io.github.pixee.maven.operator.java.MissingDependencyExceptionJ
+import io.github.pixee.maven.operator.java.ProjectModelFactoryJ
 import io.github.pixee.maven.operator.java.QueryTypeJ
 import io.github.pixee.maven.operator.java.UtilJ.selectXPathNodes
 import io.github.pixee.maven.operator.java.UtilJ
@@ -24,7 +25,7 @@ class POMOperatorTest : AbstractTestBase() {
     fun testWithBrokenPom() {
         gwt(
             "broken-pom",
-            ProjectModelFactory.load(
+            ProjectModelFactoryJ.load(
                 POMOperatorTest::class.java.getResource("broken-pom.xml")!!,
             ).withDependency(Dependency.fromString("org.dom4j:dom4j:2.0.3"))
         )
@@ -44,7 +45,7 @@ class POMOperatorTest : AbstractTestBase() {
             .copyTo(testPom.outputStream())
 
         deps.forEach { d ->
-            val projectModel = ProjectModelFactory.load(testPom)
+            val projectModel = ProjectModelFactoryJ.load(testPom)
                 .withDependency(d)
                 .withUseProperties(true)
                 .withOverrideIfAlreadyExists(true)
@@ -64,7 +65,7 @@ class POMOperatorTest : AbstractTestBase() {
         }
 
         val resolvedDeps = POMOperator.queryDependency(
-            ProjectModelFactory.load(testPom).withQueryType(QueryTypeJ.SAFE).build()
+            ProjectModelFactoryJ.load(testPom).withQueryType(QueryTypeJ.SAFE).build()
         )
 
         val testPomContents = testPom.readText()
@@ -81,7 +82,7 @@ class POMOperatorTest : AbstractTestBase() {
     fun testWithDependencyMissing() {
         gwt(
             "case-dependency-missing",
-            ProjectModelFactory.load(
+            ProjectModelFactoryJ.load(
                 POMOperatorTest::class.java.getResource("pom-case-1.xml")!!,
             )
         )
@@ -91,7 +92,7 @@ class POMOperatorTest : AbstractTestBase() {
     fun testCaseOne() {
         val context = gwt(
             "case-1",
-            ProjectModelFactory.load(
+            ProjectModelFactoryJ.load(
                 POMOperatorTest::class.java.getResource("pom-case-1.xml")!!,
             ).withDependency(Dependency.fromString("org.dom4j:dom4j:2.0.3"))
         )
@@ -123,7 +124,7 @@ class POMOperatorTest : AbstractTestBase() {
 
         val context = gwt(
             "case-3",
-            ProjectModelFactory.load(
+            ProjectModelFactoryJ.load(
                 POMOperatorTest::class.java.getResource("pom-case-3.xml")!!,
             ).withDependency(dependencyToUpgradeOnCaseThree).withSkipIfNewer(false)
         )
@@ -150,7 +151,7 @@ class POMOperatorTest : AbstractTestBase() {
 
         val context = gwt(
             "pom-case-three-with-lower-version",
-            ProjectModelFactory.load(
+            ProjectModelFactoryJ.load(
                 POMOperatorTest::class.java.getResource("pom-case-3.xml")!!,
             ).withDependency(dependencyToUpgrade).withSkipIfNewer(true)
         )
@@ -194,7 +195,7 @@ class POMOperatorTest : AbstractTestBase() {
 
         val context = gwt(
             "case-4",
-            ProjectModelFactory.load(
+            ProjectModelFactoryJ.load(
                 POMOperatorTest::class.java.getResource("pom-case-4.xml")!!,
             ).withDependency(dependencyToUpgrade)
         )
@@ -221,7 +222,7 @@ class POMOperatorTest : AbstractTestBase() {
 
         val context = gwt(
             "case-5",
-            ProjectModelFactory.load(
+            ProjectModelFactoryJ.load(
                 POMOperatorTest::class.java.getResource("pom-case-5.xml")!!,
             ).withDependency(dependencyToUpgrade).withUseProperties(true)
         )
@@ -260,7 +261,7 @@ class POMOperatorTest : AbstractTestBase() {
 
         val context = gwt(
             "case-6",
-            ProjectModelFactory.load(
+            ProjectModelFactoryJ.load(
                 POMOperatorTest::class.java.getResource("pom-case-6.xml")!!,
             ).withDependency(dependencyToUpgrade).withUseProperties(true)
         )
@@ -294,7 +295,7 @@ class POMOperatorTest : AbstractTestBase() {
 
         val context = gwt(
             "case-with-property",
-            ProjectModelFactory.load(
+            ProjectModelFactoryJ.load(
                 POMOperatorTest::class.java.getResource("pom-with-property-simple.xml")!!,
             ).withDependency(dependencyToUpgrade).withUseProperties(true).withSkipIfNewer(true)
         )
@@ -361,7 +362,7 @@ class POMOperatorTest : AbstractTestBase() {
 </project>
                 """.trimIndent()
         val context =
-            ProjectModelFactory.load(
+            ProjectModelFactoryJ.load(
                 originalPom.byteInputStream(),
             ).withDependency(dependencyToUpgrade).withUseProperties(true)
                 .withOverrideIfAlreadyExists(false)
@@ -397,7 +398,7 @@ class POMOperatorTest : AbstractTestBase() {
 </project>
                 """.trim()
         val context =
-            ProjectModelFactory.load(
+            ProjectModelFactoryJ.load(
                 originalPom.byteInputStream(),
             ).withDependency(dependencyToUpgrade).withUseProperties(true).withSkipIfNewer(true)
                 .build()
@@ -427,7 +428,7 @@ class POMOperatorTest : AbstractTestBase() {
             "<?xml version=\"1.0\"?>\n<project\n\txsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\n\txmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t<modelVersion>4.0.0</modelVersion>\n\t<parent>\n\t\t<artifactId>build-utils</artifactId>\n\t\t<groupId>org.modafocas.mojo</groupId>\n\t\t<version>0.0.1-SNAPSHOT</version>\n\t\t<relativePath>../pom.xml</relativePath>\n\t</parent>\n\n\t<artifactId>derby-maven-plugin</artifactId>\n\t<packaging>maven-plugin</packaging>\n\n\t<dependencies>\n\t\t<dependency>\n\t\t\t<groupId>org.apache.maven</groupId>\n\t\t\t<artifactId>maven-plugin-api</artifactId>\n\t\t\t<version>2.0</version>\n\t\t</dependency>\n\t\t<dependency>\n\t\t\t<groupId>junit</groupId>\n\t\t\t<artifactId>junit</artifactId>\n\t\t\t<version>3.8.1</version>\n\t\t\t<scope>test</scope>\n\t\t</dependency>\n\t\t<dependency>\n\t\t\t<groupId>org.apache.derby</groupId>\n\t\t\t<artifactId>derby</artifactId>\n\t\t\t<version>\${derbyVersion}</version>\n\t\t</dependency>\n\t\t<dependency>\n\t\t\t<groupId>org.apache.derby</groupId>\n\t\t\t<artifactId>derbynet</artifactId>\n\t\t\t<version>\${derbyVersion}</version>\n\t\t</dependency>\n\t\t<dependency>\n\t\t\t<groupId>org.apache.derby</groupId>\n\t\t\t<artifactId>derbyclient</artifactId>\n\t\t\t<version>\${derbyVersion}</version>\n\t\t</dependency>\n\t\t<dependency>\n\t\t\t<groupId>commons-io</groupId>\n\t\t\t<artifactId>commons-io</artifactId>\n\t\t\t<version>1.4</version>\n\t\t\t<type>jar</type>\n\t\t\t<scope>compile</scope>\n\t\t</dependency>\n\t</dependencies>\n\n\t<properties>\n\t\t<derbyVersion>10.6.2.1</derbyVersion>\n\t</properties>\n</project>\n"
 
         val context =
-            ProjectModelFactory.load(
+            ProjectModelFactoryJ.load(
                 originalPom.byteInputStream(),
             ).withDependency(dependencyToUpgrade).withUseProperties(true).withSkipIfNewer(true)
                 .build()
@@ -454,7 +455,7 @@ class POMOperatorTest : AbstractTestBase() {
 
         val context = gwt(
             "hack23-cia",
-            ProjectModelFactory.load(
+            ProjectModelFactoryJ.load(
                 POMOperatorTest::class.java.getResource("pom-hack23-cia.xml")!!,
             ).withDependency(dependencyToUpgrade).withUseProperties(true)
         )

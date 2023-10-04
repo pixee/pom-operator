@@ -4,6 +4,7 @@ import io.github.pixee.maven.operator.java.EmbedderFacadeJ
 import io.github.pixee.maven.operator.java.IgnorableJ
 import io.github.pixee.maven.operator.java.InvalidPathExceptionJ
 import io.github.pixee.maven.operator.java.POMDocumentFactoryJ
+import io.github.pixee.maven.operator.java.ProjectModelFactoryJ
 import org.apache.maven.model.building.ModelBuildingException
 import org.dom4j.Element
 import org.dom4j.tree.DefaultElement
@@ -21,8 +22,8 @@ object POMScanner {
     private val RE_WINDOWS_PATH = Regex("""^\p{Alpha}:""")
 
     @JvmStatic
-    fun scanFrom(originalFile: File, topLevelDirectory: File): ProjectModelFactory {
-        val originalDocument = ProjectModelFactory.load(originalFile)
+    fun scanFrom(originalFile: File, topLevelDirectory: File): ProjectModelFactoryJ {
+        val originalDocument = ProjectModelFactoryJ.load(originalFile)
 
         val parentPoms: List<File> = try {
             getParentPoms(originalFile)
@@ -41,7 +42,7 @@ object POMScanner {
     }
 
     @JvmStatic
-    fun legacyScanFrom(originalFile: File, topLevelDirectory: File): ProjectModelFactory {
+    fun legacyScanFrom(originalFile: File, topLevelDirectory: File): ProjectModelFactoryJ {
         val pomFile: POMDocument = POMDocumentFactoryJ.load(originalFile)
         val parentPomFiles: MutableList<POMDocument> = arrayListOf()
 
@@ -126,9 +127,9 @@ object POMScanner {
             }
         }
 
-        return ProjectModelFactory.loadFor(
-            pomFile = pomFile,
-            parentPomFiles = parentPomFiles
+        return ProjectModelFactoryJ.loadFor(
+            pomFile,
+            parentPomFiles
         )
     }
 
