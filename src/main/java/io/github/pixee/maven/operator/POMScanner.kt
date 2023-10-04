@@ -132,9 +132,13 @@ object POMScanner {
             val hasRelativePath = newPomFile.pomDocument.rootElement.element("parent")
                 ?.element("relativePath") != null
 
-            if (!hasRelativePath && hasParent)
-                newPomFile.pomDocument.rootElement.element("parent").element("relativePath").text =
-                    "../pom.xml"
+            if (!hasRelativePath && hasParent) {
+                val parentElement = newPomFile.pomDocument.rootElement.element("parent")
+
+                parentElement.add(DefaultElement("relativePath").apply {
+                    this.text = "../pom.xml"
+                })
+            }
 
             // One Last Test - Does the previous mention at least ArtifactId equals to parent declared at previous?
             // If not break and warn

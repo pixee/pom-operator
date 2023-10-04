@@ -69,6 +69,15 @@ class POMScannerTest : AbstractTestBase() {
     }
 
     @Test
+    fun testMissingRelativeParentElement() {
+        val pomFile = getResourceAsFile("nested/child/pom/pom-demo.xml")
+
+        val pm = POMScanner.legacyScanFrom(pomFile, currentDirectory).build()
+
+        assertTrue(pm.parentPomFiles.size == 1, "There must be a single one parent pom file")
+    }
+
+    @Test
     fun testLegacyWithInvalidRelativePaths() {
         for (index in 1..3) {
             val name = "sample-child-with-broken-path-${index}.xml"
