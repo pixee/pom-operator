@@ -3,6 +3,7 @@ package io.github.pixee.maven.operator.kotlin
 import io.github.pixee.maven.operator.EmbedderFacadeJ
 import io.github.pixee.maven.operator.IgnorableJ
 import io.github.pixee.maven.operator.POMDocumentFactoryJ
+import io.github.pixee.maven.operator.POMScannerJ
 import io.github.pixee.maven.operator.ProjectModelFactoryJ
 import org.apache.maven.model.building.ModelBuildingException
 import org.dom4j.Element
@@ -22,22 +23,7 @@ object POMScanner {
 
     @JvmStatic
     fun scanFrom(originalFile: File, topLevelDirectory: File): ProjectModelFactoryJ {
-        val originalDocument = ProjectModelFactoryJ.load(originalFile)
-
-        val parentPoms: List<File> = try {
-            getParentPoms(originalFile)
-        } catch (e: Exception) {
-            if (e is ModelBuildingException) {
-                IgnorableJ.LOGGER.debug("mbe (you can ignore): ", e)
-            } else {
-                LOGGER.warn("While trying embedder: ", e)
-            }
-
-            return legacyScanFrom(originalFile, topLevelDirectory)
-        }
-
-        return originalDocument
-            .withParentPomFiles(parentPoms.map { POMDocumentFactoryJ.load(it) })
+        return POMScannerJ.scanFrom(originalFile, topLevelDirectory)
     }
 
     @JvmStatic
@@ -182,42 +168,15 @@ object POMScanner {
     }
 
     private fun fixPomRelativePath(text: String?): String {
-        if (null == text)
-            return ""
-
-        val name = File(text).name
-
-        if (-1 == name.indexOf(".")) {
-            return "$text/pom.xml"
-        }
-
-        return text
+        return POMScannerJ.fixPomRelativePath(text)
     }
 
     private fun isRelative(path: String): Boolean {
-        if (path.matches(RE_WINDOWS_PATH)) {
-            return false
-        }
-
-        return !(path.startsWith("/") || path.startsWith("~"))
+        return POMScannerJ.isRelative(path)
     }
 
 
     private fun getParentPoms(originalFile: File): List<File> {
-        val embedderFacadeResponse : EmbedderFacadeJ.EmbedderFacadeResponse =
-            EmbedderFacadeJ.invokeEmbedder(
-                EmbedderFacadeJ.EmbedderFacadeRequest(true, null, originalFile, null, null)
-            )
-
-        val res = embedderFacadeResponse.modelBuildingResult
-
-        val rawModels = res.modelIds.map { res.getRawModel(it) }.toList()
-
-        val parentPoms: List<File> =
-            if (rawModels.size > 1) {
-                rawModels.subList(1, rawModels.size).mapNotNull { it.pomFile }.toList()
-            } else
-                emptyList()
-        return parentPoms
+        return POMScannerJ.getParentPoms(originalFile)
     }
 }
