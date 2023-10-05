@@ -49,30 +49,13 @@ class FormatCommand : AbstractCommandJ() {
         for (pomFile in pm.allPomFiles()) {
             parseXmlAndCharset(pomFile)
 
-            pomFile.endl = parseLineEndings(pomFile)
-            pomFile.indent = guessIndent(pomFile)
+            pomFile.endl = FormatCommandJ.parseLineEndings(pomFile)
+            pomFile.indent = FormatCommandJ.guessIndent(this.inputFactory, pomFile)
         }
 
         return super.execute(pm)
     }
 
-    /**
-     * This one is quite fun yet important. Let me explain:
-     *
-     * The DOM doesn't track records if empty elements are either `<element>` or `<element/>`. Therefore we need to scan all ocurrences of
-     * singleton elements.
-     *
-     * Therefore we use a bitSet to keep track of each element and offset, scanning it forward
-     * when serializing we pick backwards and rewrite tags accordingly
-     *
-     * @param doc Raw Document Bytes
-     * @see RE_EMPTY_ELEMENT_NO_ATTRIBUTES
-     * @return bitSet of
-     *
-     */
-    private fun elementBitSet(doc: ByteArray): BitSet {
-        return FormatCommandJ.elementBitSet(inputFactory, outputFactory, doc)
-    }
 
     /**
      * Returns a reverse-ordered list of all the single element matches from the pom document
@@ -101,86 +84,6 @@ class FormatCommand : AbstractCommandJ() {
             .map { it.range.first to it }
 
         return allTags.sortedByDescending { it.first }.toMap(LinkedHashMap())
-    }
-
-    /**
-     * Guesses the indent character (spaces / tabs) and length from the original document
-     * formatting settings
-     *
-     * @param pomFile (project model) where it takes its input pom
-     * @return indent string
-     */
-    private fun guessIndent(pomFile: POMDocument): String {
-        val eventReader = inputFactory.createXMLEventReader(pomFile.originalPom.inputStream())
-
-        val freqMap: MutableMap<Int, Int> = mutableMapOf()
-        val charFreqMap: MutableMap<Char, Int> = mutableMapOf()
-
-        /**
-         * Parse, while grabbing whitespace sequences and examining it
-         */
-        while (eventReader.hasNext()) {
-            val event = eventReader.nextEvent()
-
-            if (event is Characters) {
-                if (StringUtils.isWhitespace(event.asCharacters().data)) {
-                    val patterns = event.asCharacters().data.split(*LINE_ENDINGS.toTypedArray())
-
-                    /**
-                     * Updates space / character frequencies found
-                     */
-                    val blankPatterns = patterns
-                        .filter { it.isNotEmpty() }
-                        .filter { StringUtils.isAllBlank(it) }
-
-                    blankPatterns
-                        .map { it to it.length }
-                        .forEach {
-                            freqMap.merge(it.second, 1) { a, b -> a + b }
-                        }
-
-                    blankPatterns.map { it[0] }
-                        .forEach {
-                            charFreqMap.merge(it, 1) { a, b ->
-                                a + b
-                            }
-                        }
-                }
-            }
-        }
-
-        /**
-         * Assign most frequent indent char
-         */
-        val indentCharacter: Char = charFreqMap.entries.maxBy { it.value }.key
-
-        /**
-         * Casts as a String
-         */
-        val indentcharacterAsString = String(charArrayOf(indentCharacter))
-
-        /**
-         * Picks the length
-         */
-        val indentLength = freqMap.entries.minBy { it.key }.key
-
-        /**
-         * Builds the standard indent string (length vs char)
-         */
-        val indentString = StringUtils.repeat(indentcharacterAsString, indentLength)
-
-        /**
-         * Returns it
-         */
-        return indentString
-    }
-
-    private fun parseLineEndings(pomFile: POMDocument): String {
-        val str = String(pomFile.originalPom.inputStream().readBytes(), pomFile.charset)
-
-        return LINE_ENDINGS.associateWith { str.split(it).size }
-            .maxBy { it.value }
-            .key
     }
 
     private fun parseXmlAndCharset(pomFile: POMDocument) {
@@ -261,7 +164,7 @@ class FormatCommand : AbstractCommandJ() {
                         realElementStart + 1 + trimmedOriginalContent.length
                     )
 
-                    val contentRe = writeAsRegex(prevEvents.filter { it.isStartElement }.last()
+                    val contentRe = FormatCommandJ.writeAsRegex(prevEvents.filter { it.isStartElement }.last()
                         .asStartElement()
                     )
 
@@ -319,33 +222,6 @@ class FormatCommand : AbstractCommandJ() {
     }
 
     /**
-     * A Slight variation on writeAsUnicode from stax which writes as a regex
-     * string so we could rewrite its output
-     */
-    private fun writeAsRegex(element: StartElement): String {
-        val writer = StringWriter()
-
-        writer.write("<")
-        writer.write(Pattern.quote(element.name.localPart))
-
-        val attrIter: Iterator<*> = element.getAttributes()
-        while (attrIter.hasNext()) {
-            val attr = attrIter.next() as Attribute
-
-            writer.write("\\s+")
-
-            writer.write(Pattern.quote(attr.name.localPart))
-            writer.write("=[\\\"\']")
-            writer.write(Pattern.quote(attr.value))
-            writer.write("[\\\"']")
-
-        }
-        writer.write("\\s*\\/\\>")
-
-        return writer.toString()
-    }
-
-    /**
      * When doing the opposite, render the XML using the optionally supplied encoding (defaults to UTF8 obviously)
      * but apply the original formatting as well
      */
@@ -373,8 +249,8 @@ class FormatCommand : AbstractCommandJ() {
         // differences we recored previously on the pom (see the pom member variables)
         var xmlRepresentation = pom.resultPom.asXML().toString()
 
-        val originalElementMap = elementBitSet(pom.originalPom)
-        val targetElementMap = elementBitSet(xmlRepresentation.toByteArray())
+        val originalElementMap = FormatCommandJ.elementBitSet(this.inputFactory, this.outputFactory, pom.originalPom)
+        val targetElementMap = FormatCommandJ.elementBitSet(this.inputFactory, this.outputFactory, xmlRepresentation.toByteArray())
 
         // Let's find out the original empty elements from the original pom and store into a stack
         val elementsToReplace: MutableList<MatchDataJ> = ArrayList<MatchDataJ>().apply {
