@@ -1,8 +1,8 @@
 package io.github.pixee.maven.operator.test
 
 import io.github.pixee.maven.operator.DependencyJ
-import io.github.pixee.maven.operator.kotlin.POMScanner
 import io.github.pixee.maven.operator.POMOperatorJ
+import io.github.pixee.maven.operator.POMScannerJ
 import io.github.pixee.maven.operator.ProjectModelFactoryJ
 import io.github.pixee.maven.operator.UtilJ
 import org.apache.commons.lang3.SystemUtils
@@ -201,7 +201,7 @@ class MassRepoIT {
         val dependencyToUpgrade = DependencyJ.fromString(dependencyToUpgradeString)
 
         val projectModelFactory = if (sampleRepo.useScanner) {
-            POMScanner.scanFrom(
+            POMScannerJ.scanFrom(
                 File(sampleRepo.cacheDir(), sampleRepo.pomPath),
                 sampleRepo.cacheDir()
             )
@@ -254,7 +254,7 @@ class MassRepoIT {
 
         val dependencies =
             POMOperatorJ.queryDependency(
-                POMScanner.scanFrom(pomFile, repo.cacheDir())
+                POMScannerJ.scanFrom(pomFile, repo.cacheDir())
                     .withRepositoryPath(repo.cacheDir())
                     .withOffline(false)
                     .build()

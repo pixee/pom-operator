@@ -4,7 +4,6 @@ import io.github.pixee.maven.operator.EmbedderFacadeJ;
 import io.github.pixee.maven.operator.POMDocumentFactoryJ;
 import io.github.pixee.maven.operator.ProjectModelFactoryJ;
 import io.github.pixee.maven.operator.kotlin.POMDocument;
-import io.github.pixee.maven.operator.kotlin.POMScanner;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.building.ModelBuildingException;
@@ -41,7 +40,7 @@ public class POMScannerJ {
             } else {
                 LOGGER.warn("While trying embedder: ", e);
             }
-            return POMScanner.legacyScanFrom(originalFile, topLevelDirectory);
+            return legacyScanFrom(originalFile, topLevelDirectory);
         }
 
         try {
@@ -172,9 +171,9 @@ public class POMScannerJ {
         return ProjectModelFactoryJ.loadFor(pomFile, parentPomFiles);
     }
 
-    public static File lastFile;
+    private static File lastFile;
 
-    public static Path resolvePath(File baseFile, String relativePath) {
+    private static Path resolvePath(File baseFile, String relativePath) {
         File parentDir = baseFile;
 
         if (parentDir.isFile()) {
@@ -188,7 +187,7 @@ public class POMScannerJ {
         return Paths.get(result.getAbsolutePath());
     }
 
-    public static String fixPomRelativePath(String text) {
+    private static String fixPomRelativePath(String text) {
         if (text == null) {
             return "";
         }
@@ -202,7 +201,7 @@ public class POMScannerJ {
         return text;
     }
 
-    public static boolean isRelative(String path) {
+    private static boolean isRelative(String path) {
         if (RE_WINDOWS_PATH.matcher(path).matches()) {
             return false;
         }
@@ -210,7 +209,7 @@ public class POMScannerJ {
         return !(path.startsWith("/") || path.startsWith("~"));
     }
 
-    public static List<File> getParentPoms(File originalFile) throws ModelBuildingException {
+    private static List<File> getParentPoms(File originalFile) throws ModelBuildingException {
         EmbedderFacadeJ.EmbedderFacadeResponse embedderFacadeResponse =
                 EmbedderFacadeJ.invokeEmbedder(
                         new EmbedderFacadeJ.EmbedderFacadeRequest(true, null, originalFile, null, null)
