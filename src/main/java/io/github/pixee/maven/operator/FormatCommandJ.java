@@ -18,6 +18,8 @@ import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.xml.stream.*;
 import javax.xml.stream.events.*;
 
@@ -344,7 +346,17 @@ public class FormatCommandJ {
         return null; // Handle the case where no StartElement event is found.
     }
 
-    public static List<MatchDataJ> findSingleElementMatchesFrom(String xmlDocumentString) {
+
+    /**
+     * Returns a reverse-ordered list of all the single element matches from the pom document
+     * raw string
+     *
+     * this is important so we can mix and match offsets and apply formatting accordingly
+     *
+     * @param xmlDocumentString Rendered POM Document Contents (string-formatted)
+     * @return map of (index, matchData object) reverse ordered
+     */
+    public static LinkedHashMap<Integer, MatchDataJ> findSingleElementMatchesFrom(String xmlDocumentString) {
         Sequence<MatchResult> allFoundMatchesSequence = RE_EMPTY_ELEMENT_NO_ATTRIBUTES.findAll(xmlDocumentString, 0);
 
         List<MatchDataJ> emptyMappedTags = new ArrayList<>();
@@ -365,7 +377,20 @@ public class FormatCommandJ {
             emptyMappedTags.add(matchDataJ);
         }
 
-        return emptyMappedTags;
+        List<Pair<Integer, MatchDataJ>> allTags = emptyMappedTags.stream()
+                .flatMap(data -> Stream.of(data))
+                .map(data -> new Pair<>(data.getRange().getFirst(), data))
+                .collect(Collectors.toList());
+
+        allTags.sort(Comparator.comparing(Pair::getFirst, Comparator.reverseOrder()));
+
+        LinkedHashMap<Integer, MatchDataJ> linkedHashMap = new LinkedHashMap<>();
+
+        for (Pair<Integer, MatchDataJ> pair : allTags) {
+            linkedHashMap.put(pair.getFirst(), pair.getSecond());
+        }
+
+        return linkedHashMap;
     }
 
 

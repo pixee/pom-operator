@@ -56,27 +56,6 @@ class FormatCommand : AbstractCommandJ() {
         return super.execute(pm)
     }
 
-
-    /**
-     * Returns a reverse-ordered list of all the single element matches from the pom document
-     * raw string
-     *
-     * this is important so we can mix and match offsets and apply formatting accordingly
-     *
-     * @param xmlDocumentString Rendered POM Document Contents (string-formatted)
-     * @return map of (index, matchData object) reverse ordered
-     */
-    private fun findSingleElementMatchesFrom(xmlDocumentString: String): LinkedHashMap<Int, MatchDataJ> {
-
-        val emptyMappedTags = FormatCommandJ.findSingleElementMatchesFrom(xmlDocumentString)
-
-
-        val allTags : List<Pair<Int, MatchDataJ>> = listOf(emptyMappedTags).flatMap { it }
-            .map { it.range.first to it }
-
-        return allTags.sortedByDescending { it.first }.toMap(LinkedHashMap())
-    }
-
     /**
      * When doing the opposite, render the XML using the optionally supplied encoding (defaults to UTF8 obviously)
      * but apply the original formatting as well
@@ -111,7 +90,7 @@ class FormatCommand : AbstractCommandJ() {
         // Let's find out the original empty elements from the original pom and store into a stack
         val elementsToReplace: MutableList<MatchDataJ> = ArrayList<MatchDataJ>().apply {
             val matches =
-                findSingleElementMatchesFrom(pom.originalPom.toString(pom.charset)).values
+                FormatCommandJ.findSingleElementMatchesFrom(pom.originalPom.toString(pom.charset)).values
 
             val filteredMatches =
                 matches.filter { it.hasAttributes == false && originalElementMap[it.range.first] }
@@ -120,7 +99,7 @@ class FormatCommand : AbstractCommandJ() {
         }
 
         // Lets to the replacements backwards on the existing, current pom
-        val emptyElements = findSingleElementMatchesFrom(xmlRepresentation)
+        val emptyElements = FormatCommandJ.findSingleElementMatchesFrom(xmlRepresentation)
             .filter { targetElementMap[it.value.range.first] }
 
         emptyElements.forEach { (_, match) ->
