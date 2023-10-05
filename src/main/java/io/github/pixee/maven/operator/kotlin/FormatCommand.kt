@@ -67,20 +67,11 @@ class FormatCommand : AbstractCommandJ() {
      * @return map of (index, matchData object) reverse ordered
      */
     private fun findSingleElementMatchesFrom(xmlDocumentString: String): LinkedHashMap<Int, MatchDataJ> {
-        val allFoundMatches = RE_EMPTY_ELEMENT_NO_ATTRIBUTES.findAll(xmlDocumentString).toList()
 
-        val emptyMappedTags: List<MatchDataJ> =
-            allFoundMatches.map {
-                MatchDataJ(
-                    it.range,
-                    it.value,
-                    ((it.groups[1]?.value ?: it.groups[2]?.value)!!),
-                    false,
-                    null
-                )
-            }.toList()
+        val emptyMappedTags = FormatCommandJ.findSingleElementMatchesFrom(xmlDocumentString)
 
-        val allTags = listOf(emptyMappedTags).flatMap { it }
+
+        val allTags : List<Pair<Int, MatchDataJ>> = listOf(emptyMappedTags).flatMap { it }
             .map { it.range.first to it }
 
         return allTags.sortedByDescending { it.first }.toMap(LinkedHashMap())

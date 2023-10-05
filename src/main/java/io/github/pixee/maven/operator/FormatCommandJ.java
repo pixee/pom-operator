@@ -2,6 +2,9 @@ package io.github.pixee.maven.operator;
 
 import io.github.pixee.maven.operator.kotlin.POMDocument;
 import kotlin.ranges.IntRange;
+import kotlin.sequences.Sequence;
+import kotlin.text.MatchGroupCollection;
+import kotlin.text.MatchResult;
 import kotlin.text.Regex;
 import org.apache.commons.lang3.StringUtils;
 import org.mozilla.universalchardet.UniversalDetector;
@@ -21,7 +24,7 @@ import javax.xml.stream.events.*;
 public class FormatCommandJ {
 
     public static final Set<String> LINE_ENDINGS = new HashSet<>();
-    public static final Pattern RE_EMPTY_ELEMENT_NO_ATTRIBUTES;
+    public static final Regex RE_EMPTY_ELEMENT_NO_ATTRIBUTES;
     public static final Logger LOGGER = LoggerFactory.getLogger(FormatCommandJ.class);
 
     static {
@@ -29,7 +32,7 @@ public class FormatCommandJ {
         LINE_ENDINGS.add("\n");
         LINE_ENDINGS.add("\r");
 
-        RE_EMPTY_ELEMENT_NO_ATTRIBUTES = Pattern.compile("<([\\p{Alnum}_\\-.]+)>\\s*</\\1>|<([\\p{Alnum}_\\-.]+)\\s*/>");
+        RE_EMPTY_ELEMENT_NO_ATTRIBUTES = new Regex("<([\\p{Alnum}_\\-.]+)>\\s*</\\1>|<([\\p{Alnum}_\\-.]+)\\s*/>");
     }
 
 
@@ -340,4 +343,30 @@ public class FormatCommandJ {
         }
         return null; // Handle the case where no StartElement event is found.
     }
+
+    public static List<MatchDataJ> findSingleElementMatchesFrom(String xmlDocumentString) {
+        Sequence<MatchResult> allFoundMatchesSequence = RE_EMPTY_ELEMENT_NO_ATTRIBUTES.findAll(xmlDocumentString, 0);
+
+        List<MatchDataJ> emptyMappedTags = new ArrayList<>();
+
+        Iterator<MatchResult> iterator = allFoundMatchesSequence.iterator();
+        while (iterator.hasNext()) {
+            MatchResult matchResult = iterator.next();
+            MatchGroupCollection groups = matchResult.getGroups();
+            String value1 = (groups.get(1) != null) ? groups.get(1).getValue() : null;
+            String value2 = (groups.get(2) != null) ? groups.get(2).getValue() : null;
+            MatchDataJ matchDataJ = new MatchDataJ(
+                    matchResult.getRange(),
+                    matchResult.getValue(),
+                    (value1 != null) ? value1 : value2,
+                    false,
+                    null
+            );
+            emptyMappedTags.add(matchDataJ);
+        }
+
+        return emptyMappedTags;
+    }
+
+
 }
