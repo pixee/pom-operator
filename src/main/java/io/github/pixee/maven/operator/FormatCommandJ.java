@@ -1,7 +1,10 @@
 package io.github.pixee.maven.operator;
 
 import io.github.pixee.maven.operator.kotlin.POMDocument;
+import kotlin.ranges.IntRange;
+import kotlin.text.Regex;
 import org.apache.commons.lang3.StringUtils;
+import org.mozilla.universalchardet.UniversalDetector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,6 +12,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Pattern;
 import javax.xml.stream.*;
@@ -189,4 +193,151 @@ public class FormatCommandJ {
         return minIndentLength;
     }
 
+    public static void parseXmlAndCharset(XMLInputFactory inputFactory, List<MatchDataJ> singleElementsWithAttributes, POMDocument pomFile) throws XMLStreamException, IOException {
+        InputStream inputStream = new ByteArrayInputStream(pomFile.getOriginalPom());
+
+        /**
+         * Performs a StAX Parsing to Grab the first element
+         */
+        XMLEventReader eventReader = inputFactory.createXMLEventReader(inputStream) ;
+
+        Charset charset = null;
+        int elementIndex = 0;
+        boolean mustTrack = false;
+        boolean hasPreamble = false;
+        int elementStart = 0;
+        int elementEnd = 0;
+        List<XMLEvent> prevEvents = new ArrayList<>();
+
+        while (eventReader.hasNext()) {
+            XMLEvent event = eventReader.nextEvent();
+
+            if (event.isStartDocument() && ((StartDocument) event).encodingSet()) {
+                /**
+                 * Processing Instruction Found - Store its Character Encoding
+                 */
+                charset = Charset.forName(((StartDocument) event).getCharacterEncodingScheme());
+            } else if (event.isStartElement()) {
+                StartElement asStartElement = event.asStartElement();
+
+                String name = asStartElement.getName().getLocalPart();
+
+                List<Attribute> attributes = new ArrayList<>();
+                Iterator<?> attrIter = asStartElement.getAttributes();
+                while (attrIter.hasNext()) {
+                    attributes.add((Attribute) attrIter.next());
+                }
+
+                if (elementIndex > 0 && !attributes.isEmpty()) {
+                    // record this guy
+                    mustTrack = true;
+
+                    Characters lastCharacterEvent = null;
+                    for (int i = prevEvents.size() - 1; i >= 0; i--) {
+                        if (prevEvents.get(i).isCharacters()) {
+                            lastCharacterEvent = prevEvents.get(i).asCharacters();
+                            break;
+                        }
+                    }
+
+                    if (lastCharacterEvent != null) {
+                        elementStart = lastCharacterEvent.getLocation().getCharacterOffset() - lastCharacterEvent.getData().length();
+                    }
+                } else if (mustTrack) { // turn it off
+                    mustTrack = false;
+                }
+
+                elementIndex++;
+            } else if (event.isEndElement()){
+                /**
+                 * First End of Element ("Tag") found - store its offset
+                 */
+                EndElement endElementEvent = event.asEndElement();
+
+                Location location = endElementEvent.getLocation();
+
+                int offset = location.getCharacterOffset();
+
+                if(mustTrack){
+                    mustTrack = false;
+                    String localPart = event.asEndElement().getName().getLocalPart();
+
+                    String originalPomCharsetString = new String(pomFile.getOriginalPom(), pomFile.getCharset());
+
+                    String untrimmedOriginalContent = originalPomCharsetString
+                            .substring(elementStart, offset);
+
+                    String trimmedOriginalContent = untrimmedOriginalContent.trim();
+
+                    int realElementStart = originalPomCharsetString.indexOf(trimmedOriginalContent, elementStart);
+
+                    IntRange contentRange = new IntRange(realElementStart, realElementStart + 1 + trimmedOriginalContent.length());
+
+                    String contentRe = writeAsRegex(getLastStartElement(prevEvents));
+
+                    Regex modifiedContentRE = new Regex(contentRe);
+
+                    singleElementsWithAttributes.add(
+                            new MatchDataJ(
+                                    contentRange,
+                                    trimmedOriginalContent,
+                                    localPart,
+                                    true,
+                                    modifiedContentRE
+                                    )
+                    );
+                }
+
+                mustTrack = false;
+
+                /**
+                 * Sets Preamble - keeps parsing anyway
+                 */
+
+                if(!hasPreamble){
+                    pomFile.setPreamble(
+                            new String(pomFile.getOriginalPom(), pomFile.getCharset()).substring(0, offset)
+                    );
+                    hasPreamble = true;
+                }
+            }
+
+            prevEvents.add(event);
+
+            while (prevEvents.size() > 4) {
+                prevEvents.remove(0);
+            }
+
+            if (!eventReader.hasNext())
+                if (!hasPreamble)
+                    throw new IllegalStateException("Couldn't find document start");
+
+        }
+
+        if (null == charset) {
+            InputStream inputStream2 = new ByteArrayInputStream(pomFile.getOriginalPom());
+            String detectedCharsetName = UniversalDetector.detectCharset(inputStream2);
+
+            charset = Charset.forName(detectedCharsetName);
+        }
+
+        pomFile.setCharset(charset);
+
+        String lastLine = new String(pomFile.getOriginalPom(), pomFile.getCharset());
+
+        String lastLineTrimmed = lastLine.replaceAll("\\s+$", "");
+
+        pomFile.setSuffix(lastLine.substring(lastLineTrimmed.length()));
+    }
+
+
+    public static StartElement getLastStartElement(List<XMLEvent> prevEvents) {
+        for (int i = prevEvents.size() - 1; i >= 0; i--) {
+            XMLEvent event = prevEvents.get(i);
+            if (event.isStartElement()) {
+                return (StartElement) event;
+            }
+        }
+        return null; // Handle the case where no StartElement event is found.
+    }
 }

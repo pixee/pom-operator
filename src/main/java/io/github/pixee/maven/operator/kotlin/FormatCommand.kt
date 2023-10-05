@@ -47,7 +47,7 @@ class FormatCommand : AbstractCommandJ() {
 
     override fun execute(pm: ProjectModelJ): Boolean {
         for (pomFile in pm.allPomFiles()) {
-            parseXmlAndCharset(pomFile)
+            FormatCommandJ.parseXmlAndCharset(this.inputFactory,this.singleElementsWithAttributes, pomFile)
 
             pomFile.endl = FormatCommandJ.parseLineEndings(pomFile)
             pomFile.indent = FormatCommandJ.guessIndent(this.inputFactory, pomFile)
@@ -84,141 +84,6 @@ class FormatCommand : AbstractCommandJ() {
             .map { it.range.first to it }
 
         return allTags.sortedByDescending { it.first }.toMap(LinkedHashMap())
-    }
-
-    private fun parseXmlAndCharset(pomFile: POMDocument) {
-        /**
-         * Performs a StAX Parsing to Grab the first element
-         */
-        val eventReader = inputFactory.createXMLEventReader(pomFile.originalPom.inputStream())
-
-        var charset: Charset? = null
-
-        /**
-         * Parse, while grabbing its preamble and encoding
-         */
-        var elementIndex: Int = 0
-        var mustTrack: Boolean = false
-
-        var hasPreamble = false
-
-        var elementStart: Int = 0
-        var elementEnd: Int = 0
-
-        var prevEvents: MutableList<XMLEvent> = arrayListOf()
-
-        while (eventReader.hasNext()) {
-            val event = eventReader.nextEvent()
-
-            if (event.isStartDocument && (event as StartDocument).encodingSet()) {
-                /**
-                 * Processing Instruction Found - Store its Character Encoding
-                 */
-                charset = Charset.forName(event.characterEncodingScheme)
-            } else if (event.isStartElement) {
-                val asStartElement = event.asStartElement()
-
-                val name = asStartElement.name.localPart
-
-                val attributes = asStartElement.attributes.asSequence().toList()
-
-                if (elementIndex > 0 && attributes.isNotEmpty()) {
-                    // record this guy
-                    mustTrack = true
-
-                    val lastCharacterEvent =
-                        prevEvents.filter { it.isCharacters }.last().asCharacters()
-
-                    elementStart =
-                        lastCharacterEvent.location.characterOffset - lastCharacterEvent.data.length
-                } else if (mustTrack) { // turn it off
-                    mustTrack = false
-                }
-
-                elementIndex++
-            } else if (event.isEndElement) {
-                /**
-                 * First End of Element ("Tag") found - store its offset
-                 */
-                val endElementEvent = event.asEndElement()
-
-                val location = endElementEvent.location
-
-                val offset = location.characterOffset
-
-                if (mustTrack) {
-                    mustTrack = false
-
-                    val localPart = event.asEndElement().name.localPart
-
-                    val untrimmedOriginalContent = pomFile.originalPom.toString(pomFile.charset)
-                        .substring(elementStart, offset)
-
-                    val trimmedOriginalContent = untrimmedOriginalContent.trim()
-
-                    val realElementStart = pomFile.originalPom.toString(pomFile.charset)
-                        .indexOf(trimmedOriginalContent, elementStart)
-
-                    val contentRange = IntRange(
-                        realElementStart,
-                        realElementStart + 1 + trimmedOriginalContent.length
-                    )
-
-                    val contentRe = FormatCommandJ.writeAsRegex(prevEvents.filter { it.isStartElement }.last()
-                        .asStartElement()
-                    )
-
-                    val modifiedContentRE =
-                        Regex(contentRe)
-
-                    singleElementsWithAttributes.add(
-                        MatchDataJ(
-                            contentRange,
-                            trimmedOriginalContent,
-                            localPart,
-                            true,
-                            modifiedContentRE,
-                        )
-                    )
-                }
-
-                mustTrack = false
-
-                /**
-                 * Sets Preamble - keeps parsing anyway
-                 */
-                if (!hasPreamble) {
-                    pomFile.preamble =
-                        pomFile.originalPom.toString(pomFile.charset).substring(0, offset)
-
-                    hasPreamble = true
-                }
-            }
-
-            prevEvents.add(event)
-
-            while (prevEvents.size > 4)
-                prevEvents.removeAt(0)
-
-            if (!eventReader.hasNext())
-                if (!hasPreamble)
-                    throw IllegalStateException("Couldn't find document start")
-        }
-
-        if (null == charset) {
-            val detectedCharsetName =
-                UniversalDetector.detectCharset(pomFile.originalPom.inputStream())
-
-            charset = Charset.forName(detectedCharsetName)
-        }
-
-        pomFile.charset = charset!!
-
-        val lastLine = String(pomFile.originalPom, pomFile.charset)
-
-        val lastLineTrimmed = lastLine.trimEnd()
-
-        pomFile.suffix = lastLine.substring(lastLineTrimmed.length)
     }
 
     /**
@@ -333,7 +198,6 @@ class FormatCommand : AbstractCommandJ() {
     }
 
     companion object {
-        val LINE_ENDINGS = setOf("\r\n", "\n", "\r")
 
         val RE_EMPTY_ELEMENT_NO_ATTRIBUTES =
             Regex("""<([\p{Alnum}_\-.]+)>\s*</\1>|<([\p{Alnum}_\-.]+)\s*/>""")
