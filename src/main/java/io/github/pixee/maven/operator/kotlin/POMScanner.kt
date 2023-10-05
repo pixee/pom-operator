@@ -49,26 +49,6 @@ object POMScanner {
             }
         }
 
-        var lastFile: File = originalFile
-
-        fun resolvePath(baseFile: File, relativePath: String): Path {
-            var parentDir = baseFile
-
-            if (parentDir.isFile) {
-                parentDir = parentDir.parentFile
-            }
-
-            val result = File(File(parentDir, relativePath).toURI().normalize().path)
-
-            lastFile = if (result.isDirectory) {
-                result
-            } else {
-                result.parentFile
-            }
-
-            return Paths.get(result.absolutePath)
-        }
-
         val prevPaths: MutableSet<String> = linkedSetOf()
 
         var prevPOMDocument = pomFile
@@ -96,7 +76,7 @@ object POMScanner {
                 prevPaths.add(relativePath)
             }
 
-            val newPath = resolvePath(lastFile, relativePath)
+            val newPath = POMScannerJ.resolvePath(originalFile, relativePath)
 
             if (newPath.notExists()) {
                 LOGGER.warn("new path does not exist: $newPath")
