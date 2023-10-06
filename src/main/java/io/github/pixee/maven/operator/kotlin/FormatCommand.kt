@@ -82,7 +82,7 @@ class FormatCommand : AbstractCommandJ() {
     private fun serializePomFile(pom: POMDocument): ByteArray {
         // Generate a String representation. We'll need to patch it up and apply back
         // differences we recored previously on the pom (see the pom member variables)
-        var xmlRepresentation = pom.resultPom.asXML().toString()
+        /*var xmlRepresentation = pom.resultPom.asXML().toString()
 
         val originalElementMap = FormatCommandJ.elementBitSet(this.inputFactory, this.outputFactory, pom.originalPom)
         val targetElementMap : BitSet= FormatCommandJ.elementBitSet(this.inputFactory, this.outputFactory, xmlRepresentation.toByteArray())
@@ -97,9 +97,9 @@ class FormatCommand : AbstractCommandJ() {
             val nextMatch = elementsToReplace.removeFirst()
 
             xmlRepresentation = FormatCommandJ.replaceRange(xmlRepresentation, match.range, nextMatch.content)
-        }
+        }*/
 
-        //var xmlRepresentation = FormatCommandJ.serializePomFile(inputFactory, outputFactory, singleElementsWithAttributes, pom)
+        var xmlRepresentation = FormatCommandJ.serializePomFile(inputFactory, outputFactory, singleElementsWithAttributes, pom)
 
         var lastIndex = 0
 

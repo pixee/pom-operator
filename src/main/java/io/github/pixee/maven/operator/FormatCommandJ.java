@@ -431,7 +431,7 @@ public class FormatCommandJ {
         return sb.toString();
     }
 
-    public static CharSequence serializePomFile(XMLInputFactory thisInputFactory, XMLOutputFactory outputFactory, List<MatchDataJ> singleElementsWithAttributes, POMDocument pom) throws XMLStreamException {
+    public static String serializePomFile(XMLInputFactory thisInputFactory, XMLOutputFactory outputFactory, List<MatchDataJ> singleElementsWithAttributes, POMDocument pom) throws XMLStreamException {
         // Generate a String representation. We'll need to patch it up and apply back
         // differences we recorded previously on the pom (see the pom member variables)
         String xmlRepresentation = pom.getResultPom().asXML().toString();
@@ -449,7 +449,7 @@ public class FormatCommandJ {
 
             MatchDataJ nextMatch = elementsToReplace.remove(0); // Assuming removeFirst() removes the first element.
 
-            //xmlRepresentation =  replaceRange(match.getRange(), nextMatch.getContent()).toString();
+            xmlRepresentation =  replaceRange(xmlRepresentation, match.getRange(), nextMatch.getContent());
         }
 
         return xmlRepresentation;
