@@ -1,6 +1,5 @@
 package io.github.pixee.maven.operator;
 
-import io.github.pixee.maven.operator.kotlin.POMDocument;
 import org.dom4j.DocumentException;
 
 import java.io.File;
@@ -11,8 +10,8 @@ import java.net.URL;
 import java.util.stream.Collectors;
 
 public class ProjectModelFactoryJ {
-    private POMDocument pomFile;
-    private List<POMDocument> parentPomFiles;
+    private POMDocumentJ pomFile;
+    private List<POMDocumentJ> parentPomFiles;
     private DependencyJ dependency;
     private boolean skipIfNewer;
     private boolean useProperties;
@@ -28,12 +27,12 @@ public class ProjectModelFactoryJ {
         queryType = QueryTypeJ.NONE;
     }
 
-    public ProjectModelFactoryJ withPomFile(POMDocument pomFile) {
+    public ProjectModelFactoryJ withPomFile(POMDocumentJ pomFile) {
         this.pomFile = pomFile;
         return this;
     }
 
-    public ProjectModelFactoryJ withParentPomFiles(Collection<POMDocument> parentPomFiles) {
+    public ProjectModelFactoryJ withParentPomFiles(Collection<POMDocumentJ> parentPomFiles) {
         this.parentPomFiles = new ArrayList<>(parentPomFiles.stream()
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList()));
@@ -85,7 +84,7 @@ public class ProjectModelFactoryJ {
     }
 
     public static ProjectModelFactoryJ load(InputStream is) throws DocumentException, IOException {
-        POMDocument pomDocument = POMDocumentFactoryJ.load(is);
+        POMDocumentJ pomDocument = POMDocumentFactoryJ.load(is);
         return ProjectModelFactoryJ.create().withPomFile(pomDocument);
     }
 
@@ -95,12 +94,12 @@ public class ProjectModelFactoryJ {
     }
 
     public static ProjectModelFactoryJ load(URL url) throws DocumentException, IOException {
-        POMDocument pomFile = POMDocumentFactoryJ.load(url);
+        POMDocumentJ pomFile = POMDocumentFactoryJ.load(url);
         return ProjectModelFactoryJ.create().withPomFile(pomFile);
     }
 
-    public static ProjectModelFactoryJ loadFor(POMDocument pomFile, Collection<POMDocument> parentPomFiles) {
-        List<POMDocument> parentPomFilesList = new ArrayList<>(parentPomFiles);
+    public static ProjectModelFactoryJ loadFor(POMDocumentJ pomFile, Collection<POMDocumentJ> parentPomFiles) {
+        List<POMDocumentJ> parentPomFilesList = new ArrayList<>(parentPomFiles);
         ProjectModelFactoryJ pmf = ProjectModelFactoryJ.create();
         return ProjectModelFactoryJ.create().withPomFile(pomFile).withParentPomFiles(parentPomFilesList);
     }

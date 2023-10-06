@@ -1,6 +1,5 @@
 package io.github.pixee.maven.operator;
 
-import io.github.pixee.maven.operator.kotlin.POMDocument;
 
 import org.dom4j.Element;
 import org.dom4j.Node;
@@ -19,7 +18,7 @@ public class CompositeDependencyManagementJ extends AbstractCommandJ{
         boolean result = false;
 
         // TODO: Make it configurable / clear WHERE one should change it
-        POMDocument parentPomFile = pm.getParentPomFiles().get(pm.getParentPomFiles().size() - 1);
+        POMDocumentJ parentPomFile = pm.getParentPomFiles().get(pm.getParentPomFiles().size() - 1);
 
         // add dependencyManagement
         Element dependencyManagementElement;
@@ -65,7 +64,7 @@ public class CompositeDependencyManagementJ extends AbstractCommandJ{
         return result;
     }
 
-    private Element modifyDependency(POMDocument pomFileToModify, String lookupExpressionForDependency, ProjectModelJ c, Element parentElement, boolean dependencyManagementNode) {
+    private Element modifyDependency(POMDocumentJ pomFileToModify, String lookupExpressionForDependency, ProjectModelJ c, Element parentElement, boolean dependencyManagementNode) {
         List<Node> dependencyNodes = UtilJ.selectXPathNodes(pomFileToModify.getResultPom(), lookupExpressionForDependency);
 
         if (dependencyNodes.size() == 1) {

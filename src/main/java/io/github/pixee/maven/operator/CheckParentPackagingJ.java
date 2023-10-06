@@ -1,6 +1,5 @@
 package io.github.pixee.maven.operator;
 
-import io.github.pixee.maven.operator.kotlin.POMDocument;
 import org.apache.commons.collections4.CollectionUtils;
 import org.dom4j.Element;
 import org.dom4j.Text;
@@ -22,7 +21,7 @@ public class CheckParentPackagingJ extends AbstractCommandJ {
         return INSTANCE;
     }
 
-    private boolean packagingTypePredicate(POMDocument d, String packagingType) {
+    private boolean packagingTypePredicate(POMDocumentJ d, String packagingType) {
         List<?> elementTextList = UtilJ.selectXPathNodes(d.getPomDocument().getRootElement(), "/m:project/m:packaging/text()");
         Object elementText = elementTextList.isEmpty() ? null : elementTextList.get(0);
 
@@ -35,7 +34,7 @@ public class CheckParentPackagingJ extends AbstractCommandJ {
 
     @Override
     public boolean execute(ProjectModelJ pm) {
-        Collection<POMDocument> wrongParentPoms = CollectionUtils.select(pm.getParentPomFiles(),
+        Collection<POMDocumentJ> wrongParentPoms = CollectionUtils.select(pm.getParentPomFiles(),
                 pomFile -> !packagingTypePredicate(pomFile, "pom"));
 
         if (!wrongParentPoms.isEmpty()) {
@@ -54,7 +53,7 @@ public class CheckParentPackagingJ extends AbstractCommandJ {
         return false;
     }
 
-    private boolean hasValidParentAndPackaging(POMDocument pomFile) {
+    private boolean hasValidParentAndPackaging(POMDocumentJ pomFile) {
         List<?> parentNodes = UtilJ.selectXPathNodes(pomFile.getPomDocument().getRootElement(), "/m:project/m:parent");
         Element parentNode = parentNodes.isEmpty() ? null : (Element) parentNodes.get(0);
 
