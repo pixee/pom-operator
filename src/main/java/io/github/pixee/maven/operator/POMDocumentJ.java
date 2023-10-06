@@ -1,6 +1,5 @@
 package io.github.pixee.maven.operator;
 
-import io.github.pixee.maven.operator.kotlin.POMDocument;
 import lombok.EqualsAndHashCode;
 
 import lombok.Getter;
@@ -45,10 +44,8 @@ public class POMDocumentJ {
     private String preamble;
     private String suffix;
     private boolean dirty;
-    private POMDocument pomDocumentK;
 
     public POMDocumentJ(byte[] originalPom, URL pomPath, Document pomDocument) throws URISyntaxException {
-        this.pomDocumentK = new POMDocument(pomPath, pomDocument);
 
         this.originalPom = originalPom;
         this.pomPath = pomPath;

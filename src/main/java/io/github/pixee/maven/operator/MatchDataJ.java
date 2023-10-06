@@ -6,12 +6,10 @@ import kotlin.text.Regex;
 import java.util.regex.Pattern;
 
 public class MatchDataJ {
-    // TODO-CARLOS replace kotlin package
     private final IntRange range;
     private final String content;
     private final String elementName;
     private final boolean hasAttributes;
-    // TODO-CARLOS replace kotlin package
     private final Regex modifiedContent;
 
     public MatchDataJ(
@@ -50,25 +48,5 @@ public class MatchDataJ {
     public Regex getModifiedContent() {
         return modifiedContent;
     }
-
-    /*
-    TODO-CARLOS
-    public static class Range {
-        private final int first;
-        private final int last;
-
-        public Range(int first, int last) {
-            this.first = first;
-            this.last = last;
-        }
-
-        public int getFirst() {
-            return first;
-        }
-
-        public int getLast() {
-            return last;
-        }
-    }*/
 }
 
