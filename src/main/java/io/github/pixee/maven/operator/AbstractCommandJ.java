@@ -3,6 +3,7 @@ package io.github.pixee.maven.operator;
 import org.dom4j.Element;
 import org.dom4j.Node;
 
+import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -37,12 +38,12 @@ public abstract class AbstractCommandJ implements CommandJ {
     }
 
     @Override
-    public boolean execute(ProjectModelJ pm) throws URISyntaxException, IOException {
+    public boolean execute(ProjectModelJ pm) throws URISyntaxException, IOException, XMLStreamException {
         return false;
     }
 
     @Override
-    public boolean postProcess(ProjectModelJ c) {
+    public boolean postProcess(ProjectModelJ c) throws XMLStreamException {
         return false;
     }
 

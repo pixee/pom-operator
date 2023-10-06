@@ -5,6 +5,7 @@ import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
 import org.xmlunit.diff.Diff;
 
+import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.Source;
 
 /**
@@ -26,7 +27,7 @@ public class DiscardFormatCommandJ extends AbstractCommandJ {
     }
 
     @Override
-    public boolean postProcess(ProjectModelJ pm) {
+    public boolean postProcess(ProjectModelJ pm) throws XMLStreamException {
         boolean mustSkip = false;
 
         for (POMDocument pomFile : pm.allPomFiles()) {

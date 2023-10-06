@@ -1,9 +1,9 @@
 package io.github.pixee.maven.operator;
 
-import io.github.pixee.maven.operator.kotlin.FormatCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -25,7 +25,7 @@ public class ChainJ {
         return commandList;
     }
 
-    public boolean execute(ProjectModelJ c) throws URISyntaxException, IOException {
+    public boolean execute(ProjectModelJ c) throws URISyntaxException, IOException, XMLStreamException {
         boolean done = false;
         ListIterator<CommandJ> listIterator = commandList.listIterator();
 
@@ -66,7 +66,7 @@ public class ChainJ {
         return new ChainJ(
                 CheckDependencyPresentJ.getInstance(),
                 CheckParentPackagingJ.getInstance(),
-                new FormatCommand(),
+                new FormatCommandJ(),
                 DiscardFormatCommandJ.getInstance(),
                 new CompositeDependencyManagementJ(),
                 SimpleUpgradeJ.getInstance(),

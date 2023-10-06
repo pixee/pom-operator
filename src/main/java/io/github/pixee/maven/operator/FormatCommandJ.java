@@ -16,6 +16,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -24,11 +25,23 @@ import java.util.stream.Stream;
 import javax.xml.stream.*;
 import javax.xml.stream.events.*;
 
-public class FormatCommandJ {
+public class FormatCommandJ extends AbstractCommandJ{
 
-    public static final Set<String> LINE_ENDINGS = new HashSet<>();
-    public static final Regex RE_EMPTY_ELEMENT_NO_ATTRIBUTES;
-    public static final Logger LOGGER = LoggerFactory.getLogger(FormatCommandJ.class);
+    private static final Set<String> LINE_ENDINGS = new HashSet<>();
+    private static final Regex RE_EMPTY_ELEMENT_NO_ATTRIBUTES;
+    private static final Logger LOGGER = LoggerFactory.getLogger(FormatCommandJ.class);
+
+    /**
+     * StAX InputFactory
+     */
+    private XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+
+    /**
+     * StAX OutputFactory
+     */
+    private XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
+
+    private List<MatchDataJ> singleElementsWithAttributes = new ArrayList<>();
 
     static {
         LINE_ENDINGS.add("\r\n");
@@ -38,6 +51,26 @@ public class FormatCommandJ {
         RE_EMPTY_ELEMENT_NO_ATTRIBUTES = new Regex("<([\\p{Alnum}_\\-.]+)>\\s*</\\1>|<([\\p{Alnum}_\\-.]+)\\s*/>");
     }
 
+    @Override
+    public boolean execute(ProjectModelJ pm) throws XMLStreamException, IOException, URISyntaxException {
+        for ( POMDocument pomFile: pm.allPomFiles()) {
+            parseXmlAndCharset(pomFile);
+
+            pomFile.setEndl(parseLineEndings(pomFile));
+            pomFile.setIndent(guessIndent(pomFile));
+        }
+
+        return super.execute(pm);
+    }
+
+    @Override
+    public boolean postProcess(ProjectModelJ pm) throws XMLStreamException {
+        for ( POMDocument pomFile: pm.allPomFiles()) {
+            byte[] content = serializePomFile(pomFile);
+            pomFile.setResultPomBytes(content);
+        }
+        return super.postProcess(pm);
+    }
 
     /**
      * This one is quite fun yet important. Let me explain:
@@ -53,7 +86,7 @@ public class FormatCommandJ {
      * @return bitSet of
      *
      */
-    public static BitSet elementBitSet(XMLInputFactory inputFactory, XMLOutputFactory outputFactory, byte[] doc) throws XMLStreamException {
+    private BitSet elementBitSet( byte[] doc) throws XMLStreamException {
         BitSet result = new BitSet();
         XMLEventReader eventReader = inputFactory.createXMLEventReader(new ByteArrayInputStream(doc));
         StringWriter eventContent = new StringWriter();
@@ -83,7 +116,7 @@ public class FormatCommandJ {
      * A Slight variation on writeAsUnicode from stax which writes as a regex
      * string so we could rewrite its output
      */
-    public static String writeAsRegex(StartElement element) {
+    private String writeAsRegex(StartElement element) {
         StringWriter writer = new StringWriter();
 
         writer.write("<");
@@ -106,7 +139,7 @@ public class FormatCommandJ {
         return writer.toString();
     }
 
-    public static String parseLineEndings(POMDocument pomFile) throws IOException {
+    private String parseLineEndings(POMDocument pomFile) throws IOException {
         InputStream inputStream = new ByteArrayInputStream(pomFile.getOriginalPom());
         byte[] bytes = inputStream.readAllBytes();
         String str = new String(bytes, pomFile.getCharset());
@@ -119,7 +152,7 @@ public class FormatCommandJ {
         return Collections.max(lineEndingCounts.entrySet(), Map.Entry.comparingByValue()).getKey();
     }
 
-    public static String guessIndent(XMLInputFactory inputFactory, POMDocument pomFile) throws XMLStreamException {
+    private String guessIndent(POMDocument pomFile) throws XMLStreamException {
         InputStream inputStream = new ByteArrayInputStream(pomFile.getOriginalPom());
         XMLEventReader eventReader = inputFactory.createXMLEventReader(inputStream) ;
 
@@ -173,7 +206,7 @@ public class FormatCommandJ {
         return indentString;
     }
 
-    private static char getMostFrequentIndentChar(Map<Character, Integer> charFreqMap) {
+    private char getMostFrequentIndentChar(Map<Character, Integer> charFreqMap) {
         char mostFrequentChar = '\0';
         int maxFrequency = Integer.MIN_VALUE;
 
@@ -187,7 +220,7 @@ public class FormatCommandJ {
         return mostFrequentChar;
     }
 
-    private static int getMinimumIndentLength(Map<Integer, Integer> freqMap) {
+    private int getMinimumIndentLength(Map<Integer, Integer> freqMap) {
         int minIndentLength = Integer.MAX_VALUE;
 
         for (Map.Entry<Integer, Integer> entry : freqMap.entrySet()) {
@@ -199,7 +232,7 @@ public class FormatCommandJ {
         return minIndentLength;
     }
 
-    public static void parseXmlAndCharset(XMLInputFactory inputFactory, List<MatchDataJ> singleElementsWithAttributes, POMDocument pomFile) throws XMLStreamException, IOException {
+    private void parseXmlAndCharset(POMDocument pomFile) throws XMLStreamException, IOException {
         InputStream inputStream = new ByteArrayInputStream(pomFile.getOriginalPom());
 
         /**
@@ -337,7 +370,7 @@ public class FormatCommandJ {
     }
 
 
-    public static StartElement getLastStartElement(List<XMLEvent> prevEvents) {
+    private StartElement getLastStartElement(List<XMLEvent> prevEvents) {
         for (int i = prevEvents.size() - 1; i >= 0; i--) {
             XMLEvent event = prevEvents.get(i);
             if (event.isStartElement()) {
@@ -357,7 +390,7 @@ public class FormatCommandJ {
      * @param xmlDocumentString Rendered POM Document Contents (string-formatted)
      * @return map of (index, matchData object) reverse ordered
      */
-    public static LinkedHashMap<Integer, MatchDataJ> findSingleElementMatchesFrom(String xmlDocumentString) {
+    private LinkedHashMap<Integer, MatchDataJ> findSingleElementMatchesFrom(String xmlDocumentString) {
         Sequence<MatchResult> allFoundMatchesSequence = RE_EMPTY_ELEMENT_NO_ATTRIBUTES.findAll(xmlDocumentString, 0);
 
         List<MatchDataJ> emptyMappedTags = new ArrayList<>();
@@ -395,10 +428,10 @@ public class FormatCommandJ {
     }
 
 
-    public static List<MatchDataJ> getElementsToReplace(BitSet originalElementMap, POMDocument pom){
+    private List<MatchDataJ> getElementsToReplace(BitSet originalElementMap, POMDocument pom){
         // Let's find out the original empty elements from the original pom and store them in a stack
         List<MatchDataJ> elementsToReplace = new ArrayList<>();
-        Map<Integer, MatchDataJ> singleElementMatches = FormatCommandJ.findSingleElementMatchesFrom(new String(pom.getOriginalPom(),pom.getCharset()));
+        Map<Integer, MatchDataJ> singleElementMatches = findSingleElementMatchesFrom(new String(pom.getOriginalPom(),pom.getCharset()));
 
         for (MatchDataJ match : singleElementMatches.values()) {
             if (!match.getHasAttributes() && originalElementMap.get(match.getRange().getFirst())) {
@@ -409,9 +442,9 @@ public class FormatCommandJ {
         return elementsToReplace;
     }
 
-    public static Map<Integer, MatchDataJ> getEmptyElements(BitSet targetElementMap, String xmlRepresentation){
+    private Map<Integer, MatchDataJ> getEmptyElements(BitSet targetElementMap, String xmlRepresentation){
         LinkedHashMap<Integer, MatchDataJ> emptyElements = new LinkedHashMap<>();
-        for (Map.Entry<Integer, MatchDataJ> entry : FormatCommandJ.findSingleElementMatchesFrom(xmlRepresentation).entrySet()) {
+        for (Map.Entry<Integer, MatchDataJ> entry : findSingleElementMatchesFrom(xmlRepresentation).entrySet()) {
             Integer key = entry.getKey();
             MatchDataJ value = entry.getValue();
 
@@ -423,7 +456,7 @@ public class FormatCommandJ {
         return emptyElements;
     }
 
-    public static String replaceRange(String xmlRepresentation, IntRange range, String replacement) {
+    private String replaceRange(String xmlRepresentation, IntRange range, String replacement) {
         StringBuilder sb = new StringBuilder();
         sb.append(xmlRepresentation.substring(0, range.getStart()));
         sb.append(replacement);
@@ -431,13 +464,13 @@ public class FormatCommandJ {
         return sb.toString();
     }
 
-    public static byte[] serializePomFile(XMLInputFactory thisInputFactory, XMLOutputFactory outputFactory, List<MatchDataJ> singleElementsWithAttributes, POMDocument pom) throws XMLStreamException {
+    private byte[] serializePomFile(POMDocument pom) throws XMLStreamException {
         // Generate a String representation. We'll need to patch it up and apply back
         // differences we recorded previously on the pom (see the pom member variables)
         String xmlRepresentation = pom.getResultPom().asXML().toString();
 
-        BitSet originalElementMap = elementBitSet(thisInputFactory, outputFactory, pom.getOriginalPom());
-        BitSet targetElementMap = elementBitSet(thisInputFactory, outputFactory, xmlRepresentation.getBytes());
+        BitSet originalElementMap = elementBitSet(pom.getOriginalPom());
+        BitSet targetElementMap = elementBitSet(xmlRepresentation.getBytes());
 
         List<MatchDataJ> elementsToReplace = getElementsToReplace(originalElementMap, pom);
 

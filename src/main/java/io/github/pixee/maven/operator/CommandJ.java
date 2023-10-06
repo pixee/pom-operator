@@ -1,6 +1,7 @@
 package io.github.pixee.maven.operator;
 
 
+import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
@@ -14,7 +15,7 @@ public interface CommandJ {
      * @param pm Context (Project Model) to use.
      * @return true if the execution was successful AND the chain must end.
      */
-    boolean execute(ProjectModelJ pm) throws URISyntaxException, IOException;
+    boolean execute(ProjectModelJ pm) throws URISyntaxException, IOException, XMLStreamException;
 
     /**
      * Post Processing, implementing a Filter Pattern.
@@ -22,5 +23,5 @@ public interface CommandJ {
      * @param c ProjectModel for post-processing.
      * @return true if post-processing was successful.
      */
-    boolean postProcess(ProjectModelJ c);
+    boolean postProcess(ProjectModelJ c) throws XMLStreamException;
 }

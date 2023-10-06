@@ -4,6 +4,7 @@ import com.github.zafarkhaja.semver.Version;
 import io.github.pixee.maven.operator.DependencyJ;
 import org.apache.commons.collections4.CollectionUtils;
 
+import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -18,7 +19,7 @@ public class POMOperatorJ {
      *
      * @param projectModel Project Model (Context) class
      */
-    public static boolean modify(ProjectModelJ projectModel) throws URISyntaxException, IOException {
+    public static boolean modify(ProjectModelJ projectModel) throws URISyntaxException, IOException, XMLStreamException {
         return ChainJ.createForModify().execute(projectModel);
     }
 
@@ -27,7 +28,7 @@ public class POMOperatorJ {
      *
      * @param projectModel Project Model (Context) Class
      */
-    public static Collection<DependencyJ> queryDependency(ProjectModelJ projectModel) throws URISyntaxException, IOException {
+    public static Collection<DependencyJ> queryDependency(ProjectModelJ projectModel) throws URISyntaxException, IOException, XMLStreamException {
         return queryDependency(projectModel, Collections.emptyList());
     }
 
@@ -36,7 +37,7 @@ public class POMOperatorJ {
      *
      * @param projectModel Project Model (Context) Class
      */
-    public static Optional<VersionQueryResponseJ> queryVersions(ProjectModelJ projectModel) throws URISyntaxException, IOException {
+    public static Optional<VersionQueryResponseJ> queryVersions(ProjectModelJ projectModel) throws URISyntaxException, IOException, XMLStreamException {
         Set<VersionDefinitionJ> queryVersionResult = queryVersions(projectModel, Collections.emptyList());
 
         if (queryVersionResult.size() == 2) {
@@ -93,7 +94,7 @@ public class POMOperatorJ {
      * @param projectModel Project Model (Context) class
      * @param commandList do not use (required for tests)
      */
-    public static Collection<DependencyJ> queryDependency(ProjectModelJ projectModel, List<CommandJ> commandList) throws URISyntaxException, IOException {
+    public static Collection<DependencyJ> queryDependency(ProjectModelJ projectModel, List<CommandJ> commandList) throws URISyntaxException, IOException, XMLStreamException {
         ChainJ chain = ChainJ.createForDependencyQuery(projectModel.getQueryType());
 
         executeChain(commandList, chain, projectModel);
@@ -121,7 +122,7 @@ public class POMOperatorJ {
      * @param projectModel Project Model (Context) class
      * @param commandList do not use (required for tests)
      */
-    public static Set<VersionDefinitionJ> queryVersions(ProjectModelJ projectModel, List<CommandJ> commandList) throws URISyntaxException, IOException {
+    public static Set<VersionDefinitionJ> queryVersions(ProjectModelJ projectModel, List<CommandJ> commandList) throws URISyntaxException, IOException, XMLStreamException {
         ChainJ chain = ChainJ.createForVersionQuery(projectModel.getQueryType());
 
         executeChain(commandList, chain, projectModel);
@@ -144,7 +145,7 @@ public class POMOperatorJ {
     }
 
 
-    private static void executeChain(List<CommandJ> commandList, ChainJ chain, ProjectModelJ projectModel) throws URISyntaxException, IOException {
+    private static void executeChain(List<CommandJ> commandList, ChainJ chain, ProjectModelJ projectModel) throws URISyntaxException, IOException, XMLStreamException {
         if (!commandList.isEmpty()) {
             chain.getCommandList().clear();
             chain.getCommandList().addAll(commandList);
