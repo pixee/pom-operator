@@ -32,6 +32,7 @@ public class POMDocumentJ {
 
     private byte[] originalPom;
     private URL pomPath;
+    private Document pomDocument;
     private Charset charset;
     private String endl;
     private String indent;
@@ -39,13 +40,14 @@ public class POMDocumentJ {
     private String preamble;
     private String suffix;
     private boolean dirty;
-    private POMDocument pomDocument;
+    private POMDocument pomDocumentK;
 
     public POMDocumentJ(byte[] originalPom, URL pomPath, Document pomDocument) {
-        this.pomDocument = new POMDocument(originalPom, pomPath, pomDocument, Charset.defaultCharset(), "\n", "  ", new byte[0], "", "");
+        this.pomDocumentK = new POMDocument(pomPath, pomDocument);
 
         this.originalPom = originalPom;
         this.pomPath = pomPath;
+        this.pomDocument = pomDocument;
         this.charset = Charset.defaultCharset();
         this.endl = "\n";
         this.indent = "  ";
@@ -62,11 +64,11 @@ public class POMDocumentJ {
     }
 
     public File getFile() throws URISyntaxException {
-        return pomDocument.getFile$pom_operator();
+        return pomDocumentK.getFile$pom_operator();
     }
 
     public Document getResultPom() {
-        return pomDocument.getResultPom();
+        return pomDocumentK.getResultPom();
     }
 
     @Override
@@ -83,7 +85,7 @@ public class POMDocumentJ {
     }
 
     public Document getPomDocument() {
-        return pomDocument.getPomDocument();
+        return this.pomDocument;
     }
 
     public Charset getCharset() {
