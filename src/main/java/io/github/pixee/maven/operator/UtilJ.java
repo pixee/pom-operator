@@ -98,7 +98,8 @@ public class UtilJ {
             addIndentedElement(d.getResultPom().getRootElement(), d, "properties");
         }
 
-        System.out.println(d);
+        System.out.println(d.getPomDocument());
+        System.out.println(d.getResultPom());
 
         Element parentPropertyElement = d.getResultPom().getRootElement().element("properties");
 
