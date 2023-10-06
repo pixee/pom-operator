@@ -3,7 +3,7 @@ package io.github.pixee.maven.operator;
 import com.github.zafarkhaja.semver.Version;
 import io.github.pixee.maven.operator.DependencyJ;
 import io.github.pixee.maven.operator.kotlin.POMDocument;
-import io.github.pixee.maven.operator.kotlin.Util;
+import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
@@ -11,12 +11,16 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.Text;
 import org.dom4j.tree.DefaultText;
+import org.jaxen.SimpleNamespaceContext;
+import org.jaxen.dom4j.Dom4jXPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -231,30 +235,13 @@ public class UtilJ {
         return result;
     }
 
-    public static List<Node> selectXPathNodes(Node node, String expression) {
-        return Util.INSTANCE.selectXPathNodes(node, expression);
+    @SneakyThrows
+    public static List<Node> selectXPathNodes(Node node, String expression)  {
+        //return Util.INSTANCE.selectXPathNodes(node, expression);
+        return createXPathExpression(expression).selectNodes(node);
     }
 
-    /*
-
-
-    public static List<Node> selectXPathNodes(Node node, String expression) {
-        try {
-            XPath xpath = (XPath) createXPathExpression(expression);
-            return xpath.selectNodes(node);
-        } catch (Exception e) {
-            LOGGER.warn("selectXPathNodes " + e);
-            return new ArrayList<>();
-        }
-    }
-
-    private static Dom4jXPath createXPathExpression(String expression) throws Exception {
-        Dom4jXPath xpath = new Dom4jXPath(expression);
-        xpath.setNamespaceContext(namespaceContext);
-        return xpath;
-    }
-
-    private static final SimpleNamespaceContext namespaceContext;
+    public static final SimpleNamespaceContext namespaceContext;
 
     static {
         Map<String, String> namespaces = new HashMap<>();
@@ -262,5 +249,10 @@ public class UtilJ {
         namespaceContext = new SimpleNamespaceContext(namespaces);
     }
 
-    */
+    public static Dom4jXPath createXPathExpression(String expression) throws Exception {
+        Dom4jXPath xpath = new Dom4jXPath(expression);
+        xpath.setNamespaceContext(namespaceContext);
+        return xpath;
+    }
+
 }
