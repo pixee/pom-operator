@@ -6,6 +6,7 @@ import kotlin.sequences.Sequence;
 import kotlin.text.MatchGroupCollection;
 import kotlin.text.MatchResult;
 import kotlin.text.Regex;
+import kotlin.text.StringsKt;
 import org.apache.commons.lang3.StringUtils;
 import org.mozilla.universalchardet.UniversalDetector;
 import org.slf4j.Logger;
@@ -422,7 +423,15 @@ public class FormatCommandJ {
         return emptyElements;
     }
 
-    public static String serializePomFile(XMLInputFactory thisInputFactory, XMLOutputFactory outputFactory, List<MatchDataJ> singleElementsWithAttributes, POMDocument pom) throws XMLStreamException {
+    public static String replaceRange(String xmlRepresentation, IntRange range, String replacement) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(xmlRepresentation.substring(0, range.getStart()));
+        sb.append(replacement);
+        sb.append(xmlRepresentation.substring(range.getEndInclusive() + 1, xmlRepresentation.length()));
+        return sb.toString();
+    }
+
+    public static CharSequence serializePomFile(XMLInputFactory thisInputFactory, XMLOutputFactory outputFactory, List<MatchDataJ> singleElementsWithAttributes, POMDocument pom) throws XMLStreamException {
         // Generate a String representation. We'll need to patch it up and apply back
         // differences we recorded previously on the pom (see the pom member variables)
         String xmlRepresentation = pom.getResultPom().asXML().toString();
@@ -434,17 +443,18 @@ public class FormatCommandJ {
 
         Map<Integer, MatchDataJ> emptyElements = getEmptyElements(targetElementMap, xmlRepresentation);
 
-        /*for (MatchDataJ match : emptyElements) {
-            if (!elementsToReplace.isEmpty()) {
-                MatchDataJ nextMatch = elementsToReplace.remove(0);
-                xmlRepresentation = xmlRepresentation.substring(0, match.getRange().getStart()) +
-                        nextMatch.getContent() +
-                        xmlRepresentation.substring(match.getRange().getLast());
-            }
-        }*/
+        for (Map.Entry<Integer, MatchDataJ> entry : emptyElements.entrySet()) {
+            Integer key = entry.getKey();
+            MatchDataJ match = entry.getValue();
+
+            MatchDataJ nextMatch = elementsToReplace.remove(0); // Assuming removeFirst() removes the first element.
+
+            //xmlRepresentation =  replaceRange(match.getRange(), nextMatch.getContent()).toString();
+        }
 
         return xmlRepresentation;
 
+        // PROBABLEMENTE ABAJO SIRVE
         /*int lastIndex = 0;
 
         singleElementsWithAttributes.sort(Comparator.comparingInt(matchDataJ -> matchDataJ.getRange().getFirst()));

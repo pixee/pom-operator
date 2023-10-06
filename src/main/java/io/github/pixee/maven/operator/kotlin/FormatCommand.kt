@@ -91,14 +91,15 @@ class FormatCommand : AbstractCommandJ() {
         val elementsToReplace: MutableList<MatchDataJ> = FormatCommandJ.getElementsToReplace(originalElementMap, pom)
 
         // Lets to the replacements backwards on the existing, current pom
-        val link : LinkedHashMap<Int, MatchDataJ> = FormatCommandJ.findSingleElementMatchesFrom(xmlRepresentation)
         val emptyElements : Map<Int, MatchDataJ> = FormatCommandJ.getEmptyElements(targetElementMap, xmlRepresentation)
 
         emptyElements.forEach { (_, match) ->
             val nextMatch = elementsToReplace.removeFirst()
 
-            xmlRepresentation = xmlRepresentation.replaceRange(match.range, nextMatch.content)
+            xmlRepresentation = FormatCommandJ.replaceRange(xmlRepresentation, match.range, nextMatch.content)
         }
+
+        //var xmlRepresentation = FormatCommandJ.serializePomFile(inputFactory, outputFactory, singleElementsWithAttributes, pom)
 
         var lastIndex = 0
 
