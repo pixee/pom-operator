@@ -1,7 +1,5 @@
 package io.github.pixee.maven.operator;
 
-import io.github.pixee.maven.operator.DependencyJ;
-import io.github.pixee.maven.operator.kotlin.POMDocument;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.InvocationRequest;
@@ -32,7 +30,7 @@ public abstract class AbstractQueryCommandJ extends AbstractCommandJ {
         return outputPath;
     }
 
-    protected File getPomFilePath(POMDocument d) throws URISyntaxException {
+    protected File getPomFilePath(POMDocumentJ d) throws URISyntaxException {
         Path pomPath = Paths.get(d.getPomPath().toURI());
         return pomPath.toFile();
     }

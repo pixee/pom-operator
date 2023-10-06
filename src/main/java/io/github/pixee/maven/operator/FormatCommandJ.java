@@ -1,6 +1,5 @@
 package io.github.pixee.maven.operator;
 
-import io.github.pixee.maven.operator.kotlin.POMDocument;
 import kotlin.ranges.IntRange;
 import kotlin.sequences.Sequence;
 import kotlin.text.MatchGroupCollection;
@@ -53,7 +52,7 @@ public class FormatCommandJ extends AbstractCommandJ{
 
     @Override
     public boolean execute(ProjectModelJ pm) throws XMLStreamException, IOException, URISyntaxException {
-        for ( POMDocument pomFile: pm.allPomFiles()) {
+        for ( POMDocumentJ pomFile: pm.allPomFiles()) {
             parseXmlAndCharset(pomFile);
 
             pomFile.setEndl(parseLineEndings(pomFile));
@@ -65,7 +64,7 @@ public class FormatCommandJ extends AbstractCommandJ{
 
     @Override
     public boolean postProcess(ProjectModelJ pm) throws XMLStreamException {
-        for ( POMDocument pomFile: pm.allPomFiles()) {
+        for ( POMDocumentJ pomFile: pm.allPomFiles()) {
             byte[] content = serializePomFile(pomFile);
             pomFile.setResultPomBytes(content);
         }
@@ -139,7 +138,7 @@ public class FormatCommandJ extends AbstractCommandJ{
         return writer.toString();
     }
 
-    private String parseLineEndings(POMDocument pomFile) throws IOException {
+    private String parseLineEndings(POMDocumentJ pomFile) throws IOException {
         InputStream inputStream = new ByteArrayInputStream(pomFile.getOriginalPom());
         byte[] bytes = inputStream.readAllBytes();
         String str = new String(bytes, pomFile.getCharset());
@@ -152,7 +151,7 @@ public class FormatCommandJ extends AbstractCommandJ{
         return Collections.max(lineEndingCounts.entrySet(), Map.Entry.comparingByValue()).getKey();
     }
 
-    private String guessIndent(POMDocument pomFile) throws XMLStreamException {
+    private String guessIndent(POMDocumentJ pomFile) throws XMLStreamException {
         InputStream inputStream = new ByteArrayInputStream(pomFile.getOriginalPom());
         XMLEventReader eventReader = inputFactory.createXMLEventReader(inputStream) ;
 
@@ -232,7 +231,7 @@ public class FormatCommandJ extends AbstractCommandJ{
         return minIndentLength;
     }
 
-    private void parseXmlAndCharset(POMDocument pomFile) throws XMLStreamException, IOException {
+    private void parseXmlAndCharset(POMDocumentJ pomFile) throws XMLStreamException, IOException {
         InputStream inputStream = new ByteArrayInputStream(pomFile.getOriginalPom());
 
         /**
@@ -428,7 +427,7 @@ public class FormatCommandJ extends AbstractCommandJ{
     }
 
 
-    private List<MatchDataJ> getElementsToReplace(BitSet originalElementMap, POMDocument pom){
+    private List<MatchDataJ> getElementsToReplace(BitSet originalElementMap, POMDocumentJ pom){
         // Let's find out the original empty elements from the original pom and store them in a stack
         List<MatchDataJ> elementsToReplace = new ArrayList<>();
         Map<Integer, MatchDataJ> singleElementMatches = findSingleElementMatchesFrom(new String(pom.getOriginalPom(),pom.getCharset()));
@@ -464,7 +463,7 @@ public class FormatCommandJ extends AbstractCommandJ{
         return sb.toString();
     }
 
-    private byte[] serializePomFile(POMDocument pom) throws XMLStreamException {
+    private byte[] serializePomFile(POMDocumentJ pom) throws XMLStreamException {
         // Generate a String representation. We'll need to patch it up and apply back
         // differences we recorded previously on the pom (see the pom member variables)
         String xmlRepresentation = pom.getResultPom().asXML().toString();

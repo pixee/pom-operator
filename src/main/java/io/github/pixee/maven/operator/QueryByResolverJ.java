@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.util.*;
 
 public class QueryByResolverJ extends AbstractQueryCommandJ {
@@ -22,11 +23,11 @@ public class QueryByResolverJ extends AbstractQueryCommandJ {
     }
 
     @Override
-    public boolean execute(ProjectModelJ pm) {
+    public boolean execute(ProjectModelJ pm) throws URISyntaxException {
         EmbedderFacadeJ.EmbedderFacadeRequest req = new EmbedderFacadeJ.EmbedderFacadeRequest(
                 pm.getOffline(),
                 pm.getRepositoryPath(),
-                pm.getPomFile().getFile$pom_operator(),
+                pm.getPomFile().getFile(),
                 filterActiveProfiles(pm.getActiveProfiles()),
                 filterExcludedProfiles(pm.getActiveProfiles())
         );

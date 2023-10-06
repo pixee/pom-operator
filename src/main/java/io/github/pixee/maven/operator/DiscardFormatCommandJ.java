@@ -1,6 +1,5 @@
 package io.github.pixee.maven.operator;
 
-import io.github.pixee.maven.operator.kotlin.POMDocument;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
 import org.xmlunit.diff.Diff;
@@ -30,7 +29,7 @@ public class DiscardFormatCommandJ extends AbstractCommandJ {
     public boolean postProcess(ProjectModelJ pm) throws XMLStreamException {
         boolean mustSkip = false;
 
-        for (POMDocument pomFile : pm.allPomFiles()) {
+        for (POMDocumentJ pomFile : pm.allPomFiles()) {
             Source originalDoc = Input.fromString(new String(pomFile.getOriginalPom())).build();
             Source modifiedDoc = Input.fromString(pomFile.getResultPom().asXML()).build();
 

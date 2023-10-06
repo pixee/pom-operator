@@ -1,6 +1,5 @@
 package io.github.pixee.maven.operator;
 
-import io.github.pixee.maven.operator.kotlin.POMDocument;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.dom4j.Element;
 import org.dom4j.Node;
@@ -23,7 +22,7 @@ public class VersionByCompilerDefinitionJ extends AbstractVersionCommandJ {
         StrSubstitutor sub = new StrSubstitutor(properties);
 
         for (String parent : parents) {
-            for (POMDocument doc : pm.allPomFiles()) {
+            for (POMDocumentJ doc : pm.allPomFiles()) {
                 String pluginExpression = parent + "/m:plugin[./m:artifactId[text()='maven-compiler-plugin']]" +
                         "//m:configuration";
                 List<Node> compilerNodes = selectXPathNodes(doc.getResultPom(), pluginExpression);

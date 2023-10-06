@@ -1,6 +1,5 @@
 package io.github.pixee.maven.operator;
 
-import io.github.pixee.maven.operator.kotlin.POMDocument;
 import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -15,7 +14,7 @@ import java.nio.charset.Charset;
 
 public class POMDocumentFactoryJ {
 
-    public static POMDocument load(InputStream is) throws IOException, DocumentException {
+    public static POMDocumentJ load(InputStream is) throws IOException, DocumentException {
 
             byte[] originalPom = IOUtils.toByteArray(is);
 
@@ -25,18 +24,18 @@ public class POMDocumentFactoryJ {
 
             byte[] byteArrayOf = {};
 
-            return new POMDocument(originalPom, null, pomDocument, Charset.defaultCharset(), "\n", "  ", byteArrayOf, "", "");
+            return new POMDocumentJ(originalPom, null, pomDocument);
 
     }
 
-    public static POMDocument load(File f) throws IOException, DocumentException {
+    public static POMDocumentJ load(File f) throws IOException, DocumentException {
 
             URL fileUrl = f.toURI().toURL();
             return load(fileUrl);
 
     }
 
-    public static POMDocument load(URL url) throws IOException, DocumentException {
+    public static POMDocumentJ load(URL url) throws IOException, DocumentException {
         InputStream inputStream = url.openStream();
             byte[] originalPom = IOUtils.toByteArray(inputStream);
 
@@ -45,7 +44,7 @@ public class POMDocumentFactoryJ {
 
             byte[] byteArrayOf = {};
 
-            return new POMDocument(originalPom, url, pomDocument, Charset.defaultCharset(), "\n", "  ", byteArrayOf, "", "");
+            return new POMDocumentJ(originalPom, url, pomDocument);
 
     }
 
