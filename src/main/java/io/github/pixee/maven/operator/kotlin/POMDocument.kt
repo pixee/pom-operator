@@ -24,12 +24,36 @@ import java.nio.charset.Charset
  */
 @Suppress("ArrayInDataClass")
 data class POMDocument(
+    val originalPom: ByteArray,
     val pomPath: URL?,
     val pomDocument: Document,
+    var charset: Charset = Charset.defaultCharset(),
+    var endl: String = "\n",
+    var indent: String = "  ",
+    var resultPomBytes: ByteArray = byteArrayOf(),
+
+    /**
+     * Preamble Contents are stored here
+     */
+    var preamble: String = "",
+
+    /**
+     * Afterword - if needed
+     */
+    var suffix: String = "",
 ) {
     internal val file: File get() = File(this.pomPath!!.toURI())
 
     val resultPom: Document = pomDocument.clone() as Document
 
+    var dirty: Boolean = false
+
+    override fun toString(): String {
+        return if (null == this.pomPath) {
+            "missing"
+        } else {
+            ("[POMDocument @ " + this.pomPath.toString() + "]")
+        }
+    }
 }
 
