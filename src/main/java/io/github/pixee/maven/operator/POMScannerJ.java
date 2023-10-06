@@ -45,9 +45,9 @@ public class POMScannerJ {
                     .map(file -> {
                         try {
                             return POMDocumentFactoryJ.load(file);
-                        } catch (IOException | DocumentException e) {
+                        } catch (IOException | URISyntaxException | DocumentException e) {
 
-                            return null; // Handle appropriately in your code
+                            return null;
                         }
                     })
                     .filter(Objects::nonNull)
@@ -56,7 +56,7 @@ public class POMScannerJ {
             return originalDocument.withParentPomFiles(parentPomDocuments);
         } catch (Exception e) {
 
-            return originalDocument; // Return the original document or handle appropriately
+            return originalDocument;
         }
 
     }

@@ -5,6 +5,7 @@ import org.dom4j.DocumentException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.util.*;
 import java.net.URL;
 import java.util.stream.Collectors;
@@ -83,7 +84,7 @@ public class ProjectModelFactoryJ {
         return new ProjectModelFactoryJ();
     }
 
-    public static ProjectModelFactoryJ load(InputStream is) throws DocumentException, IOException {
+    public static ProjectModelFactoryJ load(InputStream is) throws DocumentException, IOException, URISyntaxException {
         POMDocumentJ pomDocument = POMDocumentFactoryJ.load(is);
         return ProjectModelFactoryJ.create().withPomFile(pomDocument);
     }
@@ -93,7 +94,7 @@ public class ProjectModelFactoryJ {
         return load(fileUrl);
     }
 
-    public static ProjectModelFactoryJ load(URL url) throws DocumentException, IOException {
+    public static ProjectModelFactoryJ load(URL url) throws DocumentException, IOException, URISyntaxException {
         POMDocumentJ pomFile = POMDocumentFactoryJ.load(url);
         return ProjectModelFactoryJ.create().withPomFile(pomFile);
     }

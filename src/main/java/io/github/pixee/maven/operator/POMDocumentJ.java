@@ -6,6 +6,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.dom4j.Document;
+
+import javax.print.Doc;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -33,6 +35,9 @@ public class POMDocumentJ {
     private byte[] originalPom;
     private URL pomPath;
     private Document pomDocument;
+
+    private Document resultPom;
+    private File file;
     private Charset charset;
     private String endl;
     private String indent;
@@ -42,12 +47,14 @@ public class POMDocumentJ {
     private boolean dirty;
     private POMDocument pomDocumentK;
 
-    public POMDocumentJ(byte[] originalPom, URL pomPath, Document pomDocument) {
+    public POMDocumentJ(byte[] originalPom, URL pomPath, Document pomDocument) throws URISyntaxException {
         this.pomDocumentK = new POMDocument(pomPath, pomDocument);
 
         this.originalPom = originalPom;
         this.pomPath = pomPath;
         this.pomDocument = pomDocument;
+        this.resultPom = (Document) pomDocument.clone();
+        this.file = this.pomPath != null ? new File(this.pomPath.toURI()) : null;
         this.charset = Charset.defaultCharset();
         this.endl = "\n";
         this.indent = "  ";
@@ -58,17 +65,17 @@ public class POMDocumentJ {
     }
 
 
-    public POMDocumentJ(byte[] originalPom, Document pomDocument) {
+    public POMDocumentJ(byte[] originalPom, Document pomDocument) throws URISyntaxException {
 
         this(originalPom, null, pomDocument);
     }
 
     public File getFile() throws URISyntaxException {
-        return pomDocumentK.getFile$pom_operator();
+        return this.file;
     }
 
     public Document getResultPom() {
-        return pomDocumentK.getResultPom();
+        return this.resultPom;
     }
 
     @Override

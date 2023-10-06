@@ -9,12 +9,13 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
 
 public class POMDocumentFactoryJ {
 
-    public static POMDocumentJ load(InputStream is) throws IOException, DocumentException {
+    public static POMDocumentJ load(InputStream is) throws IOException, DocumentException, URISyntaxException {
 
             byte[] originalPom = IOUtils.toByteArray(is);
 
@@ -28,21 +29,19 @@ public class POMDocumentFactoryJ {
 
     }
 
-    public static POMDocumentJ load(File f) throws IOException, DocumentException {
+    public static POMDocumentJ load(File f) throws IOException, DocumentException, URISyntaxException {
 
             URL fileUrl = f.toURI().toURL();
             return load(fileUrl);
 
     }
 
-    public static POMDocumentJ load(URL url) throws IOException, DocumentException {
+    public static POMDocumentJ load(URL url) throws IOException, DocumentException, URISyntaxException {
         InputStream inputStream = url.openStream();
             byte[] originalPom = IOUtils.toByteArray(inputStream);
 
             SAXReader saxReader = new SAXReader();
             Document pomDocument = saxReader.read(new ByteArrayInputStream(originalPom));
-
-            byte[] byteArrayOf = {};
 
             return new POMDocumentJ(originalPom, url, pomDocument);
 
