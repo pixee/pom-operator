@@ -1,10 +1,10 @@
 package io.github.pixee.maven.operator.test
 
-import io.github.pixee.maven.operator.ChainJ
-import io.github.pixee.maven.operator.CommandJ
-import io.github.pixee.maven.operator.POMOperatorJ
-import io.github.pixee.maven.operator.ProjectModelFactoryJ
-import io.github.pixee.maven.operator.QueryTypeJ
+import io.github.pixee.maven.operator.Chain
+import io.github.pixee.maven.operator.Command
+import io.github.pixee.maven.operator.POMOperator
+import io.github.pixee.maven.operator.ProjectModelFactory
+import io.github.pixee.maven.operator.QueryType
 import junit.framework.TestCase.*
 import org.junit.Test
 import org.slf4j.Logger
@@ -19,14 +19,14 @@ class POMOperatorDependencyQueryTest {
 
     @Test
     fun testBasicQuery() {
-        QueryTypeJ.values().filterNot { it == QueryTypeJ.NONE }.forEach { queryType ->
+        QueryType.values().filterNot { it == QueryType.NONE }.forEach { queryType ->
             val context =
-                ProjectModelFactoryJ
+                ProjectModelFactory
                     .load(this.javaClass.getResource("pom-1.xml")!!)
                     .withQueryType(queryType)
                     .build()
 
-            val dependencies = POMOperatorJ.queryDependency(context)
+            val dependencies = POMOperator.queryDependency(context)
 
             LOGGER.debug("Dependencies found: {}", dependencies)
 
@@ -37,12 +37,12 @@ class POMOperatorDependencyQueryTest {
     @Test
     fun testFailedSafeQuery() {
         val context =
-            ProjectModelFactoryJ
+            ProjectModelFactory
                 .load(this.javaClass.getResource("pom-broken.xml")!!)
-                .withQueryType(QueryTypeJ.SAFE)
+                .withQueryType(QueryType.SAFE)
                 .build()
 
-        val dependencies = POMOperatorJ.queryDependency(context)
+        val dependencies = POMOperator.queryDependency(context)
 
         assertTrue("Dependencies are empty", dependencies.isEmpty())
     }
@@ -50,12 +50,12 @@ class POMOperatorDependencyQueryTest {
     @Test(expected = IllegalStateException::class)
     fun testFailedUnsafeQuery() {
         val context =
-            ProjectModelFactoryJ
+            ProjectModelFactory
                 .load(this.javaClass.getResource("pom-broken.xml")!!)
-                .withQueryType(QueryTypeJ.UNSAFE)
+                .withQueryType(QueryType.UNSAFE)
                 .build()
 
-        val dependencies = POMOperatorJ.queryDependency(context)
+        val dependencies = POMOperator.queryDependency(context)
 
         assertTrue("Dependencies are empty", dependencies.isEmpty())
     }
@@ -63,20 +63,20 @@ class POMOperatorDependencyQueryTest {
     @Test
     fun testAllQueryTypes() {
         listOf("pom-1.xml", "pom-3.xml").forEach { pomFile ->
-            ChainJ.AVAILABLE_DEPENDENCY_QUERY_COMMANDS.forEach {
+            Chain.AVAILABLE_DEPENDENCY_QUERY_COMMANDS.forEach {
                 val commandClassName = "io.github.pixee.maven.operator.${it.second}"
 
                 val commandListOverride =
-                    listOf(Class.forName(commandClassName).newInstance() as CommandJ)
+                    listOf(Class.forName(commandClassName).newInstance() as Command)
 
                 val context =
-                    ProjectModelFactoryJ
+                    ProjectModelFactory
                         .load(this.javaClass.getResource(pomFile)!!)
-                        .withQueryType(QueryTypeJ.UNSAFE)
+                        .withQueryType(QueryType.UNSAFE)
                         .build()
 
                 val dependencies =
-                    POMOperatorJ.queryDependency(context, commandListOverride)
+                    POMOperator.queryDependency(context, commandListOverride)
 
                 assertTrue("Dependencies are not empty", dependencies.isNotEmpty())
             }
@@ -86,7 +86,7 @@ class POMOperatorDependencyQueryTest {
 
     @Test
     fun testTemporaryDirectory() {
-        QueryTypeJ.values().filterNot { it == QueryTypeJ.NONE }.forEach { queryType ->
+        QueryType.values().filterNot { it == QueryType.NONE }.forEach { queryType ->
             val tempDirectory = File("/tmp/mvn-repo-" + System.currentTimeMillis() + ".dir")
 
             LOGGER.info("Using queryType: $queryType at $tempDirectory")
@@ -99,13 +99,13 @@ class POMOperatorDependencyQueryTest {
             )
 
             val context =
-                ProjectModelFactoryJ
+                ProjectModelFactory
                     .load(this.javaClass.getResource("pom-1.xml")!!)
                     .withQueryType(queryType)
                     .withRepositoryPath(tempDirectory)
                     .build()
 
-            val dependencies = POMOperatorJ.queryDependency(context)
+            val dependencies = POMOperator.queryDependency(context)
 
             LOGGER.debug("Dependencies found: {}", dependencies)
 
@@ -118,19 +118,19 @@ class POMOperatorDependencyQueryTest {
 
     @Test
     fun testTemporaryDirectoryAndFullyOffline() {
-        QueryTypeJ.values().filterNot { it == QueryTypeJ.NONE }.filter { it == QueryTypeJ.SAFE }
+        QueryType.values().filterNot { it == QueryType.NONE }.filter { it == QueryType.SAFE }
             .forEach { queryType ->
                 val tempDirectory = Files.createTempDirectory("mvn-repo").toFile()
 
                 val context =
-                    ProjectModelFactoryJ
+                    ProjectModelFactory
                         .load(this.javaClass.getResource("pom-1.xml")!!)
                         .withQueryType(queryType)
                         .withRepositoryPath(tempDirectory)
                         .withOffline(true)
                         .build()
 
-                val dependencies = POMOperatorJ.queryDependency(context)
+                val dependencies = POMOperator.queryDependency(context)
 
                 LOGGER.debug("Dependencies found: {}", dependencies)
 
@@ -172,14 +172,14 @@ class POMOperatorDependencyQueryTest {
         )
 
         val context =
-            ProjectModelFactoryJ
+            ProjectModelFactory
                 .load(tempPom.toFile())
-                .withQueryType(QueryTypeJ.SAFE)
+                .withQueryType(QueryType.SAFE)
                 .withRepositoryPath(tempDirectory)
                 .withOffline(true)
                 .build()
 
-        val dependencies = POMOperatorJ.queryDependency(context)
+        val dependencies = POMOperator.queryDependency(context)
 
         LOGGER.debug("Dependencies found: {}", dependencies)
 
@@ -261,14 +261,14 @@ class POMOperatorDependencyQueryTest {
         )
 
         val context =
-            ProjectModelFactoryJ
+            ProjectModelFactory
                 .load(tempPom.toFile())
-                .withQueryType(QueryTypeJ.SAFE)
+                .withQueryType(QueryType.SAFE)
                 .withRepositoryPath(tempDirectory)
                 .withOffline(true)
                 .build()
 
-        val dependencies = POMOperatorJ.queryDependency(context)
+        val dependencies = POMOperator.queryDependency(context)
 
         LOGGER.debug("Dependencies found: {}", dependencies)
 
@@ -322,16 +322,16 @@ class POMOperatorDependencyQueryTest {
         )
 
         val context =
-            ProjectModelFactoryJ
+            ProjectModelFactory
                 .load(tempPom.toFile())
-                .withQueryType(QueryTypeJ.SAFE)
+                .withQueryType(QueryType.SAFE)
                 .withRepositoryPath(tempDirectory)
                 .withOffline(true)
                 .build()
 
-        val dependencies = POMOperatorJ.queryDependency(
+        val dependencies = POMOperator.queryDependency(
             context,
-            getCommandListFor("QueryByEmbedderJ", "QueryByResolverJ")
+            getCommandListFor("QueryByEmbedder", "QueryByResolver")
         )
 
         LOGGER.debug("Dependencies found: {}", dependencies)
@@ -394,15 +394,15 @@ class POMOperatorDependencyQueryTest {
         )
 
         val context =
-            ProjectModelFactoryJ
+            ProjectModelFactory
                 .load(tempPom.toFile())
-                .withQueryType(QueryTypeJ.SAFE)
+                .withQueryType(QueryType.SAFE)
                 .withRepositoryPath(tempDirectory)
                 .withOffline(true)
                 .build()
 
         val dependencies =
-            POMOperatorJ.queryDependency(context, getCommandListFor("QueryByParsingJ"))
+            POMOperator.queryDependency(context, getCommandListFor("QueryByParsing"))
 
         LOGGER.debug("Dependencies found: {}", dependencies)
 
@@ -414,12 +414,12 @@ class POMOperatorDependencyQueryTest {
         assertTrue("there's a dependencyManaged-version", foundDependencies != null)
     }
 
-    private fun getCommandListFor(vararg names: String): List<CommandJ> =
+    private fun getCommandListFor(vararg names: String): List<Command> =
         names.map {
             val commandClassName = "io.github.pixee.maven.operator.${it}"
 
             val commandInstance =
-                Class.forName(commandClassName).newInstance() as CommandJ
+                Class.forName(commandClassName).newInstance() as Command
 
             commandInstance
         }.toList()
@@ -429,14 +429,14 @@ class POMOperatorDependencyQueryTest {
         val tempDirectory = Files.createTempDirectory("mvn-repo").toFile()
 
         val context =
-            ProjectModelFactoryJ
+            ProjectModelFactory
                 .load(javaClass.getResource("nested/child/pom/pom-3-child.xml"))
-                .withQueryType(QueryTypeJ.SAFE)
+                .withQueryType(QueryType.SAFE)
                 .withRepositoryPath(tempDirectory)
                 .withOffline(true)
                 .build()
 
-        val dependencies = POMOperatorJ.queryDependency(context)
+        val dependencies = POMOperator.queryDependency(context)
 
         LOGGER.debug("Dependencies found: {}", dependencies)
 

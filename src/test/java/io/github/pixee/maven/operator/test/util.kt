@@ -1,7 +1,7 @@
 package io.github.pixee.maven.operator.test
 
-import io.github.pixee.maven.operator.ProjectModelJ
-import io.github.pixee.maven.operator.UtilJ
+import io.github.pixee.maven.operator.ProjectModel
+import io.github.pixee.maven.operator.Util
 import org.apache.commons.lang3.SystemUtils
 import org.dom4j.Document
 import org.dom4j.io.SAXReader
@@ -9,13 +9,13 @@ import java.io.File
 import java.io.FileInputStream
 
 
-internal fun ProjectModelJ.getRuntimeResolvedProperties(): Map<String, String> =
+internal fun ProjectModel.getRuntimeResolvedProperties(): Map<String, String> =
     this.getEffectivePom().rootElement.elements("properties").flatMap { it.elements() }
         .associate {
             it.name to it.text
         }
 
-internal fun ProjectModelJ.getEffectivePom(): Document {
+internal fun ProjectModel.getEffectivePom(): Document {
     val tmpInputFile = File.createTempFile("tmp-pom-orig", ".xml")
 
     tmpInputFile.writeBytes(this.pomFile.resultPomBytes)
@@ -24,7 +24,7 @@ internal fun ProjectModelJ.getEffectivePom(): Document {
 
     val processArgs: MutableList<String> =
             mutableListOf<String>(
-                UtilJ.which("mvn")!!.absolutePath,
+                Util.which("mvn")!!.absolutePath,
                 "-B",
                 "-N",
                 "-f",

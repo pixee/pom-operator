@@ -1,10 +1,10 @@
 package io.github.pixee.maven.operator.test
 
-import io.github.pixee.maven.operator.DependencyJ
-import io.github.pixee.maven.operator.POMOperatorJ
-import io.github.pixee.maven.operator.POMScannerJ
-import io.github.pixee.maven.operator.ProjectModelFactoryJ
-import io.github.pixee.maven.operator.UtilJ
+import io.github.pixee.maven.operator.Dependency
+import io.github.pixee.maven.operator.POMOperator
+import io.github.pixee.maven.operator.POMScanner
+import io.github.pixee.maven.operator.ProjectModelFactory
+import io.github.pixee.maven.operator.Util
 import org.apache.commons.lang3.SystemUtils
 import org.junit.Assert.*
 import org.junit.Test
@@ -198,15 +198,15 @@ class MassRepoIT {
 
         LOGGER.info("dependencies: {}", originalDependencies)
 
-        val dependencyToUpgrade = DependencyJ.fromString(dependencyToUpgradeString)
+        val dependencyToUpgrade = Dependency.fromString(dependencyToUpgradeString)
 
         val projectModelFactory = if (sampleRepo.useScanner) {
-            POMScannerJ.scanFrom(
+            POMScanner.scanFrom(
                 File(sampleRepo.cacheDir(), sampleRepo.pomPath),
                 sampleRepo.cacheDir()
             )
         } else {
-            ProjectModelFactoryJ.load(File(sampleRepo.cacheDir(), sampleRepo.pomPath))
+            ProjectModelFactory.load(File(sampleRepo.cacheDir(), sampleRepo.pomPath))
         }
 
         val context = projectModelFactory
@@ -216,7 +216,7 @@ class MassRepoIT {
             .withOffline(sampleRepo.offline)
             .build()
 
-        val result = POMOperatorJ.modify(context)
+        val result = POMOperator.modify(context)
 
         context.allPomFiles().filter { it.dirty }.forEach {
             it.file.writeBytes(it.resultPomBytes)
@@ -253,8 +253,8 @@ class MassRepoIT {
         val pomFile = File(repo.cacheDir(), repo.pomPath)
 
         val dependencies =
-            POMOperatorJ.queryDependency(
-                POMScannerJ.scanFrom(pomFile, repo.cacheDir())
+            POMOperator.queryDependency(
+                POMScanner.scanFrom(pomFile, repo.cacheDir())
                     .withRepositoryPath(repo.cacheDir())
                     .withOffline(false)
                     .build()
@@ -271,11 +271,11 @@ class MassRepoIT {
         }
 
         val command = if (SystemUtils.IS_OS_WINDOWS) {
-            listOf(UtilJ.which("cmd")!!.canonicalPath, "/c")
+            listOf(Util.which("cmd")!!.canonicalPath, "/c")
         } else {
             emptyList()
         } + listOf(
-            UtilJ.which("mvn")!!.canonicalPath,
+            Util.which("mvn")!!.canonicalPath,
             "-B",
             "-f",
             pomPath,

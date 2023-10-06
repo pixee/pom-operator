@@ -1,9 +1,9 @@
 package io.github.pixee.maven.operator.test
 
-import io.github.pixee.maven.operator.POMOperatorJ
-import io.github.pixee.maven.operator.ProjectModelFactoryJ
-import io.github.pixee.maven.operator.QueryTypeJ
-import io.github.pixee.maven.operator.VersionQueryResponseJ
+import io.github.pixee.maven.operator.POMOperator
+import io.github.pixee.maven.operator.ProjectModelFactory
+import io.github.pixee.maven.operator.QueryType
+import io.github.pixee.maven.operator.VersionQueryResponse
 import junit.framework.TestCase.assertTrue
 import junit.framework.TestCase.assertFalse
 import org.junit.Test
@@ -20,7 +20,7 @@ class POMOperatorVersionQueryTest {
     fun testBasicQuery() {
         val pomFile = "pom-1.xml"
 
-        QueryTypeJ.values().filterNot { it == QueryTypeJ.NONE }.forEach { queryType ->
+        QueryType.values().filterNot { it == QueryType.NONE }.forEach { queryType ->
             val optionalVersionQueryResponse = versionDefinitions(pomFile, queryType)
 
             LOGGER.debug("Versions found: {}", optionalVersionQueryResponse)
@@ -41,7 +41,7 @@ class POMOperatorVersionQueryTest {
 
     @Test
     fun testPomVersionZero() {
-        QueryTypeJ.values().filterNot { it == QueryTypeJ.NONE }.forEach { queryType ->
+        QueryType.values().filterNot { it == QueryType.NONE }.forEach { queryType ->
             val optionalVersionResponse = versionDefinitions("pom-version-0.xml", queryType)
 
             assertFalse("No versions defined (queryType: $queryType)", optionalVersionResponse.isPresent)
@@ -55,7 +55,7 @@ class POMOperatorVersionQueryTest {
 
             LOGGER.info("Using file: $pomFile")
 
-            QueryTypeJ.values().filterNot { it == QueryTypeJ.NONE }.forEach { queryType ->
+            QueryType.values().filterNot { it == QueryType.NONE }.forEach { queryType ->
                 LOGGER.info("using queryType: $queryType")
 
                 val optionalVersionQueryResponse = versionDefinitions(pomFile, queryType)
@@ -84,7 +84,7 @@ class POMOperatorVersionQueryTest {
 
             LOGGER.info("Using file: $pomFile")
 
-            QueryTypeJ.values().filterNot { it == QueryTypeJ.NONE }.forEach { queryType ->
+            QueryType.values().filterNot { it == QueryType.NONE }.forEach { queryType ->
                 LOGGER.info("using queryType: $queryType")
 
                 val optionalVersionQueryResponse = versionDefinitions(pomFile, queryType, offline = true)
@@ -112,7 +112,7 @@ class POMOperatorVersionQueryTest {
 
         LOGGER.info("Using file: $pomFile")
 
-        QueryTypeJ.values().filterNot { it == QueryTypeJ.NONE }.forEach { queryType ->
+        QueryType.values().filterNot { it == QueryType.NONE }.forEach { queryType ->
             LOGGER.info("using queryType: $queryType")
 
             val optionalVersionQueryResponse = versionDefinitions(pomFile, queryType)
@@ -137,7 +137,7 @@ class POMOperatorVersionQueryTest {
     fun testPomVersionsMismatching() {
         val pomFile = "pom-version-7.xml"
 
-        QueryTypeJ.values().filterNot { it == QueryTypeJ.NONE }.forEach { queryType ->
+        QueryType.values().filterNot { it == QueryType.NONE }.forEach { queryType ->
             val optionalVersionQueryResponse = versionDefinitions(pomFile, queryType)
 
             LOGGER.debug("Versions found: {}", optionalVersionQueryResponse)
@@ -159,16 +159,16 @@ class POMOperatorVersionQueryTest {
 
     private fun versionDefinitions(
         pomFile: String,
-        queryType: QueryTypeJ,
+        queryType: QueryType,
         offline: Boolean = false
-    ): Optional<VersionQueryResponseJ> {
+    ): Optional<VersionQueryResponse> {
         val context =
-            ProjectModelFactoryJ
+            ProjectModelFactory
                 .load(this.javaClass.getResource(pomFile)!!)
                 .withQueryType(queryType)
                 .withOffline(offline)
                 .build()
 
-        return POMOperatorJ.queryVersions(context)
+        return POMOperator.queryVersions(context)
     }
 }

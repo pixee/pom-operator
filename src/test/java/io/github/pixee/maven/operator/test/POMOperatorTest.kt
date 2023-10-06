@@ -1,12 +1,12 @@
 package io.github.pixee.maven.operator.test
 
-import io.github.pixee.maven.operator.MissingDependencyExceptionJ
-import io.github.pixee.maven.operator.POMOperatorJ
-import io.github.pixee.maven.operator.ProjectModelFactoryJ
-import io.github.pixee.maven.operator.QueryTypeJ
-import io.github.pixee.maven.operator.UtilJ.selectXPathNodes
-import io.github.pixee.maven.operator.UtilJ
-import io.github.pixee.maven.operator.DependencyJ
+import io.github.pixee.maven.operator.MissingDependencyException
+import io.github.pixee.maven.operator.POMOperator
+import io.github.pixee.maven.operator.ProjectModelFactory
+import io.github.pixee.maven.operator.QueryType
+import io.github.pixee.maven.operator.Util.selectXPathNodes
+import io.github.pixee.maven.operator.Util
+import io.github.pixee.maven.operator.Dependency
 import org.apache.commons.lang3.SystemUtils
 import org.dom4j.DocumentException
 import org.hamcrest.MatcherAssert.assertThat
@@ -26,9 +26,9 @@ class POMOperatorTest : AbstractTestBase() {
     fun testWithBrokenPom() {
         gwt(
             "broken-pom",
-            ProjectModelFactoryJ.load(
+            ProjectModelFactory.load(
                 POMOperatorTest::class.java.getResource("broken-pom.xml")!!,
-            ).withDependency(DependencyJ.fromString("org.dom4j:dom4j:2.0.3"))
+            ).withDependency(Dependency.fromString("org.dom4j:dom4j:2.0.3"))
         )
     }
 
@@ -38,7 +38,7 @@ class POMOperatorTest : AbstractTestBase() {
             "org.slf4j:slf4j-api:1.7.25",
             "io.github.pixee:java-code-security-toolkit:1.0.2",
             "org.owasp.encoder:encoder:1.2.3",
-        ).map { DependencyJ.fromString(it) }.toList()
+        ).map { Dependency.fromString(it) }.toList()
 
         val testPom = File.createTempFile("pom", ".xml")
 
@@ -46,13 +46,13 @@ class POMOperatorTest : AbstractTestBase() {
             .copyTo(testPom.outputStream())
 
         deps.forEach { d ->
-            val projectModel = ProjectModelFactoryJ.load(testPom)
+            val projectModel = ProjectModelFactory.load(testPom)
                 .withDependency(d)
                 .withUseProperties(true)
                 .withOverrideIfAlreadyExists(true)
                 .build()
 
-            if (POMOperatorJ.modify(projectModel)) {
+            if (POMOperator.modify(projectModel)) {
                 assertTrue(projectModel.pomFile.dirty, "Original POM File is Dirty")
 
                 val resultPomAsXml = String(projectModel.pomFile.resultPomBytes)
@@ -65,9 +65,9 @@ class POMOperatorTest : AbstractTestBase() {
             }
         }
 
-        val resolvedDeps = POMOperatorJ.queryDependency(
-            ProjectModelFactoryJ.load(testPom).withQueryType(
-                QueryTypeJ.SAFE).build()
+        val resolvedDeps = POMOperator.queryDependency(
+            ProjectModelFactory.load(testPom).withQueryType(
+                QueryType.SAFE).build()
         )
 
         val testPomContents = testPom.readText()
@@ -80,11 +80,11 @@ class POMOperatorTest : AbstractTestBase() {
         )
     }
 
-    @Test(expected = MissingDependencyExceptionJ::class)
+    @Test(expected = MissingDependencyException::class)
     fun testWithDependencyMissing() {
         gwt(
             "case-dependency-missing",
-            ProjectModelFactoryJ.load(
+            ProjectModelFactory.load(
                 POMOperatorTest::class.java.getResource("pom-case-1.xml")!!,
             )
         )
@@ -94,9 +94,9 @@ class POMOperatorTest : AbstractTestBase() {
     fun testCaseOne() {
         val context = gwt(
             "case-1",
-            ProjectModelFactoryJ.load(
+            ProjectModelFactory.load(
                 POMOperatorTest::class.java.getResource("pom-case-1.xml")!!,
-            ).withDependency(DependencyJ.fromString("org.dom4j:dom4j:2.0.3"))
+            ).withDependency(Dependency.fromString("org.dom4j:dom4j:2.0.3"))
         )
 
         assertTrue(context.pomFile.dirty, "Original POM File is Dirty")
@@ -122,11 +122,18 @@ class POMOperatorTest : AbstractTestBase() {
 
     @Test
     fun testCaseThree() {
-        val dependencyToUpgradeOnCaseThree = DependencyJ("org.dom4j", "dom4j", "2.0.2", null, null, null)
+        val dependencyToUpgradeOnCaseThree = Dependency(
+            "org.dom4j",
+            "dom4j",
+            "2.0.2",
+            null,
+            null,
+            null
+        )
 
         val context = gwt(
             "case-3",
-            ProjectModelFactoryJ.load(
+            ProjectModelFactory.load(
                 POMOperatorTest::class.java.getResource("pom-case-3.xml")!!,
             ).withDependency(dependencyToUpgradeOnCaseThree).withSkipIfNewer(false)
         )
@@ -149,11 +156,18 @@ class POMOperatorTest : AbstractTestBase() {
 
     @Test
     fun testCaseThreeButWithLowerVersion() {
-        val dependencyToUpgrade = DependencyJ("org.dom4j", "dom4j", "2.0.2", null, null, null)
+        val dependencyToUpgrade = Dependency(
+            "org.dom4j",
+            "dom4j",
+            "2.0.2",
+            null,
+            null,
+            null
+        )
 
         val context = gwt(
             "pom-case-three-with-lower-version",
-            ProjectModelFactoryJ.load(
+            ProjectModelFactory.load(
                 POMOperatorTest::class.java.getResource("pom-case-3.xml")!!,
             ).withDependency(dependencyToUpgrade).withSkipIfNewer(true)
         )
@@ -176,7 +190,7 @@ class POMOperatorTest : AbstractTestBase() {
                 listOf()
             } +
                     listOf(
-                        UtilJ.which("mvn")!!.absolutePath,
+                        Util.which("mvn")!!.absolutePath,
                         "-N",
                         "install:install-file",
                         "-DgroupId=org.owasp.webgoat",
@@ -193,11 +207,18 @@ class POMOperatorTest : AbstractTestBase() {
         assertThat("POM install was successful", 0 == exitCode)
 
         val dependencyToUpgrade =
-            DependencyJ("org.apache.activemq", "activemq-amqp", "5.16.2", null, null, null)
+            Dependency(
+                "org.apache.activemq",
+                "activemq-amqp",
+                "5.16.2",
+                null,
+                null,
+                null
+            )
 
         val context = gwt(
             "case-4",
-            ProjectModelFactoryJ.load(
+            ProjectModelFactory.load(
                 POMOperatorTest::class.java.getResource("pom-case-4.xml")!!,
             ).withDependency(dependencyToUpgrade)
         )
@@ -212,7 +233,7 @@ class POMOperatorTest : AbstractTestBase() {
 
         assertThat(
             "Dependencies Section did change",
-            selectXPathNodes(effectivePom, UtilJ.buildLookupExpressionForDependency(dependencyToUpgrade))
+            selectXPathNodes(effectivePom, Util.buildLookupExpressionForDependency(dependencyToUpgrade))
                 .isNotEmpty()
         )
     }
@@ -220,11 +241,18 @@ class POMOperatorTest : AbstractTestBase() {
     @Test
     fun testCaseWithEmptyElement() {
         val dependencyToUpgrade =
-            DependencyJ("io.github.pixee", "java-security-toolkit",  "1.0.2", null, null, null)
+            Dependency(
+                "io.github.pixee",
+                "java-security-toolkit",
+                "1.0.2",
+                null,
+                null,
+                null
+            )
 
         val context = gwt(
             "case-5",
-            ProjectModelFactoryJ.load(
+            ProjectModelFactory.load(
                 POMOperatorTest::class.java.getResource("pom-case-5.xml")!!,
             ).withDependency(dependencyToUpgrade).withUseProperties(true)
         )
@@ -259,11 +287,18 @@ class POMOperatorTest : AbstractTestBase() {
     @Test
     fun testCaseWithEmptyElementHiddenInComment() {
         val dependencyToUpgrade =
-            DependencyJ("io.github.pixee", "java-security-toolkit", "1.0.2", null, null, null)
+            Dependency(
+                "io.github.pixee",
+                "java-security-toolkit",
+                "1.0.2",
+                null,
+                null,
+                null
+            )
 
         val context = gwt(
             "case-6",
-            ProjectModelFactoryJ.load(
+            ProjectModelFactory.load(
                 POMOperatorTest::class.java.getResource("pom-case-6.xml")!!,
             ).withDependency(dependencyToUpgrade).withUseProperties(true)
         )
@@ -293,11 +328,18 @@ class POMOperatorTest : AbstractTestBase() {
     @Test
     fun testCaseWithProperty() {
         val dependencyToUpgrade =
-            DependencyJ("org.dom4j", "dom4j", "1.0.0", null, null, null)
+            Dependency(
+                "org.dom4j",
+                "dom4j",
+                "1.0.0",
+                null,
+                null,
+                null
+            )
 
         val context = gwt(
             "case-with-property",
-            ProjectModelFactoryJ.load(
+            ProjectModelFactory.load(
                 POMOperatorTest::class.java.getResource("pom-with-property-simple.xml")!!,
             ).withDependency(dependencyToUpgrade).withUseProperties(true).withSkipIfNewer(true)
         )
@@ -331,7 +373,14 @@ class POMOperatorTest : AbstractTestBase() {
     @Test(expected = IllegalStateException::class)
     fun testCaseWithPropertyDefinedTwice() {
         val dependencyToUpgrade =
-            DependencyJ("org.dom4j", "dom4j", "1.0.0", null, null, null)
+            Dependency(
+                "org.dom4j",
+                "dom4j",
+                "1.0.0",
+                null,
+                null,
+                null
+            )
 
         val originalPom = """
 <?xml version="1.0" encoding="UTF-8"?>
@@ -364,19 +413,26 @@ class POMOperatorTest : AbstractTestBase() {
 </project>
                 """.trimIndent()
         val context =
-            ProjectModelFactoryJ.load(
+            ProjectModelFactory.load(
                 originalPom.byteInputStream(),
             ).withDependency(dependencyToUpgrade).withUseProperties(true)
                 .withOverrideIfAlreadyExists(false)
                 .build()
 
-        POMOperatorJ.modify(context)
+        POMOperator.modify(context)
     }
 
     @Test
     fun testCaseWithoutPropertyButDefiningOne() {
         val dependencyToUpgrade =
-            DependencyJ("org.dom4j", "dom4j", "1.0.0", null, null, null)
+            Dependency(
+                "org.dom4j",
+                "dom4j",
+                "1.0.0",
+                null,
+                null,
+                null
+            )
 
         val originalPom = """
 <?xml version="1.0" encoding="UTF-8"?>
@@ -400,12 +456,12 @@ class POMOperatorTest : AbstractTestBase() {
 </project>
                 """.trim()
         val context =
-            ProjectModelFactoryJ.load(
+            ProjectModelFactory.load(
                 originalPom.byteInputStream(),
             ).withDependency(dependencyToUpgrade).withUseProperties(true).withSkipIfNewer(true)
                 .build()
 
-        POMOperatorJ.modify(context)
+        POMOperator.modify(context)
 
         assertTrue(context.pomFile.dirty, "Original POM File is Dirty")
 
@@ -424,18 +480,25 @@ class POMOperatorTest : AbstractTestBase() {
     @Test
     fun testFileWithTabs() {
         val dependencyToUpgrade =
-            DependencyJ("org.dom4j", "dom4j", "1.0.0", null, null, null)
+            Dependency(
+                "org.dom4j",
+                "dom4j",
+                "1.0.0",
+                null,
+                null,
+                null
+            )
 
         val originalPom =
             "<?xml version=\"1.0\"?>\n<project\n\txsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\"\n\txmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n\t<modelVersion>4.0.0</modelVersion>\n\t<parent>\n\t\t<artifactId>build-utils</artifactId>\n\t\t<groupId>org.modafocas.mojo</groupId>\n\t\t<version>0.0.1-SNAPSHOT</version>\n\t\t<relativePath>../pom.xml</relativePath>\n\t</parent>\n\n\t<artifactId>derby-maven-plugin</artifactId>\n\t<packaging>maven-plugin</packaging>\n\n\t<dependencies>\n\t\t<dependency>\n\t\t\t<groupId>org.apache.maven</groupId>\n\t\t\t<artifactId>maven-plugin-api</artifactId>\n\t\t\t<version>2.0</version>\n\t\t</dependency>\n\t\t<dependency>\n\t\t\t<groupId>junit</groupId>\n\t\t\t<artifactId>junit</artifactId>\n\t\t\t<version>3.8.1</version>\n\t\t\t<scope>test</scope>\n\t\t</dependency>\n\t\t<dependency>\n\t\t\t<groupId>org.apache.derby</groupId>\n\t\t\t<artifactId>derby</artifactId>\n\t\t\t<version>\${derbyVersion}</version>\n\t\t</dependency>\n\t\t<dependency>\n\t\t\t<groupId>org.apache.derby</groupId>\n\t\t\t<artifactId>derbynet</artifactId>\n\t\t\t<version>\${derbyVersion}</version>\n\t\t</dependency>\n\t\t<dependency>\n\t\t\t<groupId>org.apache.derby</groupId>\n\t\t\t<artifactId>derbyclient</artifactId>\n\t\t\t<version>\${derbyVersion}</version>\n\t\t</dependency>\n\t\t<dependency>\n\t\t\t<groupId>commons-io</groupId>\n\t\t\t<artifactId>commons-io</artifactId>\n\t\t\t<version>1.4</version>\n\t\t\t<type>jar</type>\n\t\t\t<scope>compile</scope>\n\t\t</dependency>\n\t</dependencies>\n\n\t<properties>\n\t\t<derbyVersion>10.6.2.1</derbyVersion>\n\t</properties>\n</project>\n"
 
         val context =
-            ProjectModelFactoryJ.load(
+            ProjectModelFactory.load(
                 originalPom.byteInputStream(),
             ).withDependency(dependencyToUpgrade).withUseProperties(true).withSkipIfNewer(true)
                 .build()
 
-        POMOperatorJ.modify(context)
+        POMOperator.modify(context)
 
         val resultPom = context.pomFile.resultPomBytes.toString(Charset.defaultCharset())
 
@@ -453,11 +516,18 @@ class POMOperatorTest : AbstractTestBase() {
     @Test
     fun testCaseWithEmptyElementFromCustomer() {
         val dependencyToUpgrade =
-            DependencyJ("io.github.pixee", "java-security-toolkit",  "1.0.2", null, null, null)
+            Dependency(
+                "io.github.pixee",
+                "java-security-toolkit",
+                "1.0.2",
+                null,
+                null,
+                null
+            )
 
         val context = gwt(
             "hack23-cia",
-            ProjectModelFactoryJ.load(
+            ProjectModelFactory.load(
                 POMOperatorTest::class.java.getResource("pom-hack23-cia.xml")!!,
             ).withDependency(dependencyToUpgrade).withUseProperties(true)
         )

@@ -1,9 +1,9 @@
 package io.github.pixee.maven.operator.test
 
 import `fun`.mike.dmp.DiffMatchPatch
-import io.github.pixee.maven.operator.POMOperatorJ
-import io.github.pixee.maven.operator.ProjectModelFactoryJ
-import io.github.pixee.maven.operator.ProjectModelJ
+import io.github.pixee.maven.operator.POMOperator
+import io.github.pixee.maven.operator.ProjectModelFactory
+import io.github.pixee.maven.operator.ProjectModel
 import org.dom4j.Document
 import org.dom4j.io.SAXReader
 import org.junit.Assert.assertFalse
@@ -28,22 +28,22 @@ open class AbstractTestBase {
      * @param g: Given - returns a context
      * @param t: Then - validates given a context/ProjectModelJ
      */
-    protected fun gwt(g: () -> ProjectModelJ, t: (p: ProjectModelJ) -> Unit) {
+    protected fun gwt(g: () -> ProjectModel, t: (p: ProjectModel) -> Unit) {
         val context = g()
 
         LOGGER.debug("context: {}", context)
 
-        POMOperatorJ.modify(context)
+        POMOperator.modify(context)
 
         LOGGER.debug("context after: {}", context)
 
         t(context)
     }
 
-    protected fun gwt(name: String, pmf: ProjectModelFactoryJ): ProjectModelJ =
+    protected fun gwt(name: String, pmf: ProjectModelFactory): ProjectModel =
         gwt(name, pmf.build())
 
-    protected fun gwt(testName: String, context: ProjectModelJ): ProjectModelJ {
+    protected fun gwt(testName: String, context: ProjectModel): ProjectModel {
         val resultFile = "pom-$testName-result.xml"
         val resource = this.javaClass.javaClass.getResource(resultFile)
 
@@ -52,7 +52,7 @@ open class AbstractTestBase {
 
             LOGGER.debug("context: {}", context)
 
-            POMOperatorJ.modify(context)
+            POMOperator.modify(context)
 
             LOGGER.debug("context after: {}", context)
 
@@ -68,7 +68,7 @@ open class AbstractTestBase {
 
             LOGGER.debug("context: {}", context)
 
-            POMOperatorJ.modify(context)
+            POMOperator.modify(context)
 
             LOGGER.debug("context after: {}", context)
 
