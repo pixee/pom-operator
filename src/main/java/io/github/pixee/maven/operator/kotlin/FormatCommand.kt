@@ -85,22 +85,14 @@ class FormatCommand : AbstractCommandJ() {
         var xmlRepresentation = pom.resultPom.asXML().toString()
 
         val originalElementMap = FormatCommandJ.elementBitSet(this.inputFactory, this.outputFactory, pom.originalPom)
-        val targetElementMap = FormatCommandJ.elementBitSet(this.inputFactory, this.outputFactory, xmlRepresentation.toByteArray())
+        val targetElementMap : BitSet= FormatCommandJ.elementBitSet(this.inputFactory, this.outputFactory, xmlRepresentation.toByteArray())
 
         // Let's find out the original empty elements from the original pom and store into a stack
-        val elementsToReplace: MutableList<MatchDataJ> = ArrayList<MatchDataJ>().apply {
-            val matches =
-                FormatCommandJ.findSingleElementMatchesFrom(pom.originalPom.toString(pom.charset)).values
-
-            val filteredMatches =
-                matches.filter { it.hasAttributes == false && originalElementMap[it.range.first] }
-
-            this.addAll(filteredMatches)
-        }
+        val elementsToReplace: MutableList<MatchDataJ> = FormatCommandJ.getElementsToReplace(originalElementMap, pom)
 
         // Lets to the replacements backwards on the existing, current pom
-        val emptyElements = FormatCommandJ.findSingleElementMatchesFrom(xmlRepresentation)
-            .filter { targetElementMap[it.value.range.first] }
+        val link : LinkedHashMap<Int, MatchDataJ> = FormatCommandJ.findSingleElementMatchesFrom(xmlRepresentation)
+        val emptyElements : Map<Int, MatchDataJ> = FormatCommandJ.getEmptyElements(targetElementMap, xmlRepresentation)
 
         emptyElements.forEach { (_, match) ->
             val nextMatch = elementsToReplace.removeFirst()
@@ -168,9 +160,6 @@ class FormatCommand : AbstractCommandJ() {
     }
 
     companion object {
-
-        val RE_EMPTY_ELEMENT_NO_ATTRIBUTES =
-            Regex("""<([\p{Alnum}_\-.]+)>\s*</\1>|<([\p{Alnum}_\-.]+)\s*/>""")
 
         val LOGGER: Logger = LoggerFactory.getLogger(FormatCommand::class.java)
     }

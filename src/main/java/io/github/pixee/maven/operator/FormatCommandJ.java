@@ -394,4 +394,96 @@ public class FormatCommandJ {
     }
 
 
+    public static List<MatchDataJ> getElementsToReplace(BitSet originalElementMap, POMDocument pom){
+        // Let's find out the original empty elements from the original pom and store them in a stack
+        List<MatchDataJ> elementsToReplace = new ArrayList<>();
+        Map<Integer, MatchDataJ> singleElementMatches = FormatCommandJ.findSingleElementMatchesFrom(new String(pom.getOriginalPom(),pom.getCharset()));
+
+        for (MatchDataJ match : singleElementMatches.values()) {
+            if (!match.getHasAttributes() && originalElementMap.get(match.getRange().getFirst())) {
+                elementsToReplace.add(match);
+            }
+        }
+
+        return elementsToReplace;
+    }
+
+    public static Map<Integer, MatchDataJ> getEmptyElements(BitSet targetElementMap, String xmlRepresentation){
+        LinkedHashMap<Integer, MatchDataJ> emptyElements = new LinkedHashMap<>();
+        for (Map.Entry<Integer, MatchDataJ> entry : FormatCommandJ.findSingleElementMatchesFrom(xmlRepresentation).entrySet()) {
+            Integer key = entry.getKey();
+            MatchDataJ value = entry.getValue();
+
+            if (targetElementMap.get(value.getRange().getFirst())) {
+                emptyElements.put(key, value);
+            }
+        }
+
+        return emptyElements;
+    }
+
+    public static String serializePomFile(XMLInputFactory thisInputFactory, XMLOutputFactory outputFactory, List<MatchDataJ> singleElementsWithAttributes, POMDocument pom) throws XMLStreamException {
+        // Generate a String representation. We'll need to patch it up and apply back
+        // differences we recorded previously on the pom (see the pom member variables)
+        String xmlRepresentation = pom.getResultPom().asXML().toString();
+
+        BitSet originalElementMap = elementBitSet(thisInputFactory, outputFactory, pom.getOriginalPom());
+        BitSet targetElementMap = elementBitSet(thisInputFactory, outputFactory, xmlRepresentation.getBytes());
+
+        List<MatchDataJ> elementsToReplace = getElementsToReplace(originalElementMap, pom);
+
+        Map<Integer, MatchDataJ> emptyElements = getEmptyElements(targetElementMap, xmlRepresentation);
+
+        /*for (MatchDataJ match : emptyElements) {
+            if (!elementsToReplace.isEmpty()) {
+                MatchDataJ nextMatch = elementsToReplace.remove(0);
+                xmlRepresentation = xmlRepresentation.substring(0, match.getRange().getStart()) +
+                        nextMatch.getContent() +
+                        xmlRepresentation.substring(match.getRange().getLast());
+            }
+        }*/
+
+        return xmlRepresentation;
+
+        /*int lastIndex = 0;
+
+        singleElementsWithAttributes.sort(Comparator.comparingInt(matchDataJ -> matchDataJ.getRange().getFirst()));
+
+        for (MatchDataJ match : singleElementsWithAttributes) {
+            MatchResult representationMatch = match.getModifiedContent().find(xmlRepresentation, lastIndex);
+
+            if (null == representationMatch) {
+                LOGGER.warn("Failure on quoting: {}", match);
+            } else {
+                int start = representationMatch.getRange().getStart();
+                int end = representationMatch.getRange().getLast();
+
+                xmlRepresentation = xmlRepresentation.substring(0, start) + match.getContent() + xmlRepresentation.substring(end);
+                lastIndex = representationMatch.getRange().getFirst() + match.getContent().length();
+            }
+        }
+
+        XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+        XMLEventReader eventReader = inputFactory.createXMLEventReader(new ByteArrayInputStream(xmlRepresentation.getBytes(pom.getCharset())));
+
+        while (true){
+            XMLEvent event = eventReader.nextEvent();
+
+            if(event.isEndElement()){
+                EndElement endElementEvent = (EndElement) event;
+                int offset = endElementEvent.getLocation().getCharacterOffset();
+                xmlRepresentation = pom.getPreamble() + xmlRepresentation.substring(offset) + pom.getSuffix();
+                break;
+            }
+
+            if(!eventReader.hasNext()){
+                throw new IllegalStateException("Couldn't find document start");
+            }
+        }
+
+        byte[] serializedContent = xmlRepresentation.getBytes(pom.getCharset());
+
+        return serializedContent;*/
+    }
+
 }
