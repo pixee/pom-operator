@@ -81,7 +81,7 @@ public class POMDocumentJ {
     }
 
     public URL getPomPath() {
-        return this.getPomPath();
+        return this.pomPath;
     }
 
     public Document getPomDocument() {
