@@ -8,7 +8,7 @@ import io.github.pixee.maven.operator.ProjectModelJ
 import io.github.pixee.maven.operator.QueryTypeJ
 import io.github.pixee.maven.operator.WrongDependencyTypeExceptionJ
 import io.github.pixee.maven.operator.DependencyJ
-import io.github.pixee.maven.operator.POMDocumentJ
+import io.github.pixee.maven.operator.kotlin.POMDocument
 import org.junit.Test
 import java.io.File
 import kotlin.test.assertFalse
@@ -129,7 +129,7 @@ class POMOperatorMultipomTest : AbstractTestBase() {
         )
     }
 
-    fun copyFiles(context: ProjectModelJ): Map<POMDocumentJ, File> {
+    fun copyFiles(context: ProjectModelJ): Map<POMDocument, File> {
         var commonPath = File(context.pomFile.pomPath!!.toURI()).canonicalFile
 
         for (p in context.parentPomFiles) {

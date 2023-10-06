@@ -1,6 +1,8 @@
 package io.github.pixee.maven.operator;
 
 import com.github.zafarkhaja.semver.Version;
+import io.github.pixee.maven.operator.DependencyJ;
+import io.github.pixee.maven.operator.kotlin.POMDocument;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
@@ -28,7 +30,7 @@ public class UtilJ {
     private static final Logger LOGGER = LoggerFactory.getLogger(UtilJ.class);
     private static final Pattern PROPERTY_REFERENCE_PATTERN = Pattern.compile("^\\$\\{(.*)}$");
 
-    public static Element addIndentedElement(Element element, POMDocumentJ d, String name) {
+    public static Element addIndentedElement(Element element, POMDocument d, String name) {
         List<Node> contentList = element.content();
 
         int indentLevel = findIndentLevel(element);
@@ -71,7 +73,7 @@ public class UtilJ {
     public static void upgradeVersionNode(
             ProjectModelJ c,
             Element versionNode,
-            POMDocumentJ pomDocumentHoldingProperty
+            POMDocument pomDocumentHoldingProperty
     ) {
         if (c.getUseProperties()) {
             String propertyName = propertyName(c, versionNode);
@@ -93,13 +95,10 @@ public class UtilJ {
         }
     }
 
-    private static void upgradeProperty(ProjectModelJ c, POMDocumentJ d, String propertyName) {
+    private static void upgradeProperty(ProjectModelJ c, POMDocument d, String propertyName) {
         if (d.getResultPom().getRootElement().element("properties") == null) {
             addIndentedElement(d.getResultPom().getRootElement(), d, "properties");
         }
-
-        System.out.println(d.getPomDocument());
-        System.out.println(d.getResultPom());
 
         Element parentPropertyElement = d.getResultPom().getRootElement().element("properties");
 

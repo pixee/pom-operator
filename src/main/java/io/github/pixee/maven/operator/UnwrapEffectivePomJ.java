@@ -6,8 +6,6 @@ import org.apache.maven.model.building.ModelBuildingResult;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.URISyntaxException;
 import java.util.*;
 public class UnwrapEffectivePomJ extends AbstractVersionCommandJ{
 
@@ -26,11 +24,11 @@ public class UnwrapEffectivePomJ extends AbstractVersionCommandJ{
         }
     }
 
-    private boolean executeInternal(ProjectModelJ pm) throws ModelBuildingException, URISyntaxException {
+    private boolean executeInternal(ProjectModelJ pm) throws ModelBuildingException {
         EmbedderFacadeJ.EmbedderFacadeRequest request = new EmbedderFacadeJ.EmbedderFacadeRequest(
                 pm.getOffline(),
                 null,
-                pm.getPomFile().getFile(),
+                pm.getPomFile().getFile$pom_operator(),
                 null,
                 null
         );

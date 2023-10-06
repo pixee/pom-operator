@@ -1,5 +1,7 @@
 package io.github.pixee.maven.operator;
 
+import io.github.pixee.maven.operator.DependencyJ;
+import io.github.pixee.maven.operator.kotlin.POMDocument;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.dom4j.Element;
@@ -43,10 +45,10 @@ public class QueryByParsingJ extends AbstractQueryCommandJ {
 
     @Override
     public boolean execute(ProjectModelJ pm) {
-        List<POMDocumentJ> pomFilesByHierarchy = pm.allPomFiles();
+        List<POMDocument> pomFilesByHierarchy = pm.allPomFiles();
         Collections.reverse(pomFilesByHierarchy);
 
-        for (POMDocumentJ pomDocument : pomFilesByHierarchy) {
+        for (POMDocument pomDocument : pomFilesByHierarchy) {
             updateProperties(pomDocument);
             updateDependencyManagement(pomDocument);
             updateDependencies(pomDocument);
@@ -56,7 +58,7 @@ public class QueryByParsingJ extends AbstractQueryCommandJ {
         return true;
     }
 
-    private void updateDependencyManagement(POMDocumentJ pomDocument) {
+    private void updateDependencyManagement(POMDocument pomDocument) {
         Collection<DependencyJ> dependencyManagementDependenciesToAdd = new ArrayList<>();
 
         Element dependencyManagementElement = pomDocument.getPomDocument()
@@ -99,7 +101,7 @@ public class QueryByParsingJ extends AbstractQueryCommandJ {
         return null;
     }
 
-    private void updateDependencies(POMDocumentJ pomDocument) {
+    private void updateDependencies(POMDocument pomDocument) {
         Collection<DependencyJ> dependenciesToAdd = new ArrayList<>();
 
         Element dependenciesElement = pomDocument.getPomDocument()
@@ -143,7 +145,7 @@ public class QueryByParsingJ extends AbstractQueryCommandJ {
         Element child = parent.element(elementName);
         return child != null ? child.getText() : null;
     }
-    private void updateProperties(POMDocumentJ pomDocument) {
+    private void updateProperties(POMDocument pomDocument) {
         Map<String, String> propsDefined = ProjectModelJ.propertiesDefinedOnPomDocument(pomDocument);
 
         for (Map.Entry<String, String> entry : propsDefined.entrySet()) {

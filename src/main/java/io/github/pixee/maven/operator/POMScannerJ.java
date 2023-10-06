@@ -1,5 +1,9 @@
 package io.github.pixee.maven.operator;
 
+import io.github.pixee.maven.operator.EmbedderFacadeJ;
+import io.github.pixee.maven.operator.POMDocumentFactoryJ;
+import io.github.pixee.maven.operator.ProjectModelFactoryJ;
+import io.github.pixee.maven.operator.kotlin.POMDocument;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.building.ModelBuildingException;
@@ -12,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -41,7 +44,7 @@ public class POMScannerJ {
         }
 
         try {
-            List<POMDocumentJ> parentPomDocuments = parentPoms.stream()
+            List<POMDocument> parentPomDocuments = parentPoms.stream()
                     .map(file -> {
                         try {
                             return POMDocumentFactoryJ.load(file);
@@ -61,9 +64,9 @@ public class POMScannerJ {
 
     }
 
-    public static ProjectModelFactoryJ legacyScanFrom(File originalFile, File topLevelDirectory) throws DocumentException, IOException, URISyntaxException {
-        POMDocumentJ pomFile = POMDocumentFactoryJ.load(originalFile);
-        List<POMDocumentJ> parentPomFiles = new ArrayList<>();
+    public static ProjectModelFactoryJ legacyScanFrom(File originalFile, File topLevelDirectory) throws DocumentException, IOException {
+        POMDocument pomFile = POMDocumentFactoryJ.load(originalFile);
+        List<POMDocument> parentPomFiles = new ArrayList<>();
 
         Queue<Element> pomFileQueue = new LinkedList<>();
 
@@ -84,7 +87,7 @@ public class POMScannerJ {
         }
 
         Set<String> prevPaths = new HashSet<>();
-        POMDocumentJ prevPOMDocument = pomFile;
+        POMDocument prevPOMDocument = pomFile;
 
         while (!pomFileQueue.isEmpty()) {
             Element currentRelativePathElement = pomFileQueue.poll();
@@ -101,7 +104,7 @@ public class POMScannerJ {
             }
 
             if (prevPaths.contains(relativePath)) {
-                LOGGER.warn("loop: " + pomFile.getFile() + ", relativePath: " + relativePath);
+                LOGGER.warn("loop: " + pomFile.getFile$pom_operator() + ", relativePath: " + relativePath);
                 break;
             } else {
                 prevPaths.add(relativePath);
@@ -124,7 +127,7 @@ public class POMScannerJ {
                 break;
             }
 
-            POMDocumentJ newPomFile = POMDocumentFactoryJ.load(newPath.toFile());
+            POMDocument newPomFile = POMDocumentFactoryJ.load(newPath.toFile());
 
             boolean hasParent = newPomFile.getPomDocument().getRootElement().element("parent") != null;
             boolean hasRelativePath = newPomFile.getPomDocument().getRootElement().element("parent")

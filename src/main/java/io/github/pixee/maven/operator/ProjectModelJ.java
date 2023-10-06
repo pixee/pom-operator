@@ -1,5 +1,7 @@
 package io.github.pixee.maven.operator;
 
+import io.github.pixee.maven.operator.DependencyJ;
+import io.github.pixee.maven.operator.kotlin.POMDocument;
 import org.apache.commons.collections4.CollectionUtils;
 import org.dom4j.Element;
 import org.dom4j.Node;
@@ -8,8 +10,8 @@ import java.io.File;
 import java.util.*;
 
 public class ProjectModelJ {
-    private POMDocumentJ pomFile;
-    private List<POMDocumentJ> parentPomFiles;
+    private POMDocument pomFile;
+    private List<POMDocument> parentPomFiles;
     private DependencyJ dependency;
     private boolean skipIfNewer;
     private boolean useProperties;
@@ -23,8 +25,8 @@ public class ProjectModelJ {
 
 
     public ProjectModelJ(
-            POMDocumentJ pomFile,
-            List<POMDocumentJ> parentPomFiles,
+            POMDocument pomFile,
+            List<POMDocument> parentPomFiles,
             DependencyJ dependency,
             boolean skipIfNewer,
             boolean useProperties,
@@ -49,7 +51,7 @@ public class ProjectModelJ {
         this.modifiedByCommand = false;
     }
 
-    public static Map<String, String> propertiesDefinedOnPomDocument(POMDocumentJ pomFile) {
+    public static Map<String, String> propertiesDefinedOnPomDocument(POMDocument pomFile) {
         Map<String, String> rootProperties = new HashMap<>();
         List<Element> propertyElements = pomFile.getPomDocument().getRootElement().elements("properties");
         for (Element element : propertyElements) {
@@ -61,7 +63,7 @@ public class ProjectModelJ {
         return rootProperties;
     }
 
-    private Map<String, String> getPropertiesFromProfile(String profileName, POMDocumentJ pomFile) {
+    private Map<String, String> getPropertiesFromProfile(String profileName, POMDocument pomFile) {
         String expression = "/m:project/m:profiles/m:profile[./m:id[text()='" + profileName + "']]/m:properties";
         List<Node> propertiesElements =  UtilJ.selectXPathNodes(pomFile.getPomDocument(), expression);
 
@@ -78,11 +80,11 @@ public class ProjectModelJ {
         return newPropertiesToAppend;
     }
 
-    public Map<String, List<Pair<String, POMDocumentJ>>> propertiesDefinedByFile() {
-        Map<String, List<Pair<String, POMDocumentJ>>> result = new LinkedHashMap<>();
-        List<POMDocumentJ> allPomFiles = allPomFiles();
+    public Map<String, List<Pair<String, POMDocument>>> propertiesDefinedByFile() {
+        Map<String, List<Pair<String, POMDocument>>> result = new LinkedHashMap<>();
+        List<POMDocument> allPomFiles = allPomFiles();
 
-        for (POMDocumentJ pomFile : allPomFiles) {
+        for (POMDocument pomFile : allPomFiles) {
             Map<String, String> rootProperties = propertiesDefinedOnPomDocument(pomFile);
             Map<String, String> tempProperties = new LinkedHashMap<>(rootProperties);
 
@@ -109,7 +111,7 @@ public class ProjectModelJ {
                     result.put(key, new ArrayList<>());
                 }
 
-                List<Pair<String, POMDocumentJ>> definitionList = result.get(key);
+                List<Pair<String, POMDocument>> definitionList = result.get(key);
                 definitionList.add(new Pair<>(entry.getValue(), pomFile));
             }
         }
@@ -119,9 +121,9 @@ public class ProjectModelJ {
 
     public Map<String, String> resolvedProperties() {
         Map<String, String> result = new LinkedHashMap<>();
-        List<POMDocumentJ> allPomFiles = allPomFiles(); // Implement this method
+        List<POMDocument> allPomFiles = allPomFiles(); // Implement this method
 
-        for (POMDocumentJ pomFile : allPomFiles) {
+        for (POMDocument pomFile : allPomFiles) {
             Map<String, String> rootProperties = propertiesDefinedOnPomDocument(pomFile);
             result.putAll(rootProperties);
 
@@ -145,26 +147,26 @@ public class ProjectModelJ {
         return Collections.unmodifiableMap(result);
     }
 
-    public List<POMDocumentJ> allPomFiles() {
-        List<POMDocumentJ> allFiles = new ArrayList<>();
+    public List<POMDocument> allPomFiles() {
+        List<POMDocument> allFiles = new ArrayList<>();
         allFiles.add(pomFile);
         allFiles.addAll(parentPomFiles);
         return allFiles;
     }
 
-    public POMDocumentJ getPomFile() {
+    public POMDocument getPomFile() {
         return pomFile;
     }
 
-    public void setPomFile(POMDocumentJ pomFile) {
+    public void setPomFile(POMDocument pomFile) {
         this.pomFile = pomFile;
     }
 
-    public List<POMDocumentJ> getParentPomFiles() {
+    public List<POMDocument> getParentPomFiles() {
         return parentPomFiles;
     }
 
-    public void setParentPomFiles(List<POMDocumentJ> parentPomFiles) {
+    public void setParentPomFiles(List<POMDocument> parentPomFiles) {
         this.parentPomFiles = parentPomFiles;
     }
 
