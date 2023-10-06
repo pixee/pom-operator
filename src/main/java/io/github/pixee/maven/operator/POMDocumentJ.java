@@ -1,5 +1,6 @@
 package io.github.pixee.maven.operator;
 
+import io.github.pixee.maven.operator.kotlin.POMDocument;
 import lombok.EqualsAndHashCode;
 
 import lombok.Getter;
@@ -27,47 +28,120 @@ import java.nio.charset.Charset;
  * Original Content (originalPom)
  * Modified Content (resultPomBytes)
  */
-@EqualsAndHashCode
-@Getter
-@Setter
 public class POMDocumentJ {
-    private final byte[] originalPom;
-    private final URL pomPath;
-    private final Document pomDocument;
-    private Charset charset = Charset.defaultCharset();
-    private String endl = "\n";
-    private String indent = "  ";
-    private byte[] resultPomBytes = new byte[0];
-    private String preamble = "";
-    private String suffix = "";
-    private boolean dirty = false;
+
+    private byte[] originalPom;
+    private URL pomPath;
+    private Charset charset;
+    private String endl;
+    private String indent;
+    private byte[] resultPomBytes;
+    private String preamble;
+    private String suffix;
+    private boolean dirty;
+    private POMDocument pomDocument;
 
     public POMDocumentJ(byte[] originalPom, URL pomPath, Document pomDocument) {
+        this.pomDocument = new POMDocument(originalPom, pomPath, pomDocument, Charset.defaultCharset(), "\n", "  ", new byte[0], "", "");
+
         this.originalPom = originalPom;
         this.pomPath = pomPath;
-        this.pomDocument = pomDocument;
+        this.charset = Charset.defaultCharset();
+        this.endl = "\n";
+        this.indent = "  ";
+        this.resultPomBytes = new byte[0];
+        this.preamble = "";
+        this.suffix = "";
+        this.dirty = false;
     }
 
 
     public POMDocumentJ(byte[] originalPom, Document pomDocument) {
+
         this(originalPom, null, pomDocument);
     }
 
     public File getFile() throws URISyntaxException {
-        return new File(this.getPomPath().toURI());
+        return pomDocument.getFile$pom_operator();
     }
 
     public Document getResultPom() {
-        return (Document) pomDocument.clone();
-    }
-
-    public boolean getDirty(){
-        return dirty;
+        return pomDocument.getResultPom();
     }
 
     @Override
     public String toString() {
         return (pomPath == null) ? "missing" : "[POMDocument @ " + pomPath.toString() + "]";
+    }
+
+    public byte[] getOriginalPom() {
+        return this.originalPom;
+    }
+
+    public URL getPomPath() {
+        return this.getPomPath();
+    }
+
+    public Document getPomDocument() {
+        return pomDocument.getPomDocument();
+    }
+
+    public Charset getCharset() {
+        return this.charset;
+    }
+
+    public void setCharset(Charset charset) {
+        this.charset = charset;
+    }
+
+    public String getEndl() {
+        return this.endl;
+    }
+
+    public void setEndl(String endl) {
+        this.endl = endl;
+    }
+
+    public String getIndent() {
+        return this.indent;
+    }
+
+    public void setIndent(String indent) {
+        this.indent = indent;
+    }
+
+    public byte[] getResultPomBytes() {
+        return this.resultPomBytes;
+    }
+
+    public void setResultPomBytes(byte[] resultPomBytes) {
+        this.resultPomBytes = resultPomBytes;
+    }
+
+    public String getPreamble() {
+        return preamble;
+    }
+
+    public void setPreamble(String preamble) {
+        this.preamble = preamble;
+    }
+
+    public String getSuffix() {
+        return this.suffix;
+    }
+
+    public void setSuffix(String suffix) {
+        this.suffix = suffix;
+    }
+
+
+    public void setDirty(boolean dirty) {
+        this.dirty = dirty;
+    }
+
+
+    public boolean getDirty(){
+        return this.dirty;
     }
 }
 
