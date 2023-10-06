@@ -431,7 +431,7 @@ public class FormatCommandJ {
         return sb.toString();
     }
 
-    public static String serializePomFile(XMLInputFactory thisInputFactory, XMLOutputFactory outputFactory, List<MatchDataJ> singleElementsWithAttributes, POMDocument pom) throws XMLStreamException {
+    public static byte[] serializePomFile(XMLInputFactory thisInputFactory, XMLOutputFactory outputFactory, List<MatchDataJ> singleElementsWithAttributes, POMDocument pom) throws XMLStreamException {
         // Generate a String representation. We'll need to patch it up and apply back
         // differences we recorded previously on the pom (see the pom member variables)
         String xmlRepresentation = pom.getResultPom().asXML().toString();
@@ -452,10 +452,8 @@ public class FormatCommandJ {
             xmlRepresentation =  replaceRange(xmlRepresentation, match.getRange(), nextMatch.getContent());
         }
 
-        return xmlRepresentation;
 
-        // PROBABLEMENTE ABAJO SIRVE
-        /*int lastIndex = 0;
+        int lastIndex = 0;
 
         singleElementsWithAttributes.sort(Comparator.comparingInt(matchDataJ -> matchDataJ.getRange().getFirst()));
 
@@ -493,7 +491,7 @@ public class FormatCommandJ {
 
         byte[] serializedContent = xmlRepresentation.getBytes(pom.getCharset());
 
-        return serializedContent;*/
+        return serializedContent;
     }
 
 }

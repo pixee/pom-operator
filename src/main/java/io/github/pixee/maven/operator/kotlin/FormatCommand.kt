@@ -65,99 +65,12 @@ class FormatCommand : AbstractCommandJ() {
             /**
              * Serializes it back
              */
-            val content = serializePomFile(pomFile)
+            val content = FormatCommandJ.serializePomFile(inputFactory, outputFactory, singleElementsWithAttributes, pomFile)
 
             pomFile.resultPomBytes = content
         }
 
         return super.postProcess(pm)
-    }
-
-    /**
-     * Serialize a POM Document
-     *
-     * @param pom pom document
-     * @return bytes for the pom document
-     */
-    private fun serializePomFile(pom: POMDocument): ByteArray {
-        // Generate a String representation. We'll need to patch it up and apply back
-        // differences we recored previously on the pom (see the pom member variables)
-        /*var xmlRepresentation = pom.resultPom.asXML().toString()
-
-        val originalElementMap = FormatCommandJ.elementBitSet(this.inputFactory, this.outputFactory, pom.originalPom)
-        val targetElementMap : BitSet= FormatCommandJ.elementBitSet(this.inputFactory, this.outputFactory, xmlRepresentation.toByteArray())
-
-        // Let's find out the original empty elements from the original pom and store into a stack
-        val elementsToReplace: MutableList<MatchDataJ> = FormatCommandJ.getElementsToReplace(originalElementMap, pom)
-
-        // Lets to the replacements backwards on the existing, current pom
-        val emptyElements : Map<Int, MatchDataJ> = FormatCommandJ.getEmptyElements(targetElementMap, xmlRepresentation)
-
-        emptyElements.forEach { (_, match) ->
-            val nextMatch = elementsToReplace.removeFirst()
-
-            xmlRepresentation = FormatCommandJ.replaceRange(xmlRepresentation, match.range, nextMatch.content)
-        }*/
-
-        var xmlRepresentation = FormatCommandJ.serializePomFile(inputFactory, outputFactory, singleElementsWithAttributes, pom)
-
-        var lastIndex = 0
-
-        singleElementsWithAttributes.sortedBy { it.range.first }.forEach { match ->
-            //val index = xmlRepresentation.indexOf(match.modifiedContent!!, lastIndex)
-            val representationMatch = match.modifiedContent!!.find(xmlRepresentation, lastIndex)
-
-            if (null == representationMatch) {
-                LOGGER.warn("Failure on quoting: {}", match)
-            } else {
-                xmlRepresentation =
-                    xmlRepresentation.replaceRange(representationMatch.range, match.content)
-
-                lastIndex = representationMatch.range.first + match.content.length
-            }
-        }
-
-        /**
-         * We might need to replace the beginning of the POM with the same content
-         * from the very beginning
-         *
-         * Grab the same initial offset from the formatted element like we did
-         */
-        val inputFactory = XMLInputFactory.newInstance()
-        val eventReader = inputFactory.createXMLEventReader(
-            xmlRepresentation.toByteArray(pom.charset).inputStream()
-        )
-
-        while (true) {
-            val event = eventReader.nextEvent()
-
-            if (event.isEndElement) {
-                /**
-                 * Apply the formatting and tweak its XML Representation
-                 */
-                val endElementEvent = (event as EndElement)
-
-                val offset = endElementEvent.location.characterOffset
-
-                xmlRepresentation =
-                    pom.preamble + xmlRepresentation.substring(offset) + pom.suffix
-
-                break
-            }
-
-            /**
-             * This code shouldn't be unreachable at all
-             */
-            if (!eventReader.hasNext())
-                throw IllegalStateException("Couldn't find document start")
-        }
-
-        /**
-         * Serializes it back from (string to ByteArray)
-         */
-        val serializedContent = xmlRepresentation.toByteArray(pom.charset)
-
-        return serializedContent
     }
 
     companion object {
