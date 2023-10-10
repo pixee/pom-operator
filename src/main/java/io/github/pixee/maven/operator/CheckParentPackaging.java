@@ -37,7 +37,7 @@ public class CheckParentPackaging extends AbstractCommand {
         Collection<POMDocument> wrongParentPoms = pm.getParentPomFiles()
                 .stream()
                 .filter(pomFile -> !packagingTypePredicate(pomFile, "pom"))
-                .toList();
+                .collect(Collectors.toList());
 
         if (!wrongParentPoms.isEmpty()) {
             throw new WrongDependencyTypeException("Wrong packaging type for parentPom");

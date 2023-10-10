@@ -6,6 +6,7 @@ import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Facade for the POM Operator
@@ -60,7 +61,7 @@ public class POMOperator {
         }
 
         if (queryVersionResult.size() == 1) {
-            List<VersionDefinition> queryVersionResultList = queryVersionResult != null && !queryVersionResult.isEmpty() ? queryVersionResult.stream().toList() : Collections.emptyList();
+            List<VersionDefinition> queryVersionResultList = queryVersionResult != null && !queryVersionResult.isEmpty() ? queryVersionResult.stream().collect(Collectors.toList()) : Collections.emptyList();
             Version mappedVersion = mapVersion(queryVersionResultList.get(0).getValue());
 
             VersionQueryResponse returnValue = new VersionQueryResponse(mappedVersion, mappedVersion);
