@@ -2,9 +2,7 @@ package io.github.pixee.maven.operator;
 
 import kotlin.ranges.IntRange;
 import kotlin.text.Regex;
-import lombok.Getter;
 
-@Getter
 public class MatchData {
     private final IntRange range;
     private final String content;
@@ -31,6 +29,26 @@ public class MatchData {
 
     public boolean getHasAttributes() {
         return hasAttributes;
+    }
+
+    public IntRange getRange() {
+        return range;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public String getElementName() {
+        return elementName;
+    }
+
+    public boolean isHasAttributes() {
+        return hasAttributes;
+    }
+
+    public Regex getModifiedContent() {
+        return modifiedContent;
     }
 }
 

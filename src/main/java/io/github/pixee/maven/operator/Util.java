@@ -1,7 +1,6 @@
 package io.github.pixee.maven.operator;
 
 import com.github.zafarkhaja.semver.Version;
-import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
@@ -233,10 +232,12 @@ public class Util {
         return result;
     }
 
-    @SneakyThrows
     public static List<Node> selectXPathNodes(Node node, String expression)  {
-        //return Util.INSTANCE.selectXPathNodes(node, expression);
-        return createXPathExpression(expression).selectNodes(node);
+        try {
+            return createXPathExpression(expression).selectNodes(node);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static final SimpleNamespaceContext namespaceContext;

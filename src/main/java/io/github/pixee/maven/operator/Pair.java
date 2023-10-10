@@ -1,8 +1,5 @@
 package io.github.pixee.maven.operator;
 
-import lombok.Getter;
-
-@Getter
 public class Pair<K, V> {
     private final K first;
     private final V second;
@@ -12,4 +9,11 @@ public class Pair<K, V> {
         this.second = second;
     }
 
+    public K getFirst() {
+        return first;
+    }
+
+    public V getSecond() {
+        return second;
+    }
 }
