@@ -493,10 +493,7 @@ public class FormatCommand extends AbstractCommand {
             if (null == representationMatch) {
                 LOGGER.warn("Failure on quoting: {}", match);
             } else {
-                int start = representationMatch.getRange().getStart();
-                int end = representationMatch.getRange().getLast();
-
-                xmlRepresentation = xmlRepresentation.substring(0, start) + match.getContent() + xmlRepresentation.substring(end);
+                xmlRepresentation = replaceRange(xmlRepresentation, representationMatch.getRange(), match.getContent());
                 lastIndex = representationMatch.getRange().getFirst() + match.getContent().length();
             }
         }
